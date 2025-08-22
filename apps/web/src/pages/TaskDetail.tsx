@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { Inbox } from 'lucide-react';
+import { Icon } from '../lib/lucide-icon';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
 const labels: Record<string, string> = {
@@ -160,7 +160,7 @@ export default function TaskDetail() {
               </div>
             ) : (
               <div className="text-sm text-gray-500 flex items-center">
-                <Inbox className="h-4 w-4 mr-1" /> No supplier
+                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No supplier
               </div>
             )}
           </div>
@@ -174,7 +174,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Inbox className="h-4 w-4 mr-1" /> No attachments
+                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No attachments
               </div>
             )}
             <input type="file" />
@@ -191,7 +191,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Inbox className="h-4 w-4 mr-1" /> No comments
+                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No comments
               </div>
             )}
             <form onSubmit={submitComment} className="flex space-x-2">
@@ -228,7 +228,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center">
-                <Inbox className="h-4 w-4 mr-1" /> No audit entries
+                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No audit entries
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, ReactNode } from 'react';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
+import { Icon } from '../lib/lucide-icon';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
@@ -38,7 +38,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
             <div className="flex items-center justify-between mb-4">
               {title && <h2 className="text-lg font-semibold">{title}</h2>}
               <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-                <X className="h-4 w-4" />
+                <Icon name="X" className="h-4 w-4" />
               </Button>
             </div>
             {children}
