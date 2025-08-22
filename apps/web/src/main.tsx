@@ -14,12 +14,14 @@ import Login from './pages/Login';
 import TasksHub from './pages/TasksHub';
 import TaskDetail from './pages/TaskDetail';
 import './styles.css';
+import { useAuth } from './lib/use-auth';
 
 const qc = new QueryClient();
 
 function Protected({ children }: { children: JSX.Element }) {
-  const authed = document.cookie.includes('accessToken');
-  return authed ? children : <Navigate to="/login" replace />;
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user ? children : <Navigate to="/login" replace />;
 }
 
 function AppRoutes() {
