@@ -19,3 +19,14 @@ export async function getTask(id: string) {
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
+
+export async function updateTaskStatus(id: string, status: string) {
+  const r = await fetch(`${base}/tasks/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ status }),
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
