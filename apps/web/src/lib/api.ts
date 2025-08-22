@@ -30,3 +30,26 @@ export async function updateTaskStatus(id: string, status: string) {
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
+
+export async function createTask(data: any) {
+  const r = await fetch(`${base}/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function listUsers() {
+  const r = await fetch(`${base}/users`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function listSuppliers(q: string = '') {
+  const r = await fetch(`${base}/suppliers?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
