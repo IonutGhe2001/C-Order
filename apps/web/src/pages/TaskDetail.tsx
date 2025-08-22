@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
@@ -9,6 +9,7 @@ export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
   const { data: t } = useQuery({ queryKey: ['task', id], queryFn: () => getTask(id!) });
+  const { data: audit } = useQuery({ queryKey: ['task', id, 'audit'], queryFn: () => getTaskAudit(id!) });
 
   const update = useMutation({
     mutationFn: (data: any) => updateTask(id!, data),
@@ -120,8 +121,8 @@ export default function TaskDetail() {
           <div>
             <h2 className="font-medium mb-2">Audit Log</h2>
             <ul className="text-xs space-y-1 max-h-64 overflow-auto">
-              {t.audit?.map((a: any) => (
-                <li key={a.id}>{new Date(a.createdAt).toLocaleString()} - {a.user?.name || 'System'} {a.action}</li>
+              {audit?.items?.map((a: any) => (
+                <li key={a.id}>{a.user?.name || 'System'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>
               ))}
             </ul>
           </div>

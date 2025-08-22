@@ -23,7 +23,6 @@ export class TasksService {
         comments: { include: { author: true } },
         supplier: true,
         attachments: true,
-        audit: { include: { user: true } },
       },
     });
   }

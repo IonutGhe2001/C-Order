@@ -20,6 +20,12 @@ export async function getTask(id: string) {
   return r.json();
 }
 
+export async function getTaskAudit(id: string) {
+  const r = await fetch(`${base}/tasks/${id}/audit`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
 export async function updateTask(id: string, data: any) {
   const r = await fetch(`${base}/tasks/${id}`, {
     method: 'PATCH',
