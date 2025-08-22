@@ -6,7 +6,7 @@ import { AuditLogService } from './audit-log.service';
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
-  constructor(private tasks: TasksService, private audit: AuditLogService) {}
+  constructor(private tasks: TasksService, private auditLog: AuditLogService) {}
 
   @Get()
   async list(@Query() q: any) { return { items: await this.tasks.list(q) }; }
@@ -16,7 +16,7 @@ export class TasksController {
 
   @Get(':id/audit')
   async audit(@Param('id') id: string) {
-    return { items: await this.audit.list(id) };
+    return { items: await this.auditLog.list(id) };
   }
 
   @Post()
