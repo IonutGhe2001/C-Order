@@ -5,6 +5,10 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Modal from '../components/Modal';
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Badge } from '../components/ui/badge';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
 const labels: Record<string, string> = {
@@ -26,9 +30,14 @@ function TaskCard({ task }: { task: any }) {
       {...attributes}
       className={`bg-white p-2 rounded shadow mb-2 ${isDragging ? 'opacity-50' : ''}`}
     >
-      <a href={`/tasks/${task.id}`} className="text-blue-600 hover:underline">
-        {task.title}
-      </a>
+      <div className="flex items-center justify-between">
+        <a href={`/tasks/${task.id}`} className="text-blue-600 hover:underline">
+          {task.title}
+        </a>
+        <Badge variant={task.status.toLowerCase().replace('_','-')}>
+          {labels[task.status]}
+        </Badge>
+      </div>
     </div>
   );
 }
@@ -166,9 +175,9 @@ export default function TasksHub() {
       <main className="pt-14 ml-60 p-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold">Tasks</h1>
-          <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded">
+          <Button onClick={() => setOpen(true)}>
             + New Task
-          </button>
+          </Button>
         </div>
         <DndContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-5 gap-4">
@@ -182,12 +191,12 @@ export default function TasksHub() {
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
           <div>
             <label className="block text-sm font-medium">Title</label>
-            <input className="mt-1 w-full border p-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input className="mt-1" value={title} onChange={(e) => setTitle(e.target.value)} />
             {errors.title && <p className="text-red-600 text-sm">{errors.title}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Description</label>
-            <textarea className="mt-1 w-full border p-2" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Textarea className="mt-1" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -225,14 +234,14 @@ export default function TasksHub() {
           </div>
           <div>
             <label className="block text-sm font-medium">Due Date</label>
-            <input type="date" className="mt-1 w-full border p-2" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <Input type="date" className="mt-1" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             {errors.dueDate && <p className="text-red-600 text-sm">{errors.dueDate}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Supplier</label>
-            <input
+            <Input
               list="suppliers"
-              className="mt-1 w-full border p-2"
+              className="mt-1"
               value={supplierInput}
               onChange={handleSupplierChange}
             />
@@ -245,7 +254,7 @@ export default function TasksHub() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium">Budget</label>
-              <input type="number" className="mt-1 w-full border p-2" value={budget} onChange={(e) => setBudget(e.target.value)} />
+              <Input type="number" className="mt-1" value={budget} onChange={(e) => setBudget(e.target.value)} />
               {errors.budget && <p className="text-red-600 text-sm">{errors.budget}</p>}
             </div>
             <div>
@@ -260,12 +269,12 @@ export default function TasksHub() {
             </div>
           </div>
           <div className="flex justify-end space-x-2 pt-4">
-            <button type="button" className="px-4 py-2 rounded bg-gray-200" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
-            </button>
-            <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white">
+            </Button>
+            <Button type="submit">
               Save
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

@@ -1,4 +1,6 @@
 import React, { useEffect, ReactNode } from 'react';
+import { Button } from './ui/button';
+import { X } from 'lucide-react';
 
 interface ModalProps {
   open: boolean;
@@ -23,7 +25,9 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
       <div className="bg-white rounded shadow-lg w-full max-w-lg p-6">
         <div className="flex items-center justify-between mb-4">
           {title && <h2 className="text-lg font-semibold">{title}</h2>}
-          <button onClick={onClose} aria-label="Close" className="text-xl leading-none">&times;</button>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+            <X className="h-4 w-4" />
+          </Button>
         </div>
         {children}
       </div>

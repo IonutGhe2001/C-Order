@@ -1,4 +1,6 @@
 import React from 'react';
+import { Button } from './ui/button';
+import { User } from 'lucide-react';
 
 export default function Header() {
   return (
@@ -6,7 +8,9 @@ export default function Header() {
       <div className="text-xl font-bold">Procurement</div>
       <div className="flex items-center space-x-4">
         <span className="text-sm">User</span>
-        <button className="w-8 h-8 rounded-full bg-gray-200" aria-label="User menu"></button>
+        <Button size="icon" variant="outline" aria-label="User menu">
+          <User className="h-4 w-4" />
+        </Button>
       </div>
     </header>
   );

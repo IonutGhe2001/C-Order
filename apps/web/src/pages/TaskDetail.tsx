@@ -2,8 +2,18 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
+const labels: Record<string, string> = {
+  OPEN: 'Open',
+  IN_PROGRESS: 'In Progress',
+  BLOCKED: 'Blocked',
+  DONE: 'Done',
+  CANCELLED: 'Cancelled',
+};
 
 export default function TaskDetail() {
   const { id } = useParams();
@@ -58,7 +68,7 @@ export default function TaskDetail() {
     <div className="p-6 space-y-4">
       <a href="/tasks" className="text-sm underline">← Back</a>
       <div className="flex items-center space-x-4">
-        <input
+        <Input
           className="text-2xl font-semibold border-b focus:outline-none flex-1"
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -67,6 +77,13 @@ export default function TaskDetail() {
         <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
           {statuses.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
+        <Badge
+          variant={status
+            .toLowerCase()
+            .replace('_', '-') as 'open' | 'in-progress' | 'blocked' | 'done' | 'cancelled'}
+        >
+          {labels[status]}
+        </Badge>
       </div>
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -109,13 +126,13 @@ export default function TaskDetail() {
               ))}
             </ul>
             <form onSubmit={submitComment} className="flex space-x-2">
-              <input
+              <Input
                 value={comment}
                 onChange={e => setComment(e.target.value)}
-                className="flex-1 border rounded p-1 text-sm"
+                className="flex-1 text-sm"
                 placeholder="Add comment..."
               />
-              <button type="submit" className="px-2 py-1 bg-blue-600 text-white text-sm rounded">Send</button>
+              <Button type="submit" className="px-2 py-1 text-sm">Send</Button>
             </form>
           </div>
           <div>
