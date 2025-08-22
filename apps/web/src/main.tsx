@@ -1,0 +1,32 @@
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Login from './pages/Login';
+import TasksHub from './pages/TasksHub';
+import TaskDetail from './pages/TaskDetail';
+import './styles.css';
+
+const qc = new QueryClient();
+
+function Protected({ children }: { children: JSX.Element }) {
+  const authed = document.cookie.includes('accessToken');
+  return authed ? children : <Navigate to="/login" replace />;
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={qc}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/tasks" element={<Protected><TasksHub /></Protected>} />
+          <Route path="/tasks/:id" element={<Protected><TaskDetail /></Protected>} />
+          <Route path="*" element={<Navigate to="/tasks" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </React.StrictMode>
+);

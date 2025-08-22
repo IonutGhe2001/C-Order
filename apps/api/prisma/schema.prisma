@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  BUYER
+  VIEWER
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  password       String
+  name           String
+  role           Role     @default(VIEWER)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tasksOwned     Task[]   @relation("OwnerTasks")
+  assignedTasks  Task[]   @relation("TaskAssignees")
+
+  // inverse relations cerute de Prisma
+  comments       Comment[]
+  auditLogs      AuditLog[]
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  taxId     String?  @unique
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks     Task[]
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus  @default(OPEN)
+  priority    Priority    @default(MEDIUM)
+  dueDate     DateTime?
+  amount      Decimal?    @db.Decimal(12, 2)
+  currency    String?     @default("EUR")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  ownerId     String
+  owner       User        @relation("OwnerTasks", fields: [ownerId], references: [id])
+
+  supplierId  String?
+  supplier    Supplier?   @relation(fields: [supplierId], references: [id])
+
+  assignees   User[]      @relation("TaskAssignees")
+
+  tags        TaskTag[]
+  comments    Comment[]
+  attachments Attachment[]
+  audit       AuditLog[]
+}
+
+model Tag {
+  id    String   @id @default(cuid())
+  name  String   @unique
+  tasks TaskTag[]
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+  task   Task @relation(fields: [taskId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([taskId, tagId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  task      Task @relation(fields: [taskId], references: [id])
+  author    User @relation(fields: [authorId], references: [id])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  taskId    String
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+
+  task      Task @relation(fields: [taskId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  task      Task @relation(fields: [taskId], references: [id])
+  user      User @relation(fields: [userId], references: [id])
+}
