@@ -21,8 +21,18 @@ const labels: Record<string, string> = {
 export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
-  const { data: t, isLoading } = useQuery({ queryKey: ['task', id], queryFn: () => getTask(id!) });
-  const { data: audit } = useQuery({ queryKey: ['task', id, 'audit'], queryFn: () => getTaskAudit(id!) });
+  const {
+    data: t,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({ queryKey: ['task', id], queryFn: () => getTask(id!) });
+  const {
+    data: audit,
+    isLoading: auditLoading,
+    isError: auditError,
+    refetch: refetchAudit,
+  } = useQuery({ queryKey: ['task', id, 'audit'], queryFn: () => getTaskAudit(id!) });
 
   const update = useMutation({
     mutationFn: (data: any) => updateTask(id!, data),
@@ -65,7 +75,7 @@ export default function TaskDetail() {
     }
   };
 
-  if (isLoading || !t) {
+  if (isLoading) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -84,6 +94,20 @@ export default function TaskDetail() {
             <Skeleton className="h-64" />
           </div>
         </div>
+      </motion.div>
+    );
+  }
+
+  if (isError || !t) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        className="p-6 text-center space-y-4"
+      >
+        <p className="text-red-600">Failed to load task.</p>
+        <Button onClick={() => refetch()}>Retry</Button>
       </motion.div>
     );
   }
@@ -182,7 +206,21 @@ export default function TaskDetail() {
           </div>
           <div>
             <h2 className="font-medium mb-2">Audit Log</h2>
-            {audit?.items?.length ? (
+            {auditLoading ? (
+              <Skeleton className="h-32" />
+            ) : auditError ? (
+              <div className="text-sm text-red-600 flex items-center">
+                Failed to load audit log
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => refetchAudit()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : audit?.items?.length ? (
               <ul className="text-xs space-y-1 max-h-64 overflow-auto">
                 {audit.items.map((a: any) => (
                   <li key={a.id}>{a.user?.name || 'System'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>

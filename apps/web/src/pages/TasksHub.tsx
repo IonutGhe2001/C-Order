@@ -63,7 +63,7 @@ function Column({ id, tasks }: { id: string; tasks: any[] }) {
 }
 
 export default function TasksHub() {
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['tasks'],
     queryFn: () => listTasks(),
   });
@@ -82,8 +82,16 @@ export default function TasksHub() {
   const [currency, setCurrency] = useState('EUR');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers, enabled: open });
-  const suppliersQuery = useQuery({ queryKey: ['suppliers'], queryFn: () => listSuppliers(), enabled: open });
+  const usersQuery = useQuery({
+    queryKey: ['users'],
+    queryFn: listUsers,
+    enabled: open,
+  });
+  const suppliersQuery = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: () => listSuppliers(),
+    enabled: open,
+  });
 
   useEffect(() => {
     const grouped: Record<string, any[]> = statuses.reduce((acc, s) => ({ ...acc, [s]: [] }), {});
@@ -207,6 +215,11 @@ export default function TasksHub() {
               </div>
             ))}
           </div>
+          ) : isError ? (
+          <div className="text-center text-red-600">
+            Failed to load tasks.
+            <Button variant="outline" className="ml-2" onClick={() => refetch()}>Retry</Button>
+          </div>
         ) : (
           <DndContext onDragEnd={handleDragEnd}>
             <div className="grid grid-cols-5 gap-4">
@@ -252,14 +265,34 @@ export default function TasksHub() {
           </div>
           <div>
             <label className="block text-sm font-medium">Assignee</label>
-            <select className="mt-1 w-full border p-2" value={assignee} onChange={(e) => setAssignee(e.target.value)}>
-              <option value="">Select assignee</option>
-              {usersQuery.data?.items?.map((u: any) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
+            {usersQuery.isLoading ? (
+              <Skeleton className="h-10 w-full mt-1" />
+            ) : usersQuery.isError ? (
+              <div className="mt-1 text-red-600 text-sm flex items-center">
+                Failed to load users
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => usersQuery.refetch()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : (
+              <select
+                className="mt-1 w-full border p-2"
+                value={assignee}
+                onChange={(e) => setAssignee(e.target.value)}
+              >
+                <option value="">Select assignee</option>
+                {usersQuery.data?.items?.map((u: any) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            )}
             {errors.assignee && <p className="text-red-600 text-sm">{errors.assignee}</p>}
           </div>
           <div>
@@ -269,17 +302,38 @@ export default function TasksHub() {
           </div>
           <div>
             <label className="block text-sm font-medium">Supplier</label>
-            <Input
-              list="suppliers"
-              className="mt-1"
-              value={supplierInput}
-              onChange={handleSupplierChange}
-            />
-            <datalist id="suppliers">
-              {suppliersQuery.data?.items?.map((s: any) => (
-                <option key={s.id} value={s.name} />
-              ))}
-            </datalist>
+            {suppliersQuery.isLoading ? (
+              <Skeleton className="h-10 w-full mt-1" />
+            ) : (
+              <>
+                <Input
+                  list="suppliers"
+                  className="mt-1"
+                  value={supplierInput}
+                  onChange={handleSupplierChange}
+                />
+                {!suppliersQuery.isError && (
+                  <datalist id="suppliers">
+                    {suppliersQuery.data?.items?.map((s: any) => (
+                      <option key={s.id} value={s.name} />
+                    ))}
+                  </datalist>
+                )}
+                {suppliersQuery.isError && (
+                  <div className="text-red-600 text-sm mt-1 flex items-center">
+                    Failed to load suppliers
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="ml-2"
+                      onClick={() => suppliersQuery.refetch()}
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
