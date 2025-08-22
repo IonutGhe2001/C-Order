@@ -2,33 +2,39 @@ import { useState } from 'react';
 import { login } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { motion } from 'framer-motion';
+import { useToast } from '../components/ui/toaster';
 
 export default function Login(){
   const [email, setEmail] = useState('admin@corp.local');
   const [password, setPassword] = useState('admin123');
-  const [err, setErr] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   async function handleSubmit(){
     if (loading) return;
-    setErr('');
     setLoading(true);
     try {
       await login(email, password);
+      toast({ title: 'Logged in', variant: 'success' });
       window.location.href = '/tasks';
     } catch {
-      setErr('Invalid email or password');
+      toast({ title: 'Invalid email or password', variant: 'error' });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      className="min-h-screen flex items-center justify-center p-6"
+    >
       <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
         <h1 className="text-2xl font-semibold">Login</h1>
-        {err && <div className="text-red-600 text-sm">{err}</div>}
         <Input
           placeholder="email"
           autoFocus
@@ -59,6 +65,6 @@ export default function Login(){
           {loading ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
-    </div>
+    </motion.div>
   );
 }

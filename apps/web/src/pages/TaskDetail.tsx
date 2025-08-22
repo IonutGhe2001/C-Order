@@ -5,6 +5,9 @@ import { useState, useEffect, FormEvent } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import { Skeleton } from '../components/ui/skeleton';
+import { motion } from 'framer-motion';
+import { Inbox } from 'lucide-react';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
 const labels: Record<string, string> = {
@@ -18,7 +21,7 @@ const labels: Record<string, string> = {
 export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
-  const { data: t } = useQuery({ queryKey: ['task', id], queryFn: () => getTask(id!) });
+  const { data: t, isLoading } = useQuery({ queryKey: ['task', id], queryFn: () => getTask(id!) });
   const { data: audit } = useQuery({ queryKey: ['task', id, 'audit'], queryFn: () => getTaskAudit(id!) });
 
   const update = useMutation({
@@ -62,10 +65,36 @@ export default function TaskDetail() {
     }
   };
 
-  if (!t) return null;
+  if (isLoading || !t) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        className="p-6 space-y-4"
+      >
+        <Skeleton className="h-6 w-24" />
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-[150px]" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-64" />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
-    <div className="p-6 space-y-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      className="p-6 space-y-4"
+    >
       <a href="/tasks" className="text-sm underline">← Back</a>
       <div className="flex items-center space-x-4">
         <Input
@@ -105,26 +134,42 @@ export default function TaskDetail() {
                 {t.supplier.email && <div>{t.supplier.email}</div>}
                 {t.supplier.phone && <div>{t.supplier.phone}</div>}
               </div>
-            ) : <div className="text-sm text-gray-500">No supplier</div>}
+            ) : (
+              <div className="text-sm text-gray-500 flex items-center">
+                <Inbox className="h-4 w-4 mr-1" /> No supplier
+              </div>
+            )}
           </div>
           <div>
             <h2 className="font-medium mb-2">Attachments</h2>
-            <ul className="text-sm space-y-1 mb-2">
-              {t.attachments?.map((a: any) => (
-                <li key={a.id}><a className="underline" href={a.url}>{a.filename}</a></li>
-              ))}
-            </ul>
+            {t.attachments?.length ? (
+              <ul className="text-sm space-y-1 mb-2">
+                {t.attachments.map((a: any) => (
+                  <li key={a.id}><a className="underline" href={a.url}>{a.filename}</a></li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-500 flex items-center mb-2">
+                <Inbox className="h-4 w-4 mr-1" /> No attachments
+              </div>
+            )}
             <input type="file" />
           </div>
         </div>
         <div className="space-y-4">
           <div>
             <h2 className="font-medium mb-2">Comments</h2>
-            <ul className="space-y-2 text-sm mb-2 max-h-64 overflow-auto">
-              {t.comments?.map((c: any) => (
-                <li key={c.id}><b>{c.author?.name ?? 'Anon'}</b>: {c.body}</li>
-              ))}
-            </ul>
+            {t.comments?.length ? (
+              <ul className="space-y-2 text-sm mb-2 max-h-64 overflow-auto">
+                {t.comments.map((c: any) => (
+                  <li key={c.id}><b>{c.author?.name ?? 'Anon'}</b>: {c.body}</li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-500 flex items-center mb-2">
+                <Inbox className="h-4 w-4 mr-1" /> No comments
+              </div>
+            )}
             <form onSubmit={submitComment} className="flex space-x-2">
               <Input
                 value={comment}
@@ -137,14 +182,20 @@ export default function TaskDetail() {
           </div>
           <div>
             <h2 className="font-medium mb-2">Audit Log</h2>
-            <ul className="text-xs space-y-1 max-h-64 overflow-auto">
-              {audit?.items?.map((a: any) => (
-                <li key={a.id}>{a.user?.name || 'System'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>
-              ))}
-            </ul>
+            {audit?.items?.length ? (
+              <ul className="text-xs space-y-1 max-h-64 overflow-auto">
+                {audit.items.map((a: any) => (
+                  <li key={a.id}>{a.user?.name || 'System'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-500 flex items-center">
+                <Inbox className="h-4 w-4 mr-1" /> No audit entries
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

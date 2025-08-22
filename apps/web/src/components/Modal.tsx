@@ -1,6 +1,7 @@
 import React, { useEffect, ReactNode } from 'react';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
   open: boolean;
@@ -19,18 +20,31 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [open, onClose]);
 
-  if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded shadow-lg w-full max-w-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          {title && <h2 className="text-lg font-semibold">{title}</h2>}
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        {children}
-      </div>
-    </div>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded shadow-lg w-full max-w-lg p-6"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -20, opacity: 0 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              {title && <h2 className="text-lg font-semibold">{title}</h2>}
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

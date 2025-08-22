@@ -9,6 +9,10 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
+import { Skeleton } from '../components/ui/skeleton';
+import { useToast } from '../components/ui/toaster';
+import { motion } from 'framer-motion';
+import { Inbox } from 'lucide-react';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
 const labels: Record<string, string> = {
@@ -47,15 +51,19 @@ function Column({ id, tasks }: { id: string; tasks: any[] }) {
   return (
     <div ref={setNodeRef} className="bg-gray-100 p-4 rounded min-h-[200px] flex-1">
       <h2 className="font-semibold mb-2">{labels[id]}</h2>
-      {tasks.map((t) => (
-        <TaskCard key={t.id} task={t} />
-      ))}
+      {tasks.length === 0 ? (
+        <div className="text-sm text-gray-500 flex items-center justify-center h-20">
+          <Inbox className="h-4 w-4 mr-1" /> No tasks
+        </div>
+      ) : (
+        tasks.map((t) => <TaskCard key={t.id} task={t} />)
+      )}
     </div>
   );
 }
 
 export default function TasksHub() {
-  const { data, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['tasks'],
     queryFn: () => listTasks(),
   });
@@ -85,6 +93,8 @@ export default function TasksHub() {
     setColumns(grouped);
   }, [data]);
 
+  const toast = useToast();
+
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => updateTaskStatus(id, status),
     onSuccess: () => refetch(),
@@ -110,7 +120,9 @@ export default function TasksHub() {
       refetch();
       resetForm();
       setOpen(false);
+      toast({ title: 'Task created', variant: 'success' });
     },
+    onError: () => toast({ title: 'Failed to create task', variant: 'error' }),
   });
 
   const handleSupplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,21 +184,39 @@ export default function TasksHub() {
     <>
       <Header />
       <Sidebar />
-      <main className="pt-14 ml-60 p-6">
+      <motion.main
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        className="pt-14 ml-60 p-6"
+      >
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold">Tasks</h1>
           <Button onClick={() => setOpen(true)}>
             + New Task
           </Button>
         </div>
-        <DndContext onDragEnd={handleDragEnd}>
+        {isLoading ? (
           <div className="grid grid-cols-5 gap-4">
             {statuses.map((s) => (
-              <Column key={s} id={s} tasks={columns[s] || []} />
+              <div key={s} className="bg-gray-100 p-4 rounded min-h-[200px] flex-1">
+                <Skeleton className="h-6 w-32 mb-2" />
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 mb-2" />
+                ))}
+              </div>
             ))}
           </div>
-        </DndContext>
-      </main>
+        ) : (
+          <DndContext onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-5 gap-4">
+              {statuses.map((s) => (
+                <Column key={s} id={s} tasks={columns[s] || []} />
+              ))}
+            </div>
+          </DndContext>
+        )}
+      </motion.main>
       <Modal open={open} onClose={() => setOpen(false)} title="New Task">
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
           <div>

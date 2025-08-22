@@ -1,8 +1,15 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
+import { Toaster } from './components/ui/toaster';
 import Login from './pages/Login';
 import TasksHub from './pages/TasksHub';
 import TaskDetail from './pages/TaskDetail';
@@ -15,18 +22,28 @@ function Protected({ children }: { children: JSX.Element }) {
   return authed ? children : <Navigate to="/login" replace />;
 }
 
+function AppRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/tasks" element={<Protected><TasksHub /></Protected>} />
+        <Route path="/tasks/:id" element={<Protected><TaskDetail /></Protected>} />
+        <Route path="*" element={<Navigate to="/tasks" replace />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={qc}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-
-          <Route path="/tasks" element={<Protected><TasksHub /></Protected>} />
-          <Route path="/tasks/:id" element={<Protected><TaskDetail /></Protected>} />
-          <Route path="*" element={<Navigate to="/tasks" replace />} />
-        </Routes>
-      </BrowserRouter>
+      <Toaster>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </Toaster>
     </QueryClientProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
