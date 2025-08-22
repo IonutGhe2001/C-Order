@@ -20,12 +20,27 @@ export async function getTask(id: string) {
   return r.json();
 }
 
-export async function updateTaskStatus(id: string, status: string) {
+export async function updateTask(id: string, data: any) {
   const r = await fetch(`${base}/tasks/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ status }),
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export function updateTaskStatus(id: string, status: string) {
+  return updateTask(id, { status });
+}
+
+export async function addComment(id: string, body: string) {
+  const r = await fetch(`${base}/tasks/${id}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ body }),
   });
   if (!r.ok) throw new Error('Failed');
   return r.json();

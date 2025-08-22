@@ -18,4 +18,9 @@ export class TasksController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any) { return this.tasks.update(id, body); }
+
+  @Post(':id/comments')
+  addComment(@Param('id') id: string, @Body() body: any, @Req() req: any) {
+    return this.tasks.addComment(id, req.user.sub, body.body);
+  }
 }
