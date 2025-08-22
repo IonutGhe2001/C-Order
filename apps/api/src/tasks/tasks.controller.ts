@@ -1,5 +1,4 @@
-
-import { Controller, Get, Post, Param, Body, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, Patch } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 
@@ -16,4 +15,7 @@ export class TasksController {
 
   @Post()
   create(@Body() body: any, @Req() req: any) { return this.tasks.create(body, req.user.sub); }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() body: any) { return this.tasks.update(id, body); }
 }

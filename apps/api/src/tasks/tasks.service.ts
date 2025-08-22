@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskStatus } from '@prisma/client';
@@ -19,4 +18,12 @@ export class TasksService {
   }
   get(id: string) { return this.prisma.task.findUnique({ where: { id }, include: { comments: { include: { author: true } }, supplier: true } }); }
   create(data: any, ownerId: string) { return this.prisma.task.create({ data: { ...data, ownerId } }); }
+  update(id: string, data: any) {
+    const { status, priority, assignees, supplierId, dueDate, amount, currency } = data;
+    const updateData: any = { status, priority, dueDate, amount, currency };
+    if (assignees !== undefined) updateData.assignees = { set: assignees.map((userId: string) => ({ id: userId })) };
+    if (supplierId !== undefined)
+      updateData.supplier = supplierId ? { connect: { id: supplierId } } : { disconnect: true };
+    return this.prisma.task.update({ where: { id }, data: updateData, include: { supplier: true, assignees: true } });
+  }
 }
