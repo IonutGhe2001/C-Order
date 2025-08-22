@@ -9,7 +9,7 @@ export default function Header() {
       <div className="flex items-center space-x-4">
         <span className="text-sm">User</span>
         <Button size="icon" variant="outline" aria-label="User menu">
-          <Icon name="User" className="h-4 w-4" />
+          <Icon name="user" className="h-4 w-4" />
         </Button>
       </div>
     </header>

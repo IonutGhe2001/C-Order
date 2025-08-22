@@ -160,7 +160,7 @@ export default function TaskDetail() {
               </div>
             ) : (
               <div className="text-sm text-gray-500 flex items-center">
-                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No supplier
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> No supplier
               </div>
             )}
           </div>
@@ -174,7 +174,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No attachments
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> No attachments
               </div>
             )}
             <input type="file" />
@@ -191,7 +191,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No comments
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> No comments
               </div>
             )}
             <form onSubmit={submitComment} className="flex space-x-2">
@@ -228,7 +228,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center">
-                <Icon name="Inbox" className="h-4 w-4 mr-1" /> No audit entries
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> No audit entries
               </div>
             )}
           </div>

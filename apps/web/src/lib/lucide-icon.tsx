@@ -4,7 +4,7 @@ import dynamicIconImports from 'lucide-react/dynamicIconImports';
 
 export type IconName = keyof typeof dynamicIconImports;
 
-interface IconProps extends SVGProps<SVGSVGElement> {
+interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'ref'> {
   name: IconName;
 }
 

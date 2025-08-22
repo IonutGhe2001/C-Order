@@ -53,7 +53,7 @@ function Column({ id, tasks }: { id: string; tasks: any[] }) {
       <h2 className="font-semibold mb-2">{labels[id]}</h2>
       {tasks.length === 0 ? (
         <div className="text-sm text-gray-500 flex items-center justify-center h-20">
-          <Icon name="Inbox" className="h-4 w-4 mr-1" /> No tasks
+          <Icon name="inbox" className="h-4 w-4 mr-1" /> No tasks
         </div>
       ) : (
         tasks.map((t) => <TaskCard key={t.id} task={t} />)
