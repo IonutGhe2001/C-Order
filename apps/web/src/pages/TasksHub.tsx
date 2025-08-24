@@ -246,7 +246,7 @@ export default function TasksHub() {
             <label className="block text-sm font-medium">Description</label>
             <Textarea className="mt-1" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium">Status</label>
               <select className="mt-1 w-full border p-2" value={statusVal} onChange={(e) => setStatusVal(e.target.value)}>
@@ -340,7 +340,7 @@ export default function TasksHub() {
               </>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium">Budget</label>
               <Input type="number" className="mt-1" value={budget} onChange={(e) => setBudget(e.target.value)} />

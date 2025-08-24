@@ -30,7 +30,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded shadow-lg w-full max-w-lg p-6"
+            className="bg-white rounded shadow-lg w-full max-w-lg p-4 sm:p-6"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
