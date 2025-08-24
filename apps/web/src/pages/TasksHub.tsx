@@ -206,27 +206,31 @@ export default function TasksHub() {
           </Button>
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-5 gap-4">
-            {statuses.map((s) => (
-              <div key={s} className="bg-gray-100 p-4 rounded min-h-[200px] flex-1">
-                <Skeleton className="h-6 w-32 mb-2" />
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="h-16 mb-2" />
-                ))}
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {statuses.map((s) => (
+                <div key={s} className="bg-gray-100 p-4 rounded min-h-[200px] flex-1">
+                  <Skeleton className="h-6 w-32 mb-2" />
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 mb-2" />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-          ) : isError ? (
+        ) : isError ? (
           <div className="text-center text-red-600">
             Failed to load tasks.
             <Button variant="outline" className="ml-2" onClick={() => refetch()}>Retry</Button>
           </div>
         ) : (
           <DndContext onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-5 gap-4">
-              {statuses.map((s) => (
-                <Column key={s} id={s} tasks={columns[s] || []} />
-              ))}
+            <div className="overflow-x-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {statuses.map((s) => (
+                  <Column key={s} id={s} tasks={columns[s] || []} />
+                ))}
+              </div>
             </div>
           </DndContext>
         )}
