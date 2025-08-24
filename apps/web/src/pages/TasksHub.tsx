@@ -68,6 +68,7 @@ export default function TasksHub() {
     queryFn: () => listTasks(),
   });
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [columns, setColumns] = useState<Record<string, any[]>>({});
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -190,13 +191,13 @@ export default function TasksHub() {
 
   return (
     <>
-      <Header />
-      <Sidebar />
+      <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar isOpen={sidebarOpen} />
       <motion.main
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="pt-14 ml-60 p-6"
+        className="pt-14 md:ml-60 ml-0 p-6"
       >
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold">Tasks</h1>
