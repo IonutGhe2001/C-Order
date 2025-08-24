@@ -8,7 +8,6 @@ export default function Sidebar() {
     <aside className="fixed top-14 left-0 bottom-0 w-60 bg-gray-50 border-r p-4">
       <nav className="space-y-1">
         <NavLink to="/tasks" className={linkClass}>Tasks</NavLink>
-        <NavLink to="/suppliers" className={linkClass}>Suppliers</NavLink>
       </nav>
     </aside>
   );
