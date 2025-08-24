@@ -13,7 +13,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         >
           <Icon name="menu" className="h-5 w-5" />
         </button>
-        <div className="text-xl font-bold">Procurement</div>
+        <div className="text-xl font-bold">Task Manager</div>
       </div>
       <div className="flex items-center space-x-4">
         <span className="text-sm">User</span>
