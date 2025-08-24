@@ -4,5 +4,11 @@
   "packageManager": "pnpm@9.0.0",
   "workspaces": [
     "apps/*"
-  ]
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/api\" \"npm run dev -w apps/web\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
