@@ -11,11 +11,11 @@ import { Icon } from '../lib/lucide-icon';
 
 const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
 const labels: Record<string, string> = {
-  OPEN: 'Open',
-  IN_PROGRESS: 'In Progress',
-  BLOCKED: 'Blocked',
-  DONE: 'Done',
-  CANCELLED: 'Cancelled',
+  OPEN: 'Deschis',
+  IN_PROGRESS: 'În progres',
+  BLOCKED: 'Blocat',
+  DONE: 'Finalizat',
+  CANCELLED: 'Anulat',
 };
 
 export default function TaskDetail() {
@@ -106,8 +106,8 @@ export default function TaskDetail() {
         exit={{ opacity: 0, y: 20 }}
         className="p-6 text-center space-y-4"
       >
-        <p className="text-red-600">Failed to load task.</p>
-        <Button onClick={() => refetch()}>Retry</Button>
+        <p className="text-red-600">Încărcarea task-ului a eșuat.</p>
+        <Button onClick={() => refetch()}>Reîncearcă</Button>
       </motion.div>
     );
   }
@@ -119,7 +119,7 @@ export default function TaskDetail() {
       exit={{ opacity: 0, y: 20 }}
       className="p-6 space-y-4"
     >
-      <a href="/tasks" className="text-sm underline">← Back</a>
+      <a href="/tasks" className="text-sm underline">← Înapoi</a>
       <div className="flex items-center space-x-4">
         <Input
           className="text-2xl font-semibold border-b focus:outline-none flex-1"
@@ -128,7 +128,7 @@ export default function TaskDetail() {
           onBlur={saveTitle}
         />
         <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
-          {statuses.map(s => <option key={s} value={s}>{s}</option>)}
+          {statuses.map(s => <option key={s} value={s}>{labels[s]}</option>)}
         </select>
         <Badge
           variant={status
@@ -141,7 +141,7 @@ export default function TaskDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <h2 className="font-medium mb-2">Description</h2>
+            <h2 className="font-medium mb-2">Descriere</h2>
             <div
               contentEditable
               className="border rounded p-2 min-h-[150px]"
@@ -151,21 +151,7 @@ export default function TaskDetail() {
             ></div>
           </div>
           <div>
-            <h2 className="font-medium mb-2">Supplier</h2>
-            {t.supplier ? (
-              <div className="border rounded p-2 text-sm">
-                <div className="font-medium">{t.supplier.name}</div>
-                {t.supplier.email && <div>{t.supplier.email}</div>}
-                {t.supplier.phone && <div>{t.supplier.phone}</div>}
-              </div>
-            ) : (
-              <div className="text-sm text-gray-500 flex items-center">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> No supplier
-              </div>
-            )}
-          </div>
-          <div>
-            <h2 className="font-medium mb-2">Attachments</h2>
+            <h2 className="font-medium mb-2">Fișiere</h2>
             {t.attachments?.length ? (
               <ul className="text-sm space-y-1 mb-2">
                 {t.attachments.map((a: any) => (
@@ -174,7 +160,7 @@ export default function TaskDetail() {
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> No attachments
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> Niciun fișier
               </div>
             )}
             <input type="file" />
@@ -182,16 +168,16 @@ export default function TaskDetail() {
         </div>
         <div className="space-y-4">
           <div>
-            <h2 className="font-medium mb-2">Comments</h2>
+            <h2 className="font-medium mb-2">Comentarii</h2>
             {t.comments?.length ? (
               <ul className="space-y-2 text-sm mb-2 max-h-64 overflow-auto">
                 {t.comments.map((c: any) => (
-                  <li key={c.id}><b>{c.author?.name ?? 'Anon'}</b>: {c.body}</li>
+                  <li key={c.id}><b>{c.author?.name ?? 'Anonim'}</b>: {c.body}</li>
                 ))}
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> No comments
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> Niciun comentariu
               </div>
             )}
             <form onSubmit={submitComment} className="flex space-x-2">
@@ -199,36 +185,36 @@ export default function TaskDetail() {
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 className="flex-1 text-sm"
-                placeholder="Add comment..."
+                placeholder="Adaugă comentariu..."
               />
-              <Button type="submit" className="px-2 py-1 text-sm">Send</Button>
+              <Button type="submit" className="px-2 py-1 text-sm">Trimite</Button>
             </form>
           </div>
           <div>
-            <h2 className="font-medium mb-2">Audit Log</h2>
+            <h2 className="font-medium mb-2">Jurnal audit</h2>
             {auditLoading ? (
               <Skeleton className="h-32" />
             ) : auditError ? (
               <div className="text-sm text-red-600 flex items-center">
-                Failed to load audit log
+                Încărcarea jurnalului de audit a eșuat
                 <Button
                   variant="outline"
                   size="sm"
                   className="ml-2"
                   onClick={() => refetchAudit()}
                 >
-                  Retry
+                  Reîncearcă
                 </Button>
               </div>
             ) : audit?.items?.length ? (
               <ul className="text-xs space-y-1 max-h-64 overflow-auto">
                 {audit.items.map((a: any) => (
-                  <li key={a.id}>{a.user?.name || 'System'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>
+                  <li key={a.id}>{a.user?.name || 'Sistemul'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>
                 ))}
               </ul>
             ) : (
               <div className="text-sm text-gray-500 flex items-center">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> No audit entries
+                <Icon name="inbox" className="h-4 w-4 mr-1" /> Nicio intrare în jurnal
               </div>
             )}
           </div>

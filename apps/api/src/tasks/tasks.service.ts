@@ -12,7 +12,7 @@ export class TasksService {
         status: status as TaskStatus | undefined,
         OR: q ? [{ title: { contains: q, mode: 'insensitive' } }, { description: { contains: q, mode: 'insensitive' } }] : undefined,
       },
-      include: { supplier: true },
+      include: { supplier: true, owner: true },
       orderBy: { createdAt: 'desc' },
     });
   }
