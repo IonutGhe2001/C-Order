@@ -72,7 +72,6 @@ export default function TasksHub() {
     if (!title.trim()) errs.title = 'Titlul este obligatoriu';
     if (!assignee) errs.assignee = 'Responsabilul este obligatoriu';
     if (!dueDate) errs.dueDate = 'Data limită este obligatorie';
-    if (budget && isNaN(Number(budget))) errs.budget = 'Budget must be a number';
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
@@ -103,7 +102,8 @@ export default function TasksHub() {
         exit={{ opacity: 0, y: 20 }}
         className="pt-14 md:ml-60 ml-0 p-6"
       >
-        <h1 className="text-xl font-bold">Task-uri</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold">Task-uri</h1>
           <Button onClick={() => setOpen(true)}>+ Task nou</Button>
         </div>
         {isLoading ? (
