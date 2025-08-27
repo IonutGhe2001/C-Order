@@ -100,4 +100,14 @@ export class TasksController {
     if (!file) throw new BadRequestException('file is required');
     return this.tasks.updateAttachment(id, attId, file);
   }
+
+  @Post(':id/send-email')
+  sendEmail(
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const { to, subject, body: content, attachments } = body;
+    if (!Array.isArray(to)) throw new BadRequestException('to must be array');
+    return this.tasks.sendEmail(id, to, subject, content, attachments);
+  }
 }

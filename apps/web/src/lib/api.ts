@@ -95,6 +95,20 @@ export async function updateAttachment(
   return r.json();
 }
 
+export async function sendTaskEmail(
+  id: string,
+  data: { to: string[]; subject: string; body: string; attachments?: string[] },
+) {
+  const r = await fetch(`${base}/tasks/${id}/send-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
 export async function createTask(data: TaskPayload) {
   const r = await fetch(`${base}/tasks`, {
     method: 'POST',

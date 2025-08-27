@@ -1,11 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
+import { Textarea } from '../components/ui/textarea';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 
@@ -111,6 +112,10 @@ export default function TaskDetail() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['task', id] }),
   });
 
+  const emailMut = useMutation({
+    mutationFn: (data: any) => sendTaskEmail(id!, data),
+  });
+
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
   const orderTypesQuery = useQuery({ queryKey: ['vali', 'orderType'], queryFn: () => listVali('orderType') });
 
@@ -127,6 +132,10 @@ export default function TaskDetail() {
   const [productsReceivedDate, setProductsReceivedDate] = useState('');
   const [earlyDelivery, setEarlyDelivery] = useState(false);
   const [deliveryDate, setDeliveryDate] = useState('');
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailTo, setEmailTo] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
 
   useEffect(() => {
     if (t) {
@@ -139,11 +148,13 @@ export default function TaskDetail() {
       setOrderNumber(t.orderNumber || '');
       setAuthority(t.authority || '');
       setOrderType(t.orderType || '');
-      setProductsReceivedDate(t.productsReceivedDate ? t.productsReceivedDate.slice(0, 10) : '');
-      setDeliveryDate(t.deliveryDate ? t.deliveryDate.slice(0, 10) : '');
-      setEarlyDelivery(!!t.deliveryDate);
-    }
-  }, [t]);
+        setProductsReceivedDate(t.productsReceivedDate ? t.productsReceivedDate.slice(0, 10) : '');
+        setDeliveryDate(t.deliveryDate ? t.deliveryDate.slice(0, 10) : '');
+        setEarlyDelivery(!!t.deliveryDate);
+        setEmailSubject(`Task ${t.title}`);
+        setEmailBody(t.description || '');
+      }
+    }, [t]);
 
   const saveTitle = () => {
     if (title !== t?.title) update.mutate({ title });
@@ -202,6 +213,7 @@ export default function TaskDetail() {
   }
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -210,19 +222,20 @@ export default function TaskDetail() {
     >
       <a href="/tasks" className="text-sm underline">← Înapoi</a>
       <div className="flex items-center space-x-4">
-        <Input
-          className="text-2xl font-semibold border-b focus:outline-none flex-1"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          onBlur={saveTitle}
-        />
-        <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
-          {statuses.map(s => <option key={s} value={s}>{labels[s]}</option>)}
-        </select>
-        <Badge variant={statusVariants[status]}>
-          {labels[status]}
-        </Badge>
-      </div>
+          <Input
+            className="text-2xl font-semibold border-b focus:outline-none flex-1"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            onBlur={saveTitle}
+          />
+          <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
+            {statuses.map(s => <option key={s} value={s}>{labels[s]}</option>)}
+          </select>
+          <Badge variant={statusVariants[status]}>
+            {labels[status]}
+          </Badge>
+          <Button onClick={() => setEmailOpen(true)}>Trimite e-mail</Button>
+        </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium">Responsabili</label>
@@ -442,5 +455,41 @@ export default function TaskDetail() {
         </div>
       </div>
     </motion.div>
+      {emailOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-4 space-y-2 w-full max-w-lg">
+            <h2 className="text-lg font-medium mb-2">Trimite e-mail</h2>
+            <Input
+              placeholder="Destinatari (virgule)"
+              value={emailTo}
+              onChange={e => setEmailTo(e.target.value)}
+            />
+            <Input
+              placeholder="Subiect"
+              className="mt-2"
+              value={emailSubject}
+              onChange={e => setEmailSubject(e.target.value)}
+            />
+            <Textarea
+              className="mt-2 h-40"
+              value={emailBody}
+              onChange={e => setEmailBody(e.target.value)}
+            />
+            <div className="flex justify-end space-x-2 mt-2">
+              <Button variant="outline" onClick={() => setEmailOpen(false)}>Anulează</Button>
+              <Button onClick={() => {
+                emailMut.mutate({
+                  to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
+                  subject: emailSubject,
+                  body: emailBody,
+                  attachments: t.attachments?.map((a: any) => a.id),
+                });
+                setEmailOpen(false);
+              }}>Trimite</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
