@@ -52,7 +52,11 @@ function Filter({ column }: { column: any }) {
   );
 }
 
-export default function TasksDataTable() {
+export default function TasksDataTable({
+  quickFilter = '',
+}: {
+  quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
+}) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -107,8 +111,32 @@ export default function TasksDataTable() {
     return [selectColumn, ...taskColumns];
   }, []);
 
+  const filteredData = useMemo(() => {
+    const items: Task[] = (data?.items as Task[]) || [];
+    if (!quickFilter) return items;
+    const today = new Date();
+    return items.filter((t) => {
+      const due = t.dueDate ? new Date(t.dueDate) : undefined;
+      if (quickFilter === 'overdue') {
+        return !!due && due < today && t.status !== 'DONE';
+      }
+      if (quickFilter === 'today') {
+        return (
+          !!due &&
+          due.getFullYear() === today.getFullYear() &&
+          due.getMonth() === today.getMonth() &&
+          due.getDate() === today.getDate()
+        );
+      }
+      if (quickFilter === 'noAssignee') {
+        return !t.assignees || t.assignees.length === 0;
+      }
+      return true;
+    });
+  }, [data, quickFilter]);
+
   const table = useReactTable({
-    data: (data?.items as Task[]) || [],
+    data: filteredData,
     columns,
     state: {
       sorting,
