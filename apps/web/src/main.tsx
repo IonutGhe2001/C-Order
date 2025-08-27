@@ -15,6 +15,9 @@ import Login from './pages/Login';
 import TasksHub from './pages/TasksHub';
 import TaskDetail from './pages/TaskDetail';
 import Dashboard from './pages/Dashboard';
+import TasksBoard from './pages/TasksBoard';
+import TasksCalendar from './pages/TasksCalendar';
+import TasksTimeline from './pages/TasksTimeline';
 import './styles.css';
 import { useAuth } from './lib/use-auth';
 
@@ -34,6 +37,9 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
         <Route path="/tasks" element={<Protected><TasksHub /></Protected>} />
+        <Route path="/tasks/board" element={<Protected><TasksBoard /></Protected>} />
+        <Route path="/tasks/calendar" element={<Protected><TasksCalendar /></Protected>} />
+        <Route path="/tasks/timeline" element={<Protected><TasksTimeline /></Protected>} />
         <Route path="/tasks/:id" element={<Protected><TaskDetail /></Protected>} />
         <Route path="*" element={<Navigate to="/tasks" replace />} />
       </Routes>

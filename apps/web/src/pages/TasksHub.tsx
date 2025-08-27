@@ -11,6 +11,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Skeleton } from '../components/ui/skeleton';
 import { useToast } from '../components/ui/toaster';
 import { motion } from 'framer-motion';
+import { NavLink } from 'react-router-dom';
 
 const statuses = [
   'OPEN',
@@ -145,7 +146,43 @@ export default function TasksHub() {
       >
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold">Task-uri</h1>
-          <Button onClick={() => setOpen(true)}>+ Task nou</Button>
+          <div className="flex items-center space-x-2">
+            <div className="flex space-x-2 mr-2">
+              <NavLink
+                to="/tasks"
+                className={({ isActive }) =>
+                  `px-3 py-1 rounded ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200'}`
+                }
+              >
+                Listă
+              </NavLink>
+              <NavLink
+                to="/tasks/board"
+                className={({ isActive }) =>
+                  `px-3 py-1 rounded ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200'}`
+                }
+              >
+                Board
+              </NavLink>
+              <NavLink
+                to="/tasks/calendar"
+                className={({ isActive }) =>
+                  `px-3 py-1 rounded ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200'}`
+                }
+              >
+                Calendar
+              </NavLink>
+              <NavLink
+                to="/tasks/timeline"
+                className={({ isActive }) =>
+                  `px-3 py-1 rounded ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200'}`
+                }
+              >
+                Timeline
+              </NavLink>
+            </div>
+            <Button onClick={() => setOpen(true)}>+ Task nou</Button>
+          </div>
         </div>
         <TasksDataTable />
       </motion.main>
