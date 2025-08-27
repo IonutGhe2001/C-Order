@@ -10,13 +10,10 @@ export default {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
-        status: {
-          open: '#3b82f6',
-          'in-progress': '#f59e0b',
-          blocked: '#ef4444',
-          done: '#10b981',
-          cancelled: '#6b7280',
-        },
+        info: 'hsl(var(--info))',
+        success: 'hsl(var(--success))',
+        warning: 'hsl(var(--warning))',
+        danger: 'hsl(var(--danger))',
       },
       spacing: {
         0: '0px',

@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
+import { ThemeProvider } from 'next-themes';
 import { Toaster } from './components/ui/toaster';
 import Login from './pages/Login';
 import TasksHub from './pages/TasksHub';
@@ -40,12 +41,14 @@ function AppRoutes() {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={qc}>
-      <Toaster>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </Toaster>
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="light">
+      <QueryClientProvider client={qc}>
+        <Toaster>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </Toaster>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 );

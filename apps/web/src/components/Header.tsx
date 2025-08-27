@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTheme } from 'next-themes';
 import { Button } from './ui/button';
 import { Icon } from '../lib/lucide-icon';
 
 export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+  const { theme, setTheme } = useTheme();
   return (
-    <header className="fixed top-0 left-0 right-0 h-14 bg-white shadow flex items-center justify-between px-6 z-10">
+    <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center justify-between px-6 z-10">
       <div className="flex items-center space-x-4">
         <button
           className="sm:block md:hidden"
@@ -17,6 +19,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
       </div>
       <div className="flex items-center space-x-4">
         <span className="text-sm">User</span>
+        <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center justify-between px-6 z-10"></header>
         <Button size="icon" variant="outline" aria-label="User menu">
           <Icon name="user" className="h-4 w-4" />
         </Button>

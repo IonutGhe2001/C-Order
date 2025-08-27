@@ -1,0 +1,23 @@
+:root {
+  --info: 217 91% 60%;
+  --success: 142 69% 58%;
+  --warning: 38 92% 50%;
+  --danger: 0 84% 60%;
+  --density: 1;
+}
+
+
+[data-density='comfortable'] {
+  --density: 1;
+}
+
+[data-density='compact'] {
+  --density: 0.75;
+}
+
+.dark {
+  --info: 217 91% 70%;
+  --success: 142 69% 70%;
+  --warning: 38 92% 60%;
+  --danger: 0 84% 70%;
+}

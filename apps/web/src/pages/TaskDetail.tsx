@@ -9,6 +9,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { Textarea } from '../components/ui/textarea';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
+import { getStatusColor } from '../lib/status-colors';
 
 const statuses = [
   'OPEN',
@@ -27,15 +28,6 @@ const labels: Record<string, string> = {
   LIVRAT_PARTIAL: 'Livrat parțial',
   FINALIZAT: 'Finalizat',
   CANCELLED: 'Anulat',
-};
-const statusVariants: Record<string, any> = {
-  OPEN: 'open',
-  IN_PROGRESS: 'in-progress',
-  BLOCKED: 'blocked',
-  DONE: 'done',
-  LIVRAT_PARTIAL: 'in-progress',
-  FINALIZAT: 'done',
-  CANCELLED: 'cancelled',
 };
 
 function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
@@ -231,7 +223,7 @@ export default function TaskDetail() {
           <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
             {statuses.map(s => <option key={s} value={s}>{labels[s]}</option>)}
           </select>
-          <Badge variant={statusVariants[status]}>
+          <Badge variant={getStatusColor(status)}>
             {labels[status]}
           </Badge>
           <Button onClick={() => setEmailOpen(true)}>Trimite e-mail</Button>

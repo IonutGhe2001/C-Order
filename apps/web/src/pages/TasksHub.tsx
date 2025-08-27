@@ -10,6 +10,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
 import { useToast } from '../components/ui/toaster';
+import { getStatusColor } from '../lib/status-colors';
 import { motion } from 'framer-motion';
 
 const statuses = [
@@ -29,15 +30,6 @@ const labels: Record<string, string> = {
   LIVRAT_PARTIAL: 'Livrat parțial',
   FINALIZAT: 'Finalizat',
   CANCELLED: 'Anulat',
-};
-const statusVariants: Record<string, any> = {
-  OPEN: 'open',
-  IN_PROGRESS: 'in-progress',
-  BLOCKED: 'blocked',
-  DONE: 'done',
-  LIVRAT_PARTIAL: 'in-progress',
-  FINALIZAT: 'done',
-  CANCELLED: 'cancelled',
 };
 
 export default function TasksHub() {
@@ -225,7 +217,7 @@ export default function TasksHub() {
                   <td className="p-2">{task.title}</td>
                   <td className="p-2">{task.owner?.name || '-'}</td>
                   <td className="p-2">
-                    <Badge variant={statusVariants[task.status]}>
+                    <Badge variant={getStatusColor(task.status)}>
                       {labels[task.status]}
                     </Badge>
                   </td>
