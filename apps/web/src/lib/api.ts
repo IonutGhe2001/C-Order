@@ -70,8 +70,8 @@ export async function addComment(id: string, body: string) {
   return r.json();
 }
 
-export async function createTask(data: any) {
-  export async function createTask(data: TaskPayload) {
+export async function createTask(data: TaskPayload) {
+  const r = await fetch(`${base}/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
