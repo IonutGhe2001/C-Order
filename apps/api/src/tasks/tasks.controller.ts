@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, Patch, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, Patch, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 import { AuditLogService } from './audit-log.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
@@ -86,5 +88,16 @@ export class TasksController {
   @Post(':id/comments')
   addComment(@Param('id') id: string, @Body() body: any, @Req() req: any) {
     return this.tasks.addComment(id, req.user.sub, body.body);
+  }
+
+  @Patch(':id/attachments/:attId')
+  @UseInterceptors(FileInterceptor('file'))
+  updateAttachment(
+    @Param('id') id: string,
+    @Param('attId') attId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('file is required');
+    return this.tasks.updateAttachment(id, attId, file);
   }
 }

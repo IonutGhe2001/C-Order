@@ -1,6 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskStatus } from '@prisma/client';
+import { promises as fs } from 'fs';
+import { join } from 'path';
+import { Express } from 'express';
 
 const statusValues = Object.values(TaskStatus);
 
@@ -159,5 +162,24 @@ export class TasksService {
       data: { taskId, authorId, body },
       include: { author: true },
     });
+  }
+
+  async updateAttachment(taskId: string, attId: string, file: Express.Multer.File) {
+    const uploadDir = join(process.cwd(), 'uploads');
+    await fs.mkdir(uploadDir, { recursive: true });
+    const filename = `${Date.now()}-${file.originalname}`;
+    const filepath = join(uploadDir, filename);
+    await fs.writeFile(filepath, file.buffer);
+    const data = {
+      filename: file.originalname,
+      url: `/uploads/${filename}`,
+      mimeType: file.mimetype,
+      size: file.size,
+      taskId,
+    };
+    if (attId === 'new') {
+      return this.prisma.attachment.create({ data });
+    }
+    return this.prisma.attachment.update({ where: { id: attId }, data });
   }
 }

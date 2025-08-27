@@ -79,6 +79,22 @@ export async function addComment(id: string, body: string) {
   return r.json();
 }
 
+export async function updateAttachment(
+  taskId: string,
+  attId: string,
+  file: File,
+) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const r = await fetch(`${base}/tasks/${taskId}/attachments/${attId}`, {
+    method: 'PATCH',
+    credentials: 'include',
+    body: fd,
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
 export async function createTask(data: TaskPayload) {
   const r = await fetch(`${base}/tasks`, {
     method: 'POST',

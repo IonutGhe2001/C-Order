@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -37,6 +37,48 @@ const statusVariants: Record<string, any> = {
   CANCELLED: 'cancelled',
 };
 
+function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
+  const [content, setContent] = useState('');
+  const isText = attachment.mimeType?.startsWith('text/');
+  useEffect(() => {
+    if (isText) {
+      fetch(attachment.url)
+        .then((r) => r.text())
+        .then(setContent);
+    }
+  }, [attachment]);
+  if (isText) {
+    return (
+      <div>
+        <textarea
+          className="w-full h-32 border"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <Button
+          size="sm"
+          className="mt-2"
+          onClick={() => {
+            const blob = new Blob([content], { type: attachment.mimeType });
+            const file = new File([blob], attachment.filename, { type: attachment.mimeType });
+            onSave(file);
+          }}
+        >
+          Salvează
+        </Button>
+      </div>
+    );
+  }
+  if (attachment.mimeType?.startsWith('image/') || attachment.mimeType === 'application/pdf') {
+    return <iframe src={attachment.url} title={attachment.filename} className="w-full h-64 border" />;
+  }
+  return (
+    <a className="underline" href={attachment.url}>
+      {attachment.filename}
+    </a>
+  );
+}
+
 export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
@@ -60,6 +102,12 @@ export default function TaskDetail() {
 
   const commentMut = useMutation({
     mutationFn: (body: string) => addComment(id!, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['task', id] }),
+  });
+
+  const attachmentMut = useMutation({
+    mutationFn: ({ attId, file }: { attId: string; file: File }) =>
+      updateAttachment(id!, attId, file),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['task', id] }),
   });
 
@@ -315,9 +363,14 @@ export default function TaskDetail() {
           <div>
             <h2 className="font-medium mb-2">Fișiere</h2>
             {t.attachments?.length ? (
-              <ul className="text-sm space-y-1 mb-2">
+              <ul className="space-y-4 mb-2">
                 {t.attachments.map((a: any) => (
-                  <li key={a.id}><a className="underline" href={a.url}>{a.filename}</a></li>
+                  <li key={a.id}>
+                    <AttachmentView
+                      attachment={a}
+                      onSave={(file: File) => attachmentMut.mutate({ attId: a.id, file })}
+                    />
+                  </li>
                 ))}
               </ul>
             ) : (
@@ -325,7 +378,13 @@ export default function TaskDetail() {
                 <Icon name="inbox" className="h-4 w-4 mr-1" /> Niciun fișier
               </div>
             )}
-            <input type="file" />
+            <input
+              type="file"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) attachmentMut.mutate({ attId: 'new', file: f });
+              }}
+            />
           </div>
         </div>
         <div className="space-y-4">
