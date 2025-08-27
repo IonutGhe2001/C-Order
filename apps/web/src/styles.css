@@ -1,12 +1,11 @@
 @import './styles/theme.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 @layer base {
   body {
-    @apply font-sans;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
 
@@ -18,11 +17,20 @@
 
 @layer utilities {
   .shimmer {
-    @apply relative overflow-hidden;
+    position: relative;
+    overflow: hidden;
   }
   .shimmer::after {
     content: "";
-    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
     animation: shimmer 1.5s infinite;
   }
   @media (prefers-reduced-motion: reduce) {
