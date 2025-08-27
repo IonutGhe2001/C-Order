@@ -1,8 +1,8 @@
 :root {
-  --info: 217 91% 60%;
-  --success: 142 69% 58%;
-  --warning: 38 92% 50%;
-  --danger: 0 84% 60%;
+  --info: 217 91% 45%;
+  --success: 142 69% 35%;
+  --warning: 38 92% 40%;
+  --danger: 0 84% 40%;
   --density: 1;
 }
 
@@ -16,8 +16,8 @@
 }
 
 .dark {
-  --info: 217 91% 70%;
-  --success: 142 69% 70%;
-  --warning: 38 92% 60%;
-  --danger: 0 84% 70%;
+  --info: 217 91% 60%;
+  --success: 142 69% 55%;
+  --warning: 38 92% 50%;
+  --danger: 0 84% 55%;
 }

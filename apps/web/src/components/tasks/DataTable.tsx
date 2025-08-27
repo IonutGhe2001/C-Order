@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -186,6 +186,23 @@ export default function TasksDataTable({
   const [bulkDueDate, setBulkDueDate] = useState('');
 
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
+  const rowRefs = useRef<HTMLTableRowElement[]>([]);
+  const handleRowKeyDown = (
+    e: React.KeyboardEvent<HTMLTableRowElement>,
+    index: number,
+    id: string
+  ) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigate(`/tasks/${id}`);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      rowRefs.current[index + 1]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      rowRefs.current[index - 1]?.focus();
+    }
+  };
 
   const handleBulkApply = () => {
     const payload: Partial<TaskPayload> = {};
@@ -401,11 +418,14 @@ export default function TasksDataTable({
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row) => (
+              {table.getRowModel().rows.map((row, i) => (
                 <tr
                   key={row.id}
-                  className="border-t hover:bg-gray-50 cursor-pointer"
+                  ref={(el) => (rowRefs.current[i] = el!)}
+                  tabIndex={0}
+                  className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={() => navigate(`/tasks/${row.original.id}`)}
+                  onKeyDown={(e) => handleRowKeyDown(e, i, row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="p-2">

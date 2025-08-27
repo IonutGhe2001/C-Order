@@ -4,7 +4,13 @@ import { cn } from "@/lib/utils";
 
 const Sheet = DialogPrimitive.Root;
 const SheetTrigger = DialogPrimitive.Trigger;
-const SheetClose = DialogPrimitive.Close;
+const SheetClose = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Close>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
+>(({ 'aria-label': ariaLabel = 'Close', ...props }, ref) => (
+  <DialogPrimitive.Close ref={ref} aria-label={ariaLabel} {...props} />
+));
+SheetClose.displayName = DialogPrimitive.Close.displayName;
 
 const SheetPortal = DialogPrimitive.Portal;
 
@@ -28,6 +34,7 @@ const SheetContent = React.forwardRef<
     <SheetOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      role="dialog"
       className={cn(
         "fixed inset-y-0 right-0 z-50 w-full max-w-md border-l bg-white p-6 shadow-lg",
         className

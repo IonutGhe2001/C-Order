@@ -32,7 +32,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className="sm:block md:hidden"
+                  className="sm:block md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={onToggleSidebar}
                   aria-label="Toggle sidebar"
                 >
@@ -72,7 +72,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
               <TooltipTrigger asChild>
                 <a
                   href="/help"
-                  className="p-2 text-gray-600 hover:text-gray-900"
+                  className="p-2 text-gray-600 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   aria-label="Help"
                 >
                   <Icon name="help-circle" className="h-4 w-4" />

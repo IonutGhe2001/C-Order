@@ -50,14 +50,22 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 overflow-hidden">
-        <Command label="Global Command Palette">
-          <Command.Input placeholder="Type a command or search..." />
+        <Command label="Global Command Palette" loop>
+          <Command.Input
+            autoFocus
+            placeholder="Type a command or search..."
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
           <Command.List>
             <Command.Empty>No results found.</Command.Empty>
             {viewsQuery.data && (
               <Command.Group heading="Views">
                 {viewsQuery.data.map((v) => (
-                  <Command.Item key={v.id} onSelect={() => onSelect(() => navigate(v.path))}>
+                  <Command.Item
+                    key={v.id}
+                    onSelect={() => onSelect(() => navigate(v.path))}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
                     {v.name}
                   </Command.Item>
                 ))}
@@ -66,7 +74,11 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
             {tasksQuery.data?.items && (
               <Command.Group heading="Tasks">
                 {tasksQuery.data.items.map((t: any) => (
-                  <Command.Item key={t.id} onSelect={() => onSelect(() => navigate(`/tasks/${t.id}`))}>
+                  <Command.Item
+                    key={t.id}
+                    onSelect={() => onSelect(() => navigate(`/tasks/${t.id}`))}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
                     {t.title}
                   </Command.Item>
                 ))}
@@ -75,7 +87,11 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
             {usersQuery.data?.items && (
               <Command.Group heading="Users">
                 {usersQuery.data.items.map((u: any) => (
-                  <Command.Item key={u.id} onSelect={() => onSelect(() => navigate(`/users/${u.id}`))}>
+                  <Command.Item
+                    key={u.id}
+                    onSelect={() => onSelect(() => navigate(`/users/${u.id}`))}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
                     {u.name}
                   </Command.Item>
                 ))}
@@ -84,7 +100,11 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
             {suppliersQuery.data?.items && (
               <Command.Group heading="Suppliers">
                 {suppliersQuery.data.items.map((s: any) => (
-                  <Command.Item key={s.id} onSelect={() => onSelect(() => navigate(`/suppliers/${s.id}`))}>
+                  <Command.Item
+                    key={s.id}
+                    onSelect={() => onSelect(() => navigate(`/suppliers/${s.id}`))}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
                     {s.name}
                   </Command.Item>
                 ))}
