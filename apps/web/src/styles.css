@@ -9,3 +9,25 @@
     @apply font-sans;
   }
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer utilities {
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  .shimmer::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+    animation: shimmer 1.5s infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer::after {
+      animation: none;
+    }
+  }
+}

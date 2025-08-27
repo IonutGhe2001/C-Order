@@ -1,6 +1,12 @@
 import React, { useEffect, ReactNode } from 'react';
 import { Button } from './ui/button';
 import { Icon } from '../lib/lucide-icon';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from './ui/tooltip';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
@@ -37,9 +43,16 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
           >
             <div className="flex items-center justify-between mb-4">
               {title && <h2 className="text-lg font-semibold">{title}</h2>}
-              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-                <Icon name="x" className="h-4 w-4" />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+                      <Icon name="x" className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Close</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             {children}
           </motion.div>

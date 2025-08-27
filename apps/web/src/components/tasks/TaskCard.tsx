@@ -13,7 +13,7 @@ interface Props {
 export default function TaskCard({ task, selected, onSelectChange, onClick }: Props) {
   return (
     <div
-      className="border rounded-md p-4 mb-2 cursor-pointer hover:bg-gray-50"
+      className="border rounded-md p-4 mb-2 cursor-pointer hover:bg-gray-50 transition-colors duration-200 motion-reduce:transition-none"
       onClick={onClick}
     >
       <div className="flex items-start justify-between gap-2">

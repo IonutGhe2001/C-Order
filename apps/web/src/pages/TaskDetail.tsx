@@ -6,6 +6,12 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '../components/ui/tooltip';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 import { getStatusColor } from '../lib/status-colors';
@@ -247,11 +253,34 @@ export default function TaskDetail() {
             onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon"><Icon name="share-2" className="h-4 w-4" /></Button>
-          <Button variant="outline" size="icon" onClick={() => setEmailOpen(true)}><Icon name="mail" className="h-4 w-4" /></Button>
-          <Button variant="ghost" size="icon"><Icon name="more-horizontal" className="h-4 w-4" /></Button>
-        </div>
+        <TooltipProvider>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Icon name="share-2" className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Share</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={() => setEmailOpen(true)}>
+                  <Icon name="mail" className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Email</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Icon name="more-horizontal" className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>More</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

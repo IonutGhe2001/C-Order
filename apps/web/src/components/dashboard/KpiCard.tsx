@@ -12,7 +12,7 @@ export default function KpiCard({ title, value, trend }: KpiCardProps) {
   const data = trend.map((v, i) => ({ index: i, value: v }));
   return (
     <Link to="/reports" className="block">
-      <Card className="p-4">
+      <Card className="p-4 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
         <Text>{title}</Text>
         <Metric className="mt-2">{value}</Metric>
         <SparkAreaChart
