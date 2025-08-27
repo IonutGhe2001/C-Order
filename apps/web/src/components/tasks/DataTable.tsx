@@ -11,6 +11,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  flexRender,
   useReactTable,
 } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
@@ -356,7 +357,7 @@ export default function TasksDataTable() {
                           className="flex items-center gap-2 cursor-pointer select-none"
                           onClick={header.column.getToggleSortingHandler()}
                         >
-                          {header.column.columnDef.header as any}
+                          {flexRender(header.column.columnDef.header, header.getContext())}
                           {header.column.getIsSorted() === 'asc' && '▲'}
                           {header.column.getIsSorted() === 'desc' && '▼'}
                         </div>
@@ -380,13 +381,7 @@ export default function TasksDataTable() {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="p-2">
-                      {cell.column.columnDef.cell
-                        ? (cell.column.columnDef.cell as any)({
-                            getValue: cell.getValue,
-                            row: cell.row,
-                            column: cell.column,
-                          })
-                        : (cell.getValue() as any)}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
                 </tr>
