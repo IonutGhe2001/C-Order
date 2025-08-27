@@ -120,7 +120,7 @@ export default function TasksBoard() {
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar isOpen={sidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="pt-14 md:ml-60 ml-0 p-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold">Task-uri</h1>

@@ -15,7 +15,7 @@ export default function TasksHub() {
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar isOpen={sidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <div className="p-4 md:ml-60 mt-14">
         <div className="flex justify-between mb-4 items-center">
           <h1 className="text-xl font-semibold">Tasks</h1>

@@ -14,6 +14,7 @@ import {
   flexRender,
   useReactTable,
 } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listTasks, listUsers, updateTask, TaskPayload } from '@/lib/api';
@@ -23,6 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import TaskCard from './TaskCard';
 import { Task, taskColumns, statusOptions } from './columns';
+import { Icon } from '@/lib/lucide-icon';
 
 function Filter({ column }: { column: any }) {
   const columnFilterValue = column.getFilterValue();
@@ -70,14 +72,16 @@ export default function TasksDataTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
-  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({});
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
+    right: ['actions'],
+  });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState('');
   const [showColumns, setShowColumns] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 640px)');
+    const mq = window.matchMedia('(max-width: 768px)');
     const handle = (e: MediaQueryListEvent | MediaQueryList) =>
       setIsMobile(e.matches);
     handle(mq);
@@ -108,8 +112,28 @@ export default function TasksDataTable({
       enableColumnFilter: false,
       size: 30,
     };
-    return [selectColumn, ...taskColumns];
-  }, []);
+    const actionColumn: ColumnDef<Task> = {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/tasks/${row.original.id}`);
+          }}
+          aria-label="View task"
+        >
+          <Icon name="more-horizontal" className="h-4 w-4" />
+        </Button>
+      ),
+      enableSorting: false,
+      enableColumnFilter: false,
+      size: 40,
+    };
+    return [selectColumn, ...taskColumns, actionColumn];
+  }, [navigate]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];
@@ -186,7 +210,14 @@ export default function TasksDataTable({
   const [bulkDueDate, setBulkDueDate] = useState('');
 
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
-  const rowRefs = useRef<HTMLTableRowElement[]>([]);
+  const rowRefs = useRef<Record<number, HTMLTableRowElement | null>>({});
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: table.getRowModel().rows.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 48,
+    overscan: 5,
+  });
   const handleRowKeyDown = (
     e: React.KeyboardEvent<HTMLTableRowElement>,
     index: number,
@@ -197,9 +228,11 @@ export default function TasksDataTable({
       navigate(`/tasks/${id}`);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
+      rowVirtualizer.scrollToIndex(index + 1);
       rowRefs.current[index + 1]?.focus();
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      rowVirtualizer.scrollToIndex(index - 1);
       rowRefs.current[index - 1]?.focus();
     }
   };
@@ -251,6 +284,13 @@ export default function TasksDataTable({
     newOrder.splice(to, 0, draggedId);
     setColumnOrder(newOrder);
   };
+
+  const virtualRows = rowVirtualizer.getVirtualItems();
+  const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
+  const paddingBottom =
+    virtualRows.length > 0
+      ? rowVirtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
+      : 0;
 
   if (isLoading) {
     return (
@@ -370,7 +410,7 @@ export default function TasksDataTable({
       )}
 
       {isMobile ? (
-        <div>
+        <div className="grid gap-2">
           {table.getRowModel().rows.map((row) => (
             <TaskCard
               key={row.id}
@@ -382,16 +422,18 @@ export default function TasksDataTable({
           ))}
         </div>
       ) : (
-        <div className="overflow-auto">
+        <div ref={tableContainerRef} className="overflow-auto">
           <table className="min-w-full border">
-            <thead>
+            <thead className="sticky top-0 bg-gray-50 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
                       colSpan={header.colSpan}
-                      className="p-2 border-b text-left bg-gray-50"
+                      className={`p-2 border-b text-left ${
+                        header.column.id === 'actions' ? 'sticky right-0 bg-gray-50' : 'bg-gray-50'
+                      }`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, header.column)}
                       onDragOver={(e) => e.preventDefault()}
@@ -418,22 +460,43 @@ export default function TasksDataTable({
               ))}
             </thead>
             <tbody>
-              {table.getRowModel().rows.map((row, i) => (
-                <tr
-                  key={row.id}
-                  ref={(el) => (rowRefs.current[i] = el!)}
-                  tabIndex={0}
-                  className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  onClick={() => navigate(`/tasks/${row.original.id}`)}
-                  onKeyDown={(e) => handleRowKeyDown(e, i, row.original.id)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="p-2">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
+              {paddingTop > 0 && (
+                <tr>
+                  <td style={{ height: paddingTop }} />
                 </tr>
-              ))}
+              )}
+              {virtualRows.map((virtualRow) => {
+                const row = table.getRowModel().rows[virtualRow.index];
+                return (
+                  <tr
+                    key={row.id}
+                    ref={(el) => {
+                      rowRefs.current[virtualRow.index] = el;
+                      if (el) rowVirtualizer.measureElement(el);
+                    }}
+                    tabIndex={0}
+                    className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    onClick={() => navigate(`/tasks/${row.original.id}`)}
+                    onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className={`p-2 ${
+                          cell.column.id === 'actions' ? 'sticky right-0 bg-white' : ''
+                        }`}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+              {paddingBottom > 0 && (
+                <tr>
+                  <td style={{ height: paddingBottom }} />
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
