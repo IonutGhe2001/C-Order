@@ -10,6 +10,7 @@ import { Textarea } from '../components/ui/textarea';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 import { getStatusColor } from '../lib/status-colors';
+import Breadcrumb from '../components/Breadcrumb';
 
 const statuses = [
   'OPEN',
@@ -212,7 +213,7 @@ export default function TaskDetail() {
       exit={{ opacity: 0, y: 20 }}
       className="p-6 space-y-4"
     >
-      <a href="/tasks" className="text-sm underline">← Înapoi</a>
+      <Breadcrumb items={[{ label: 'Task-uri', href: '/tasks' }, { label: t.title }]} />
       <div className="flex items-center space-x-4">
           <Input
             className="text-2xl font-semibold border-b focus:outline-none flex-1"

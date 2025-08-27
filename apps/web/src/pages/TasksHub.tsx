@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { listTasks, createTask, listUsers, listVali, TaskPayload } from '../lib/api';
 import Header from '../components/Header';
@@ -12,6 +13,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { useToast } from '../components/ui/toaster';
 import { getStatusColor } from '../lib/status-colors';
 import { motion } from 'framer-motion';
+import { Icon } from '../lib/lucide-icon';
 
 const statuses = [
   'OPEN',
@@ -33,6 +35,7 @@ const labels: Record<string, string> = {
 };
 
 export default function TasksHub() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({ q: '', orderDate: '', authority: '', status: '' });
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['tasks', filters],
@@ -213,7 +216,11 @@ export default function TasksHub() {
             </thead>
             <tbody>
               {data?.items?.length ? data.items.map((task: any) => (
-                <tr key={task.id} className="border-t">
+                <tr
+                  key={task.id}
+                  onClick={() => navigate(`/tasks/${task.id}`)}
+                  className="border-t hover:bg-gray-50 cursor-pointer"
+                >
                   <td className="p-2">{task.title}</td>
                   <td className="p-2">{task.owner?.name || '-'}</td>
                   <td className="p-2">
@@ -221,8 +228,14 @@ export default function TasksHub() {
                       {labels[task.status]}
                     </Badge>
                   </td>
-                  <td className="p-2">
-                    <a href={`/tasks/${task.id}`} className="text-blue-600 underline">Deschide</a>
+                  <td className="p-2" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="More options"
+                    >
+                      <Icon name="more-horizontal" className="h-4 w-4" />
+                    </Button>
                   </td>
                 </tr>
               )) : (
