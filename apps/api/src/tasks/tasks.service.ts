@@ -3,7 +3,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TaskStatus } from '@prisma/client';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { Express } from 'express';
+export interface UploadedFile {
+  originalname: string;
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+}
 
 const statusValues = Object.values(TaskStatus);
 
@@ -164,7 +169,7 @@ export class TasksService {
     });
   }
 
-  async updateAttachment(taskId: string, attId: string, file: Express.Multer.File) {
+  async updateAttachment(taskId: string, attId: string, file: UploadedFile) {
     const uploadDir = join(process.cwd(), 'uploads');
     await fs.mkdir(uploadDir, { recursive: true });
     const filename = `${Date.now()}-${file.originalname}`;
