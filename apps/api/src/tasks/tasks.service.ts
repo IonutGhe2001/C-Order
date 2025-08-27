@@ -6,12 +6,26 @@ import { TaskStatus } from '@prisma/client';
 export class TasksService {
   constructor(private prisma: PrismaService) {}
   list(params: any) {
-    const { status, q } = params;
+    const { q, status, orderDate, authority } = params;
+
+    const where: any = {
+      ...(status ? { status: status as TaskStatus } : {}),
+      ...(orderDate ? { orderDate: new Date(orderDate) } : {}),
+      ...(authority
+        ? { authority: { contains: authority, mode: 'insensitive' } }
+        : {}),
+      ...(q
+        ? {
+            OR: [
+              { title: { contains: q, mode: 'insensitive' } },
+              { description: { contains: q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
     return this.prisma.task.findMany({
-      where: {
-        status: status as TaskStatus | undefined,
-        OR: q ? [{ title: { contains: q, mode: 'insensitive' } }, { description: { contains: q, mode: 'insensitive' } }] : undefined,
-      },
+      where,
       include: { supplier: true, owner: true },
       orderBy: { createdAt: 'desc' },
     });

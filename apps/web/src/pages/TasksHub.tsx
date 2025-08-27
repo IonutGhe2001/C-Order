@@ -22,9 +22,10 @@ const labels: Record<string, string> = {
 };
 
 export default function TasksHub() {
+  const [filters, setFilters] = useState({ q: '', orderDate: '', authority: '', status: '' });
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => listTasks(),
+    queryKey: ['tasks', filters],
+    queryFn: () => listTasks(filters),
   });
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -138,6 +139,38 @@ export default function TasksHub() {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold">Task-uri</h1>
           <Button onClick={() => setOpen(true)}>+ Task nou</Button>
+        </div>
+        <div className="flex flex-wrap items-end gap-2 mb-4">
+          <Input
+            placeholder="Caută"
+            value={filters.q}
+            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+            className="w-40"
+          />
+          <Input
+            placeholder="Autoritate"
+            value={filters.authority}
+            onChange={(e) => setFilters({ ...filters, authority: e.target.value })}
+            className="w-40"
+          />
+          <Input
+            type="date"
+            value={filters.orderDate}
+            onChange={(e) => setFilters({ ...filters, orderDate: e.target.value })}
+            className="w-40"
+          />
+          <select
+            className="border p-2 rounded"
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+          >
+            <option value="">Status</option>
+            {statuses.map((s) => (
+              <option key={s} value={s}>
+                {labels[s]}
+              </option>
+            ))}
+          </select>
         </div>
         {isLoading ? (
           <table className="min-w-full border">
