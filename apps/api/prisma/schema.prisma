@@ -61,11 +61,18 @@ model Task {
   id          String      @id @default(cuid())
   title       String
   description String?
-  status      TaskStatus  @default(OPEN)
+  status      TaskStatus  @default(IN_PROGRESS)
   priority    Priority    @default(MEDIUM)
   dueDate     DateTime?
   amount      Decimal?    @db.Decimal(12, 2)
   currency    String?     @default("EUR")
+  orderDate            DateTime?
+  orderReceivedDate    DateTime?
+  orderNumber          String?
+  authority            String?
+  orderType            String?
+  productsReceivedDate DateTime?
+  deliveryDate         DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 

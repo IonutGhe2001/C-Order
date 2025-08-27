@@ -26,7 +26,58 @@ export class TasksService {
       },
     });
   }
-  create(data: any, ownerId: string) { return this.prisma.task.create({ data: { ...data, ownerId } }); }
+  create(data: any, ownerId: string) {
+    const {
+      assignees,
+      supplierId,
+      orderDate,
+      orderReceivedDate,
+      orderNumber,
+      authority,
+      orderType,
+      productsReceivedDate,
+      deliveryDate,
+      status,
+      priority,
+      dueDate,
+      amount,
+      currency,
+      title,
+      description,
+    } = data;
+
+    let computedDelivery = deliveryDate;
+    if (!computedDelivery && orderDate) {
+      const d = new Date(orderDate);
+      d.setDate(d.getDate() + 4);
+      computedDelivery = d;
+    }
+
+    const createData: any = {
+      status,
+      priority,
+      dueDate,
+      amount,
+      currency,
+      title,
+      description,
+      orderDate,
+      orderReceivedDate,
+      orderNumber,
+      authority,
+      orderType,
+      productsReceivedDate,
+      deliveryDate: computedDelivery,
+      ownerId,
+    };
+    if (assignees)
+      createData.assignees = { connect: assignees.map((userId: string) => ({ id: userId })) };
+    if (supplierId)
+      createData.supplier = { connect: { id: supplierId } };
+
+    return this.prisma.task.create({ data: createData, include: { supplier: true, assignees: true } });
+  }
+
   update(id: string, data: any) {
     const {
       status,
@@ -38,9 +89,39 @@ export class TasksService {
       currency,
       title,
       description,
+      orderDate,
+      orderReceivedDate,
+      orderNumber,
+      authority,
+      orderType,
+      productsReceivedDate,
+      deliveryDate,
     } = data;
-    const updateData: any = { status, priority, dueDate, amount, currency, title, description };
-    if (assignees !== undefined) updateData.assignees = { set: assignees.map((userId: string) => ({ id: userId })) };
+    const updateData: any = {
+      status,
+      priority,
+      dueDate,
+      amount,
+      currency,
+      title,
+      description,
+      orderDate,
+      orderReceivedDate,
+      orderNumber,
+      authority,
+      orderType,
+      productsReceivedDate,
+    };
+
+    if (deliveryDate !== undefined) updateData.deliveryDate = deliveryDate;
+    else if (orderDate) {
+      const d = new Date(orderDate);
+      d.setDate(d.getDate() + 4);
+      updateData.deliveryDate = d;
+    }
+
+    if (assignees !== undefined)
+      updateData.assignees = { set: assignees.map((userId: string) => ({ id: userId })) };
     if (supplierId !== undefined)
       updateData.supplier = supplierId ? { connect: { id: supplierId } } : { disconnect: true };
     return this.prisma.task.update({ where: { id }, data: updateData, include: { supplier: true, assignees: true } });
