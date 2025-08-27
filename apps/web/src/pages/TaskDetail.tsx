@@ -1,16 +1,22 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
-import { Textarea } from '../components/ui/textarea';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 import { getStatusColor } from '../lib/status-colors';
 import Breadcrumb from '../components/Breadcrumb';
+import RichEditor from '../components/tasks/RichEditor';
+import AssigneeChips from '../components/tasks/AssigneeChips';
+import OrderDeliveryPanel from '../components/tasks/OrderDeliveryPanel';
+import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
+import CommentsPanel from '../components/tasks/CommentsPanel';
+import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
+import EmailDrawer from '../components/tasks/EmailDrawer';
 
 const statuses = [
   'OPEN',
@@ -29,6 +35,12 @@ const labels: Record<string, string> = {
   LIVRAT_PARTIAL: 'Livrat parțial',
   FINALIZAT: 'Finalizat',
   CANCELLED: 'Anulat',
+};
+const priorities = ['LOW', 'MEDIUM', 'HIGH'];
+const priorityLabels: Record<string, string> = {
+  LOW: 'Scăzută',
+  MEDIUM: 'Medie',
+  HIGH: 'Ridicată',
 };
 
 function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
@@ -114,8 +126,9 @@ export default function TaskDetail() {
 
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState('');
+  const [priority, setPriority] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [desc, setDesc] = useState('');
-  const [comment, setComment] = useState('');
   const [assignees, setAssignees] = useState<string[]>([]);
   const [orderDate, setOrderDate] = useState('');
   const [orderReceivedDate, setOrderReceivedDate] = useState('');
@@ -134,6 +147,8 @@ export default function TaskDetail() {
     if (t) {
       setTitle(t.title);
       setStatus(t.status);
+      setPriority(t.priority || '');
+      setDueDate(t.dueDate ? t.dueDate.slice(0, 10) : '');
       setDesc(t.description || '');
       setAssignees(t.assignees?.map((a: any) => a.id) || []);
       setOrderDate(t.orderDate ? t.orderDate.slice(0, 10) : '');
@@ -160,14 +175,6 @@ export default function TaskDetail() {
     update.mutate({ status: s });
   };
   const save = (data: Partial<TaskPayload>) => update.mutate(data);
-  const submitComment = (e: FormEvent) => {
-    e.preventDefault();
-    if (comment.trim()) {
-      commentMut.mutate(comment.trim());
-      setComment('');
-    }
-  };
-
   if (isLoading) {
     return (
       <motion.div
@@ -214,7 +221,8 @@ export default function TaskDetail() {
       className="p-6 space-y-4"
     >
       <Breadcrumb items={[{ label: 'Task-uri', href: '/tasks' }, { label: t.title }]} />
-      <div className="flex items-center space-x-4">
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div className="flex items-center flex-wrap gap-2 flex-1">
           <Input
             className="text-2xl font-semibold border-b focus:outline-none flex-1"
             value={title}
@@ -222,13 +230,29 @@ export default function TaskDetail() {
             onBlur={saveTitle}
           />
           <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
-            {statuses.map(s => <option key={s} value={s}>{labels[s]}</option>)}
+            {statuses.map(s => (
+              <option key={s} value={s}>{labels[s]}</option>
+            ))}
           </select>
-          <Badge variant={getStatusColor(status)}>
-            {labels[status]}
-          </Badge>
-          <Button onClick={() => setEmailOpen(true)}>Trimite e-mail</Button>
+          <select value={priority} onChange={e => { setPriority(e.target.value); save({ priority: e.target.value || undefined }); }} className="border p-1 rounded">
+            <option value="">Prioritate</option>
+            {priorities.map(p => (
+              <option key={p} value={p}>{priorityLabels[p]}</option>
+            ))}
+          </select>
+          <Input
+            type="date"
+            value={dueDate}
+            onChange={e => setDueDate(e.target.value)}
+            onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
+          />
         </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon"><Icon name="share-2" className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => setEmailOpen(true)}><Icon name="mail" className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="icon"><Icon name="more-horizontal" className="h-4 w-4" /></Button>
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium">Responsabili</label>
@@ -237,252 +261,93 @@ export default function TaskDetail() {
           ) : usersQuery.isError ? (
             <div className="mt-1 text-red-600 text-sm">Încărcarea utilizatorilor a eșuat</div>
           ) : (
-            <select
-              multiple
-              className="mt-1 w-full border p-2 h-32"
+            <AssigneeChips
+              users={usersQuery.data?.items || []}
               value={assignees}
-              onChange={(e) => {
-                const vals = Array.from(e.target.selectedOptions, (o) => o.value);
+              onChange={(vals) => {
                 setAssignees(vals);
                 save({ assignees: vals });
               }}
-            >
-              {usersQuery.data?.items?.map((u: any) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Data comandă</label>
-          <Input
-            type="date"
-            className="mt-1"
-            value={orderDate}
-            onChange={e => setOrderDate(e.target.value)}
-            onBlur={() => save({ orderDate: orderDate ? new Date(orderDate).toISOString() : null })}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Data primire comandă</label>
-          <Input
-            type="date"
-            className="mt-1"
-            value={orderReceivedDate}
-            onChange={e => setOrderReceivedDate(e.target.value)}
-            onBlur={() => save({ orderReceivedDate: orderReceivedDate ? new Date(orderReceivedDate).toISOString() : null })}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Număr comandă</label>
-          <Input
-            className="mt-1"
-            value={orderNumber}
-            onChange={e => setOrderNumber(e.target.value)}
-            onBlur={() => save({ orderNumber: orderNumber || null })}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Autoritate</label>
-          <Input
-            className="mt-1"
-            value={authority}
-            onChange={e => setAuthority(e.target.value)}
-            onBlur={() => save({ authority: authority || null })}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Tip comandă</label>
-          {orderTypesQuery.isLoading ? (
-            <Skeleton className="h-10 w-full mt-1" />
-          ) : orderTypesQuery.isError ? (
-            <div className="mt-1 text-red-600 text-sm">Încărcarea tipurilor a eșuat</div>
-          ) : (
-            <select
-              className="mt-1 w-full border p-2"
-              value={orderType}
-              onChange={(e) => {
-                setOrderType(e.target.value);
-                save({ orderType: e.target.value || null });
-              }}
-            >
-              <option value="">Selectează tip</option>
-              {orderTypesQuery.data?.items?.map((o: any) => (
-                <option key={o.id || o.value} value={o.value || o.id}>
-                  {o.label || o.name || o.value}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Data primire produse</label>
-          <Input
-            type="date"
-            className="mt-1"
-            value={productsReceivedDate}
-            onChange={e => setProductsReceivedDate(e.target.value)}
-            onBlur={() => save({ productsReceivedDate: productsReceivedDate ? new Date(productsReceivedDate).toISOString() : null })}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="inline-flex items-center text-sm font-medium">
-            <input
-              type="checkbox"
-              className="mr-2"
-              checked={earlyDelivery}
-              onChange={e => {
-                setEarlyDelivery(e.target.checked);
-                if (!e.target.checked) {
-                  setDeliveryDate('');
-                  save({ deliveryDate: null });
-                }
-              }}
-            />
-            Livrare mai devreme
-          </label>
-          {earlyDelivery && (
-            <Input
-              type="date"
-              className="mt-1"
-              value={deliveryDate}
-              onChange={e => setDeliveryDate(e.target.value)}
-              onBlur={() => save({ deliveryDate: deliveryDate ? new Date(deliveryDate).toISOString() : null })}
             />
           )}
         </div>
+        <OrderDeliveryPanel
+          orderDate={orderDate}
+          orderReceivedDate={orderReceivedDate}
+          orderNumber={orderNumber}
+          authority={authority}
+          orderType={orderType}
+          productsReceivedDate={productsReceivedDate}
+          earlyDelivery={earlyDelivery}
+          deliveryDate={deliveryDate}
+          orderTypes={orderTypesQuery.data?.items || []}
+          onChange={(d) => {
+            if (d.orderDate !== undefined) setOrderDate(d.orderDate);
+            if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);
+            if (d.orderNumber !== undefined) setOrderNumber(d.orderNumber);
+            if (d.authority !== undefined) setAuthority(d.authority);
+            if (d.orderType !== undefined) setOrderType(d.orderType);
+            if (d.productsReceivedDate !== undefined) setProductsReceivedDate(d.productsReceivedDate);
+            if (d.earlyDelivery !== undefined) setEarlyDelivery(d.earlyDelivery);
+            if (d.deliveryDate !== undefined) setDeliveryDate(d.deliveryDate);
+            const payload: any = {};
+            if (d.orderDate !== undefined) payload.orderDate = d.orderDate ? new Date(d.orderDate).toISOString() : null;
+            if (d.orderReceivedDate !== undefined) payload.orderReceivedDate = d.orderReceivedDate ? new Date(d.orderReceivedDate).toISOString() : null;
+            if (d.orderNumber !== undefined) payload.orderNumber = d.orderNumber || null;
+            if (d.authority !== undefined) payload.authority = d.authority || null;
+            if (d.orderType !== undefined) payload.orderType = d.orderType || null;
+            if (d.productsReceivedDate !== undefined) payload.productsReceivedDate = d.productsReceivedDate ? new Date(d.productsReceivedDate).toISOString() : null;
+            if (d.deliveryDate !== undefined) payload.deliveryDate = d.deliveryDate ? new Date(d.deliveryDate).toISOString() : null;
+            if (Object.keys(payload).length) save(payload);
+          }}
+        />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
             <h2 className="font-medium mb-2">Descriere</h2>
-            <div
-              contentEditable
-              className="border rounded p-2 min-h-[150px]"
-              dangerouslySetInnerHTML={{ __html: desc }}
-              onInput={e => setDesc((e.target as HTMLElement).innerHTML)}
-              onBlur={saveDesc}
-            ></div>
+            <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
           </div>
-          <div>
-            <h2 className="font-medium mb-2">Fișiere</h2>
-            {t.attachments?.length ? (
-              <ul className="space-y-4 mb-2">
-                {t.attachments.map((a: any) => (
-                  <li key={a.id}>
-                    <AttachmentView
-                      attachment={a}
-                      onSave={(file: File) => attachmentMut.mutate({ attId: a.id, file })}
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> Niciun fișier
-              </div>
-            )}
-            <input
-              type="file"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) attachmentMut.mutate({ attId: 'new', file: f });
-              }}
-            />
-          </div>
+          <AttachmentsPanel
+            attachments={t.attachments || []}
+            onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+          />
         </div>
         <div className="space-y-4">
-          <div>
-            <h2 className="font-medium mb-2">Comentarii</h2>
-            {t.comments?.length ? (
-              <ul className="space-y-2 text-sm mb-2 max-h-64 overflow-auto">
-                {t.comments.map((c: any) => (
-                  <li key={c.id}><b>{c.author?.name ?? 'Anonim'}</b>: {c.body}</li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-sm text-gray-500 flex items-center mb-2">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> Niciun comentariu
-              </div>
-            )}
-            <form onSubmit={submitComment} className="flex space-x-2">
-              <Input
-                value={comment}
-                onChange={e => setComment(e.target.value)}
-                className="flex-1 text-sm"
-                placeholder="Adaugă comentariu..."
-              />
-              <Button type="submit" className="px-2 py-1 text-sm">Trimite</Button>
-            </form>
-          </div>
-          <div>
-            <h2 className="font-medium mb-2">Jurnal audit</h2>
-            {auditLoading ? (
-              <Skeleton className="h-32" />
-            ) : auditError ? (
-              <div className="text-sm text-red-600 flex items-center">
-                Încărcarea jurnalului de audit a eșuat
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="ml-2"
-                  onClick={() => refetchAudit()}
-                >
-                  Reîncearcă
-                </Button>
-              </div>
-            ) : audit?.items?.length ? (
-              <ul className="text-xs space-y-1 max-h-64 overflow-auto">
-                {audit.items.map((a: any) => (
-                  <li key={a.id}>{a.user?.name || 'Sistemul'} {a.action} {new Date(a.createdAt).toLocaleString()}</li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-sm text-gray-500 flex items-center">
-                <Icon name="inbox" className="h-4 w-4 mr-1" /> Nicio intrare în jurnal
-              </div>
-            )}
-          </div>
+          <CommentsPanel
+            comments={t.comments || []}
+            onAdd={(body) => commentMut.mutate(body)}
+          />
+          <ActivityAuditPanel
+            audit={audit?.items || []}
+            loading={auditLoading}
+            error={!!auditError}
+            onRetry={() => refetchAudit()}
+          />
         </div>
       </div>
     </motion.div>
-      {emailOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white p-4 space-y-2 w-full max-w-lg">
-            <h2 className="text-lg font-medium mb-2">Trimite e-mail</h2>
-            <Input
-              placeholder="Destinatari (virgule)"
-              value={emailTo}
-              onChange={e => setEmailTo(e.target.value)}
-            />
-            <Input
-              placeholder="Subiect"
-              className="mt-2"
-              value={emailSubject}
-              onChange={e => setEmailSubject(e.target.value)}
-            />
-            <Textarea
-              className="mt-2 h-40"
-              value={emailBody}
-              onChange={e => setEmailBody(e.target.value)}
-            />
-            <div className="flex justify-end space-x-2 mt-2">
-              <Button variant="outline" onClick={() => setEmailOpen(false)}>Anulează</Button>
-              <Button onClick={() => {
-                emailMut.mutate({
-                  to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
-                  subject: emailSubject,
-                  body: emailBody,
-                  attachments: t.attachments?.map((a: any) => a.id),
-                });
-                setEmailOpen(false);
-              }}>Trimite</Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EmailDrawer
+      open={emailOpen}
+      to={emailTo}
+      subject={emailSubject}
+      body={emailBody}
+      onChange={({ to, subject, body }) => {
+        if (to !== undefined) setEmailTo(to);
+        if (subject !== undefined) setEmailSubject(subject);
+        if (body !== undefined) setEmailBody(body);
+      }}
+      onSend={() => {
+        emailMut.mutate({
+          to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
+          subject: emailSubject,
+          body: emailBody,
+          attachments: t.attachments?.map((a: any) => a.id),
+        });
+        setEmailOpen(false);
+      }}
+      onClose={() => setEmailOpen(false)}
+    />
     </>
   );
 }
