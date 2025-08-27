@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload } from '../lib/api';
 import { useState, useEffect, FormEvent } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -44,16 +44,37 @@ export default function TaskDetail() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['task', id] }),
   });
 
+  const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
+  const orderTypesQuery = useQuery({ queryKey: ['vali', 'orderType'], queryFn: () => listVali('orderType') });
+
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState('');
   const [desc, setDesc] = useState('');
   const [comment, setComment] = useState('');
+  const [assignees, setAssignees] = useState<string[]>([]);
+  const [orderDate, setOrderDate] = useState('');
+  const [orderReceivedDate, setOrderReceivedDate] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [authority, setAuthority] = useState('');
+  const [orderType, setOrderType] = useState('');
+  const [productsReceivedDate, setProductsReceivedDate] = useState('');
+  const [earlyDelivery, setEarlyDelivery] = useState(false);
+  const [deliveryDate, setDeliveryDate] = useState('');
 
   useEffect(() => {
     if (t) {
       setTitle(t.title);
       setStatus(t.status);
       setDesc(t.description || '');
+      setAssignees(t.assignees?.map((a: any) => a.id) || []);
+      setOrderDate(t.orderDate ? t.orderDate.slice(0, 10) : '');
+      setOrderReceivedDate(t.orderReceivedDate ? t.orderReceivedDate.slice(0, 10) : '');
+      setOrderNumber(t.orderNumber || '');
+      setAuthority(t.authority || '');
+      setOrderType(t.orderType || '');
+      setProductsReceivedDate(t.productsReceivedDate ? t.productsReceivedDate.slice(0, 10) : '');
+      setDeliveryDate(t.deliveryDate ? t.deliveryDate.slice(0, 10) : '');
+      setEarlyDelivery(!!t.deliveryDate);
     }
   }, [t]);
 
@@ -67,6 +88,7 @@ export default function TaskDetail() {
     setStatus(s);
     update.mutate({ status: s });
   };
+  const save = (data: Partial<TaskPayload>) => update.mutate(data);
   const submitComment = (e: FormEvent) => {
     e.preventDefault();
     if (comment.trim()) {
@@ -137,6 +159,131 @@ export default function TaskDetail() {
         >
           {labels[status]}
         </Badge>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium">Responsabili</label>
+          {usersQuery.isLoading ? (
+            <Skeleton className="h-10 w-full mt-1" />
+          ) : usersQuery.isError ? (
+            <div className="mt-1 text-red-600 text-sm">Încărcarea utilizatorilor a eșuat</div>
+          ) : (
+            <select
+              multiple
+              className="mt-1 w-full border p-2 h-32"
+              value={assignees}
+              onChange={(e) => {
+                const vals = Array.from(e.target.selectedOptions, (o) => o.value);
+                setAssignees(vals);
+                save({ assignees: vals });
+              }}
+            >
+              {usersQuery.data?.items?.map((u: any) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Data comandă</label>
+          <Input
+            type="date"
+            className="mt-1"
+            value={orderDate}
+            onChange={e => setOrderDate(e.target.value)}
+            onBlur={() => save({ orderDate: orderDate ? new Date(orderDate).toISOString() : null })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Data primire comandă</label>
+          <Input
+            type="date"
+            className="mt-1"
+            value={orderReceivedDate}
+            onChange={e => setOrderReceivedDate(e.target.value)}
+            onBlur={() => save({ orderReceivedDate: orderReceivedDate ? new Date(orderReceivedDate).toISOString() : null })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Număr comandă</label>
+          <Input
+            className="mt-1"
+            value={orderNumber}
+            onChange={e => setOrderNumber(e.target.value)}
+            onBlur={() => save({ orderNumber: orderNumber || null })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Autoritate</label>
+          <Input
+            className="mt-1"
+            value={authority}
+            onChange={e => setAuthority(e.target.value)}
+            onBlur={() => save({ authority: authority || null })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Tip comandă</label>
+          {orderTypesQuery.isLoading ? (
+            <Skeleton className="h-10 w-full mt-1" />
+          ) : orderTypesQuery.isError ? (
+            <div className="mt-1 text-red-600 text-sm">Încărcarea tipurilor a eșuat</div>
+          ) : (
+            <select
+              className="mt-1 w-full border p-2"
+              value={orderType}
+              onChange={(e) => {
+                setOrderType(e.target.value);
+                save({ orderType: e.target.value || null });
+              }}
+            >
+              <option value="">Selectează tip</option>
+              {orderTypesQuery.data?.items?.map((o: any) => (
+                <option key={o.id || o.value} value={o.value || o.id}>
+                  {o.label || o.name || o.value}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Data primire produse</label>
+          <Input
+            type="date"
+            className="mt-1"
+            value={productsReceivedDate}
+            onChange={e => setProductsReceivedDate(e.target.value)}
+            onBlur={() => save({ productsReceivedDate: productsReceivedDate ? new Date(productsReceivedDate).toISOString() : null })}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="inline-flex items-center text-sm font-medium">
+            <input
+              type="checkbox"
+              className="mr-2"
+              checked={earlyDelivery}
+              onChange={e => {
+                setEarlyDelivery(e.target.checked);
+                if (!e.target.checked) {
+                  setDeliveryDate('');
+                  save({ deliveryDate: null });
+                }
+              }}
+            />
+            Livrare mai devreme
+          </label>
+          {earlyDelivery && (
+            <Input
+              type="date"
+              className="mt-1"
+              value={deliveryDate}
+              onChange={e => setDeliveryDate(e.target.value)}
+              onBlur={() => save({ deliveryDate: deliveryDate ? new Date(deliveryDate).toISOString() : null })}
+            />
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">

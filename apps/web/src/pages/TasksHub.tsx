@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { listTasks, createTask, listUsers } from '../lib/api';
+import { listTasks, createTask, listUsers, listVali, TaskPayload } from '../lib/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Modal from '../components/Modal';
@@ -33,13 +33,27 @@ export default function TasksHub() {
   const [description, setDescription] = useState('');
   const [statusVal, setStatusVal] = useState('OPEN');
   const [priority, setPriority] = useState('MEDIUM');
-  const [assignee, setAssignee] = useState('');
+  const [assignees, setAssignees] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState('');
+  const [orderDate, setOrderDate] = useState('');
+  const [orderReceivedDate, setOrderReceivedDate] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [authority, setAuthority] = useState('');
+  const [orderType, setOrderType] = useState('');
+  const [productsReceivedDate, setProductsReceivedDate] = useState('');
+  const [earlyDelivery, setEarlyDelivery] = useState(false);
+  const [deliveryDate, setDeliveryDate] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const usersQuery = useQuery({
     queryKey: ['users'],
     queryFn: listUsers,
+    enabled: open,
+  });
+
+  const orderTypesQuery = useQuery({
+    queryKey: ['vali', 'orderType'],
+    queryFn: () => listVali('orderType'),
     enabled: open,
   });
 
@@ -50,8 +64,16 @@ export default function TasksHub() {
     setDescription('');
     setStatusVal('OPEN');
     setPriority('MEDIUM');
-    setAssignee('');
+    setAssignees([]);
     setDueDate('');
+    setOrderDate('');
+    setOrderReceivedDate('');
+    setOrderNumber('');
+    setAuthority('');
+    setOrderType('');
+    setProductsReceivedDate('');
+    setEarlyDelivery(false);
+    setDeliveryDate('');
     setErrors({});
   };
 
@@ -70,19 +92,30 @@ export default function TasksHub() {
     if (e) e.preventDefault();
     const errs: Record<string, string> = {};
     if (!title.trim()) errs.title = 'Titlul este obligatoriu';
-    if (!assignee) errs.assignee = 'Responsabilul este obligatoriu';
+    if (!assignees.length) errs.assignees = 'Responsabilul este obligatoriu';
     if (!dueDate) errs.dueDate = 'Data limită este obligatorie';
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
-    createMutation.mutate({
+    const payload: TaskPayload = {
       title,
       description,
       status: statusVal,
       priority,
-      assigneeId: assignee,
+      assignees,
       dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
-    });
+    orderDate: orderDate ? new Date(orderDate).toISOString() : undefined,
+      orderReceivedDate: orderReceivedDate ? new Date(orderReceivedDate).toISOString() : undefined,
+      orderNumber: orderNumber || undefined,
+      authority: authority || undefined,
+      orderType: orderType || undefined,
+      productsReceivedDate: productsReceivedDate ? new Date(productsReceivedDate).toISOString() : undefined,
+      ...(earlyDelivery && deliveryDate
+        ? { deliveryDate: new Date(deliveryDate).toISOString() }
+        : {}),
+    };
+
+    createMutation.mutate(payload);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -196,7 +229,7 @@ export default function TasksHub() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium">Responsabil</label>
+            <label className="block text-sm font-medium">Responsabili</label>
             {usersQuery.isLoading ? (
               <Skeleton className="h-10 w-full mt-1" />
             ) : usersQuery.isError ? (
@@ -213,9 +246,12 @@ export default function TasksHub() {
               </div>
             ) : (
               <select
-                className="mt-1 w-full border p-2"
-                value={assignee}
-                onChange={(e) => setAssignee(e.target.value)}
+                multiple
+                className="mt-1 w-full border p-2 h-32"
+                value={assignees}
+                onChange={(e) =>
+                  setAssignees(Array.from(e.target.selectedOptions, (o) => o.value))
+                }
               >
                 <option value="">Selectează responsabil</option>
                 {usersQuery.data?.items?.map((u: any) => (
@@ -225,12 +261,97 @@ export default function TasksHub() {
                 ))}
               </select>
             )}
-            {errors.assignee && <p className="text-red-600 text-sm">{errors.assignee}</p>}
+            {errors.assignees && <p className="text-red-600 text-sm">{errors.assignees}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium">Data limită</label>
             <Input type="date" className="mt-1" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             {errors.dueDate && <p className="text-red-600 text-sm">{errors.dueDate}</p>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium">Data comandă</label>
+              <Input type="date" className="mt-1" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Număr comandă</label>
+              <Input className="mt-1" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Autoritate</label>
+              <Input className="mt-1" value={authority} onChange={(e) => setAuthority(e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Tip comandă</label>
+              {orderTypesQuery.isLoading ? (
+                <Skeleton className="h-10 w-full mt-1" />
+              ) : orderTypesQuery.isError ? (
+                <div className="mt-1 text-red-600 text-sm flex items-center">
+                  Încărcarea tipurilor a eșuat
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2"
+                    onClick={() => orderTypesQuery.refetch()}
+                  >
+                    Reîncearcă
+                  </Button>
+                </div>
+              ) : (
+                <select
+                  className="mt-1 w-full border p-2"
+                  value={orderType}
+                  onChange={(e) => setOrderType(e.target.value)}
+                >
+                  <option value="">Selectează tip</option>
+                  {orderTypesQuery.data?.items?.map((o: any) => (
+                    <option key={o.id || o.value} value={o.value || o.id}>
+                      {o.label || o.name || o.value}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Data primire comandă</label>
+              <Input
+                type="date"
+                className="mt-1"
+                value={orderReceivedDate}
+                onChange={(e) => setOrderReceivedDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Data primire produse</label>
+              <Input
+                type="date"
+                className="mt-1"
+                value={productsReceivedDate}
+                onChange={(e) => setProductsReceivedDate(e.target.value)}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="inline-flex items-center text-sm font-medium">
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={earlyDelivery}
+                  onChange={(e) => {
+                    setEarlyDelivery(e.target.checked);
+                    if (!e.target.checked) setDeliveryDate('');
+                  }}
+                />
+                Livrare mai devreme
+              </label>
+              {earlyDelivery && (
+                <Input
+                  type="date"
+                  className="mt-1"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
+                />
+              )}
+            </div>
+          </div>
           </div>
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

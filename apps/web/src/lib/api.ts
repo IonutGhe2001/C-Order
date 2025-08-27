@@ -1,5 +1,23 @@
-
 const base = 'http://localhost:3001/api';
+
+export interface TaskPayload {
+  title: string;
+  description?: string | null;
+  status?: string;
+  priority?: string;
+  assignees?: string[];
+  supplierId?: string | null;
+  dueDate?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+  orderDate?: string | null;
+  orderReceivedDate?: string | null;
+  orderNumber?: string | null;
+  authority?: string | null;
+  orderType?: string | null;
+  productsReceivedDate?: string | null;
+  deliveryDate?: string | null;
+}
 
 export async function login(email: string, password: string) {
   const r = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email, password }) });
@@ -26,7 +44,7 @@ export async function getTaskAudit(id: string) {
   return r.json();
 }
 
-export async function updateTask(id: string, data: any) {
+export async function updateTask(id: string, data: Partial<TaskPayload>) {
   const r = await fetch(`${base}/tasks/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -53,7 +71,7 @@ export async function addComment(id: string, body: string) {
 }
 
 export async function createTask(data: any) {
-  const r = await fetch(`${base}/tasks`, {
+  export async function createTask(data: TaskPayload) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -71,6 +89,12 @@ export async function listUsers() {
 
 export async function listSuppliers(q: string = '') {
   const r = await fetch(`${base}/suppliers?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function listVali(key: string) {
+  const r = await fetch(`${base}/vali/${key}`, { credentials: 'include' });
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
