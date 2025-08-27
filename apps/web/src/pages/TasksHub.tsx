@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { listTasks, createTask, listUsers, listVali, TaskPayload } from '../lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createTask, listUsers, listVali, TaskPayload } from '../lib/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Modal from '../components/Modal';
+import TasksDataTable from '../components/tasks/DataTable';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
 import { useToast } from '../components/ui/toaster';
-import { getStatusColor } from '../lib/status-colors';
 import { motion } from 'framer-motion';
-import { Icon } from '../lib/lucide-icon';
 
 const statuses = [
   'OPEN',
@@ -35,12 +32,8 @@ const labels: Record<string, string> = {
 };
 
 export default function TasksHub() {
-  const navigate = useNavigate();
-  const [filters, setFilters] = useState({ q: '', orderDate: '', authority: '', status: '' });
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['tasks', filters],
-    queryFn: () => listTasks(filters),
-  });
+
+  const queryClient = useQueryClient();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -95,7 +88,7 @@ export default function TasksHub() {
   const createMutation = useMutation({
     mutationFn: (payload: any) => createTask(payload),
     onSuccess: () => {
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
       resetForm();
       setOpen(false);
       toast({ title: 'Task creat', variant: 'success' });
@@ -154,98 +147,7 @@ export default function TasksHub() {
           <h1 className="text-xl font-bold">Task-uri</h1>
           <Button onClick={() => setOpen(true)}>+ Task nou</Button>
         </div>
-        <div className="flex flex-wrap items-end gap-2 mb-4">
-          <Input
-            placeholder="Caută"
-            value={filters.q}
-            onChange={(e) => setFilters({ ...filters, q: e.target.value })}
-            className="w-40"
-          />
-          <Input
-            placeholder="Autoritate"
-            value={filters.authority}
-            onChange={(e) => setFilters({ ...filters, authority: e.target.value })}
-            className="w-40"
-          />
-          <Input
-            type="date"
-            value={filters.orderDate}
-            onChange={(e) => setFilters({ ...filters, orderDate: e.target.value })}
-            className="w-40"
-          />
-          <select
-            className="border p-2 rounded"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          >
-            <option value="">Status</option>
-            {statuses.map((s) => (
-              <option key={s} value={s}>
-                {labels[s]}
-              </option>
-            ))}
-          </select>
-        </div>
-        {isLoading ? (
-          <table className="min-w-full border">
-            <tbody>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <tr key={i} className="border-t">
-                  <td className="p-2"><Skeleton className="h-4 w-40" /></td>
-                  <td className="p-2"><Skeleton className="h-4 w-32" /></td>
-                  <td className="p-2"><Skeleton className="h-4 w-20" /></td>
-                  <td className="p-2" />
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : isError ? (
-          <div className="text-center text-red-600">
-            Încărcarea task-urilor a eșuat.
-            <Button variant="outline" className="ml-2" onClick={() => refetch()}>Reîncearcă</Button>
-          </div>
-        ) : (
-          <table className="min-w-full border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="text-left p-2 border-r">Nume task</th>
-                <th className="text-left p-2 border-r">Creator</th>
-                <th className="text-left p-2 border-r">Status</th>
-                <th className="text-left p-2">Acțiune</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.items?.length ? data.items.map((task: any) => (
-                <tr
-                  key={task.id}
-                  onClick={() => navigate(`/tasks/${task.id}`)}
-                  className="border-t hover:bg-gray-50 cursor-pointer"
-                >
-                  <td className="p-2">{task.title}</td>
-                  <td className="p-2">{task.owner?.name || '-'}</td>
-                  <td className="p-2">
-                    <Badge variant={getStatusColor(task.status)}>
-                      {labels[task.status]}
-                    </Badge>
-                  </td>
-                  <td className="p-2" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="More options"
-                    >
-                      <Icon name="more-horizontal" className="h-4 w-4" />
-                    </Button>
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan={4} className="text-center p-4 text-sm text-gray-500">Niciun task</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
+        <TasksDataTable />
       </motion.main>
       <Modal open={open} onClose={() => setOpen(false)} title="Task nou">
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
