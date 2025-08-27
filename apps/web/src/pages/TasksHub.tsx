@@ -12,13 +12,32 @@ import { Skeleton } from '../components/ui/skeleton';
 import { useToast } from '../components/ui/toaster';
 import { motion } from 'framer-motion';
 
-const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
+const statuses = [
+  'OPEN',
+  'IN_PROGRESS',
+  'BLOCKED',
+  'DONE',
+  'LIVRAT_PARTIAL',
+  'FINALIZAT',
+  'CANCELLED',
+];
 const labels: Record<string, string> = {
   OPEN: 'Deschis',
   IN_PROGRESS: 'În progres',
   BLOCKED: 'Blocat',
   DONE: 'Finalizat',
+  LIVRAT_PARTIAL: 'Livrat parțial',
+  FINALIZAT: 'Finalizat',
   CANCELLED: 'Anulat',
+};
+const statusVariants: Record<string, any> = {
+  OPEN: 'open',
+  IN_PROGRESS: 'in-progress',
+  BLOCKED: 'blocked',
+  DONE: 'done',
+  LIVRAT_PARTIAL: 'in-progress',
+  FINALIZAT: 'done',
+  CANCELLED: 'cancelled',
 };
 
 export default function TasksHub() {
@@ -32,7 +51,7 @@ export default function TasksHub() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [statusVal, setStatusVal] = useState('OPEN');
+  const [statusVal, setStatusVal] = useState('IN_PROGRESS');
   const [priority, setPriority] = useState('MEDIUM');
   const [assignees, setAssignees] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState('');
@@ -63,7 +82,7 @@ export default function TasksHub() {
   const resetForm = () => {
     setTitle('');
     setDescription('');
-    setStatusVal('OPEN');
+    setStatusVal('IN_PROGRESS');
     setPriority('MEDIUM');
     setAssignees([]);
     setDueDate('');
@@ -206,7 +225,7 @@ export default function TasksHub() {
                   <td className="p-2">{task.title}</td>
                   <td className="p-2">{task.owner?.name || '-'}</td>
                   <td className="p-2">
-                    <Badge variant={task.status.toLowerCase().replace('_','-')}>
+                    <Badge variant={statusVariants[task.status]}>
                       {labels[task.status]}
                     </Badge>
                   </td>

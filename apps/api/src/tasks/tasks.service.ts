@@ -1,12 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskStatus } from '@prisma/client';
+
+const statusValues = Object.values(TaskStatus);
 
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService) {}
   list(params: any) {
     const { q, status, orderDate, authority } = params;
+
+    if (status && !statusValues.includes(status as TaskStatus)) {
+      throw new BadRequestException('Invalid status');
+    }
 
     const where: any = {
       ...(status ? { status: status as TaskStatus } : {}),
@@ -60,6 +66,10 @@ export class TasksService {
       description,
     } = data;
 
+    if (status && !statusValues.includes(status as TaskStatus)) {
+      throw new BadRequestException('Invalid status');
+    }
+
     let computedDelivery = deliveryDate;
     if (!computedDelivery && orderDate) {
       const d = new Date(orderDate);
@@ -111,6 +121,9 @@ export class TasksService {
       productsReceivedDate,
       deliveryDate,
     } = data;
+    if (status && !statusValues.includes(status as TaskStatus)) {
+      throw new BadRequestException('Invalid status');
+    }
     const updateData: any = {
       status,
       priority,

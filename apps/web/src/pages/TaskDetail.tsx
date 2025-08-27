@@ -9,13 +9,32 @@ import { Skeleton } from '../components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 
-const statuses = ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED'];
+const statuses = [
+  'OPEN',
+  'IN_PROGRESS',
+  'BLOCKED',
+  'DONE',
+  'LIVRAT_PARTIAL',
+  'FINALIZAT',
+  'CANCELLED',
+];
 const labels: Record<string, string> = {
   OPEN: 'Deschis',
   IN_PROGRESS: 'În progres',
   BLOCKED: 'Blocat',
   DONE: 'Finalizat',
+  LIVRAT_PARTIAL: 'Livrat parțial',
+  FINALIZAT: 'Finalizat',
   CANCELLED: 'Anulat',
+};
+const statusVariants: Record<string, any> = {
+  OPEN: 'open',
+  IN_PROGRESS: 'in-progress',
+  BLOCKED: 'blocked',
+  DONE: 'done',
+  LIVRAT_PARTIAL: 'in-progress',
+  FINALIZAT: 'done',
+  CANCELLED: 'cancelled',
 };
 
 export default function TaskDetail() {
@@ -152,11 +171,7 @@ export default function TaskDetail() {
         <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
           {statuses.map(s => <option key={s} value={s}>{labels[s]}</option>)}
         </select>
-        <Badge
-          variant={status
-            .toLowerCase()
-            .replace('_', '-') as 'open' | 'in-progress' | 'blocked' | 'done' | 'cancelled'}
-        >
+        <Badge variant={statusVariants[status]}>
           {labels[status]}
         </Badge>
       </div>
