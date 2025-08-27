@@ -7,6 +7,10 @@ export default function Sidebar({ isOpen = false }: { isOpen?: boolean }) {
 
   const groups = [
     {
+      label: 'General',
+      links: [{ to: '/dashboard', label: 'Dashboard' }],
+    },
+    {
       label: 'Tasks',
       links: [
         { to: '/tasks', label: 'Inbox' },

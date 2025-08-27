@@ -137,3 +137,9 @@ export async function listVali(key: string) {
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
+
+export async function getTaskSummary() {
+  const r = await fetch(`${base}/tasks/summary`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
