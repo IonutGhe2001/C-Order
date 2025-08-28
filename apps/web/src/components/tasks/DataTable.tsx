@@ -529,6 +529,7 @@ export default function TasksDataTable({
                       rowRefs.current[virtualRow.index] = el;
                       if (el) rowVirtualizer.measureElement(el);
                     }}
+                    data-index={virtualRow.index}
                     tabIndex={0}
                     className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     onClick={() => navigate(`/tasks/${row.original.id}`)}
