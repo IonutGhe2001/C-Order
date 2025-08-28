@@ -1,16 +1,46 @@
 import React, { useState } from "react";
-import { useIsFetching } from "@tanstack/react-query";
+import { useIsFetching, useMutation, useQueryClient } from "@tanstack/react-query";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import TasksDataTable from "../components/tasks/DataTable";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
+import { deleteTask, archiveTask } from "../lib/api";
 
 export default function TasksHub() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<"" | "overdue" | "today" | "noAssignee">("");
+  const [selected, setSelected] = useState<string[]>([]);
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
+  const qc = useQueryClient();
+
+  const deleteMut = useMutation({
+    mutationFn: (ids: string[]) => Promise.all(ids.map((id) => deleteTask(id))),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      setSelected([]);
+    },
+  });
+
+  const archiveMut = useMutation({
+    mutationFn: (ids: string[]) => Promise.all(ids.map((id) => archiveTask(id))),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      setSelected([]);
+    },
+  });
 
   return (
     <>
@@ -29,6 +59,52 @@ export default function TasksHub() {
               </>
             ) : (
               <>
+              {selected.length > 0 && (
+                  <>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="outline">
+                          Archive
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Archive selected tasks?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => archiveMut.mutate(selected)}>
+                            Archive
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive">
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete selected tasks?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteMut.mutate(selected)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                )}
                 <Button
                   size="sm"
                   variant={quickFilter === "overdue" ? "default" : "outline"}
@@ -63,7 +139,7 @@ export default function TasksHub() {
             )}
           </div>
         </div>
-        <TasksDataTable quickFilter={quickFilter} />
+        <TasksDataTable quickFilter={quickFilter} onSelectionChange={setSelected} />
       </div>
     </>
   );

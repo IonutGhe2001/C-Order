@@ -1,6 +1,6 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -25,6 +25,18 @@ import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../components/ui/alert-dialog';
+import { SaveIndicator } from '../components/ui/save-indicator';
 
 const statuses = [
   'OPEN',
@@ -89,6 +101,7 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
 export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const {
     data: task,
@@ -121,6 +134,22 @@ export default function TaskDetail() {
 
   const emailMut = useMutation({
     mutationFn: (data: any) => sendTaskEmail(id!, data),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: () => deleteTask(id!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] });
+      navigate('/tasks');
+    },
+  });
+
+  const archiveMut = useMutation({
+    mutationFn: () => archiveTask(id!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] });
+      navigate('/tasks');
+    },
   });
 
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
@@ -225,29 +254,41 @@ export default function TaskDetail() {
       <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task.title }]} />
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div className="flex items-center flex-wrap gap-2 flex-1">
-          <Input
-            className="text-2xl font-semibold border-b focus:outline-none flex-1"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            onBlur={saveTitle}
-          />
-          <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
-            {statuses.map(s => (
-              <option key={s} value={s}>{t(labels[s])}</option>
-            ))}
-          </select>
-          <select value={priority} onChange={e => { setPriority(e.target.value); save({ priority: e.target.value || undefined }); }} className="border p-1 rounded">
-            <option value="">{t('labels.priority')}</option>
-            {priorities.map(p => (
-              <option key={p} value={p}>{t(priorityLabels[p])}</option>
-            ))}
-          </select>
-          <Input
-            type="date"
-            value={dueDate}
-            onChange={e => setDueDate(e.target.value)}
-            onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
-          />
+            <div className="flex items-center">
+              <Input
+                className="text-2xl font-semibold border-b focus:outline-none flex-1"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                onBlur={saveTitle}
+              />
+              <SaveIndicator mutation={update} />
+            </div>
+            <div className="flex items-center">
+              <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
+                {statuses.map(s => (
+                  <option key={s} value={s}>{t(labels[s])}</option>
+                ))}
+              </select>
+              <SaveIndicator mutation={update} />
+            </div>
+            <div className="flex items-center">
+              <select value={priority} onChange={e => { setPriority(e.target.value); save({ priority: e.target.value || undefined }); }} className="border p-1 rounded">
+                <option value="">{t('labels.priority')}</option>
+                {priorities.map(p => (
+                  <option key={p} value={p}>{t(priorityLabels[p])}</option>
+                ))}
+              </select>
+              <SaveIndicator mutation={update} />
+            </div>
+            <div className="flex items-center">
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={e => setDueDate(e.target.value)}
+                onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
+              />
+              <SaveIndicator mutation={update} />
+            </div>
         </div>
         <TooltipProvider>
           <div className="flex items-center gap-2">
@@ -267,14 +308,50 @@ export default function TaskDetail() {
               </TooltipTrigger>
               <TooltipContent>Email</TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Icon name="more-horizontal" className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>More</TooltipContent>
-            </Tooltip>
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Icon name="archive" className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Archive</TooltipContent>
+              </Tooltip>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Archive this task?</AlertDialogTitle>
+                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => archiveMut.mutate()}>Archive</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="icon">
+                      <Icon name="trash" className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+              </Tooltip>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this task?</AlertDialogTitle>
+                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteMut.mutate()}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </TooltipProvider>
       </div>
@@ -282,61 +359,68 @@ export default function TaskDetail() {
         <div>
           <label className="block text-sm font-medium">{t('labels.assignees')}</label>
           {usersQuery.isLoading ? (
-            <Skeleton className="h-10 w-full mt-1" />
-          ) : usersQuery.isError ? (
-            <div className="mt-1 text-red-600 text-sm">{t('messages.usersLoadFailed')}</div>
-          ) : (
-            <AssigneeChips
-              users={usersQuery.data?.items || []}
-              value={assignees}
-              onChange={(vals) => {
-                setAssignees(vals);
-                save({ assignees: vals });
+              <Skeleton className="h-10 w-full mt-1" />
+            ) : usersQuery.isError ? (
+              <div className="mt-1 text-red-600 text-sm">{t('messages.usersLoadFailed')}</div>
+            ) : (
+              <>
+                <AssigneeChips
+                  users={usersQuery.data?.items || []}
+                  value={assignees}
+                  onChange={(vals) => {
+                    setAssignees(vals);
+                    save({ assignees: vals });
+                  }}
+                />
+                <SaveIndicator mutation={update} />
+              </>
+            )}
+          </div>
+          <div>
+            <OrderDeliveryPanel
+              orderDate={orderDate}
+              orderReceivedDate={orderReceivedDate}
+              orderNumber={orderNumber}
+              authority={authority}
+              orderType={orderType}
+              productsReceivedDate={productsReceivedDate}
+              earlyDelivery={earlyDelivery}
+              deliveryDate={deliveryDate}
+              orderTypes={orderTypesQuery.data?.items || []}
+              onChange={(d) => {
+                if (d.orderDate !== undefined) setOrderDate(d.orderDate);
+                if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);
+                if (d.orderNumber !== undefined) setOrderNumber(d.orderNumber);
+                if (d.authority !== undefined) setAuthority(d.authority);
+                if (d.orderType !== undefined) setOrderType(d.orderType);
+                if (d.productsReceivedDate !== undefined) setProductsReceivedDate(d.productsReceivedDate);
+                if (d.earlyDelivery !== undefined) setEarlyDelivery(d.earlyDelivery);
+                if (d.deliveryDate !== undefined) setDeliveryDate(d.deliveryDate);
+                const payload: any = {};
+                if (d.orderDate !== undefined) payload.orderDate = d.orderDate ? new Date(d.orderDate).toISOString() : null;
+                if (d.orderReceivedDate !== undefined) payload.orderReceivedDate = d.orderReceivedDate ? new Date(d.orderReceivedDate).toISOString() : null;
+                if (d.orderNumber !== undefined) payload.orderNumber = d.orderNumber || null;
+                if (d.authority !== undefined) payload.authority = d.authority || null;
+                if (d.orderType !== undefined) payload.orderType = d.orderType || null;
+                if (d.productsReceivedDate !== undefined) payload.productsReceivedDate = d.productsReceivedDate ? new Date(d.productsReceivedDate).toISOString() : null;
+                if (d.deliveryDate !== undefined) payload.deliveryDate = d.deliveryDate ? new Date(d.deliveryDate).toISOString() : null;
+                if (Object.keys(payload).length) save(payload);
               }}
             />
-          )}
-        </div>
-        <OrderDeliveryPanel
-          orderDate={orderDate}
-          orderReceivedDate={orderReceivedDate}
-          orderNumber={orderNumber}
-          authority={authority}
-          orderType={orderType}
-          productsReceivedDate={productsReceivedDate}
-          earlyDelivery={earlyDelivery}
-          deliveryDate={deliveryDate}
-          orderTypes={orderTypesQuery.data?.items || []}
-          onChange={(d) => {
-            if (d.orderDate !== undefined) setOrderDate(d.orderDate);
-            if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);
-            if (d.orderNumber !== undefined) setOrderNumber(d.orderNumber);
-            if (d.authority !== undefined) setAuthority(d.authority);
-            if (d.orderType !== undefined) setOrderType(d.orderType);
-            if (d.productsReceivedDate !== undefined) setProductsReceivedDate(d.productsReceivedDate);
-            if (d.earlyDelivery !== undefined) setEarlyDelivery(d.earlyDelivery);
-            if (d.deliveryDate !== undefined) setDeliveryDate(d.deliveryDate);
-            const payload: any = {};
-            if (d.orderDate !== undefined) payload.orderDate = d.orderDate ? new Date(d.orderDate).toISOString() : null;
-            if (d.orderReceivedDate !== undefined) payload.orderReceivedDate = d.orderReceivedDate ? new Date(d.orderReceivedDate).toISOString() : null;
-            if (d.orderNumber !== undefined) payload.orderNumber = d.orderNumber || null;
-            if (d.authority !== undefined) payload.authority = d.authority || null;
-            if (d.orderType !== undefined) payload.orderType = d.orderType || null;
-            if (d.productsReceivedDate !== undefined) payload.productsReceivedDate = d.productsReceivedDate ? new Date(d.productsReceivedDate).toISOString() : null;
-            if (d.deliveryDate !== undefined) payload.deliveryDate = d.deliveryDate ? new Date(d.deliveryDate).toISOString() : null;
-            if (Object.keys(payload).length) save(payload);
-          }}
-        />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div>
-            <h2 className="font-medium mb-2">{t('labels.description')}</h2>
-            <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
+          <SaveIndicator mutation={update} />
           </div>
-          <AttachmentsPanel
-            attachments={task.attachments || []}
-            onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-          />
+          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <h2 className="font-medium mb-2">{t('labels.description')}</h2>
+              <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
+              <SaveIndicator mutation={update} />
+            </div>
+            <AttachmentsPanel
+              attachments={task.attachments || []}
+              onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+            />
         </div>
         <div className="space-y-4">
           <CommentsPanel

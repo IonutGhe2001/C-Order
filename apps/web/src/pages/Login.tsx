@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 import { useToast } from '../components/ui/toaster';
 
 export default function Login(){
-  const [email, setEmail] = useState('admin@corp.local');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
@@ -36,7 +36,7 @@ export default function Login(){
       <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
         <h1 className="text-2xl font-semibold">Sign In</h1>
         <Input
-          placeholder="Email"
+          placeholder="you@example.com"
           autoFocus
           value={email}
           onChange={e=>setEmail(e.target.value)}
@@ -45,7 +45,7 @@ export default function Login(){
         <div className="relative">
           <Input
             className="pr-16"
-            placeholder="Password"
+            placeholder="••••••••"
             type={showPwd ? 'text' : 'password'}
             value={password}
             onChange={e=>setPassword(e.target.value)}

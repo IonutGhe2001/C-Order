@@ -59,8 +59,10 @@ function Filter({ column }: { column: any }) {
 
 export default function TasksDataTable({
   quickFilter = '',
+  onSelectionChange,
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
+  onSelectionChange?: (ids: string[]) => void;
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -193,6 +195,12 @@ export default function TasksDataTable({
     getRowId: (row) => row.id,
     debugTable: false,
   });
+
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(Object.keys(rowSelection).filter((id) => rowSelection[id]));
+    }
+  }, [rowSelection, onSelectionChange]);
 
   const usersQuery = useQuery({
     queryKey: ['users'],

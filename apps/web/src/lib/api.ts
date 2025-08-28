@@ -95,6 +95,24 @@ export async function updateAttachment(
   return r.json();
 }
 
+export async function deleteTask(id: string) {
+  const r = await fetch(`${base}/tasks/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function archiveTask(id: string) {
+  const r = await fetch(`${base}/tasks/${id}/archive`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
 export async function sendTaskEmail(
   id: string,
   data: { to: string[]; subject: string; body: string; attachments?: string[] },
