@@ -20,8 +20,10 @@ export default function ActivityAuditPanel({ audit, loading, error, onRetry }: P
         <Skeleton className="h-32" />
       ) : error ? (
         <div className="text-sm text-red-600 flex items-center">
-          <h2 className="font-medium mb-2">{t('labels.auditLog')}</h2>
-          <Button variant="outline" size="sm" className="ml-2" onClick={onRetry}>{t('buttons.retry')}</Button>
+          {t('messages.auditLoadFailed')}
+          <Button variant="outline" size="sm" className="ml-2" onClick={onRetry}>
+            {t('buttons.retry')}
+          </Button>
         </div>
       ) : audit?.length ? (
         <ul className="text-xs space-y-1 max-h-64 overflow-auto">

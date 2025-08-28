@@ -26,6 +26,7 @@ import TaskCard from './TaskCard';
 import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
+import CreateTaskSheet from './CreateTaskSheet';
 
 function Filter({ column }: { column: any }) {
   const columnFilterValue = column.getFilterValue();
@@ -360,7 +361,12 @@ export default function TasksDataTable({
   }
 
   if (!data?.items?.length) {
-    return <div className="text-center p-4 text-sm text-gray-500">{t('messages.noTasks')}</div>;
+    return (
+      <div className="text-center p-4 text-sm text-gray-500 space-y-2">
+        <p>{t('messages.noTasks')}</p>
+        <CreateTaskSheet />
+      </div>
+    );
   }
 
   return (

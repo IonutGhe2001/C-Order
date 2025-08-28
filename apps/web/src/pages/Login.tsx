@@ -17,10 +17,10 @@ export default function Login(){
     setLoading(true);
     try {
       await login(email, password);
-      toast({ title: 'Logged in', variant: 'success' });
+      toast({ title: 'Signed in', variant: 'success' });
       window.location.href = '/tasks';
     } catch {
-      toast({ title: 'Invalid email or password', variant: 'error' });
+      toast({ title: "Can't sign in. Check credentials and try again.", variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -34,9 +34,9 @@ export default function Login(){
       className="min-h-screen flex items-center justify-center p-6"
     >
       <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
-        <h1 className="text-2xl font-semibold">Login</h1>
+        <h1 className="text-2xl font-semibold">Sign In</h1>
         <Input
-          placeholder="email"
+          placeholder="Email"
           autoFocus
           value={email}
           onChange={e=>setEmail(e.target.value)}
@@ -45,7 +45,7 @@ export default function Login(){
         <div className="relative">
           <Input
             className="pr-16"
-            placeholder="password"
+            placeholder="Password"
             type={showPwd ? 'text' : 'password'}
             value={password}
             onChange={e=>setPassword(e.target.value)}

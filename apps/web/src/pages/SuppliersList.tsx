@@ -7,6 +7,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Skeleton } from '../components/ui/skeleton';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useTranslation } from 'react-i18next';
 
 export default function SuppliersList() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function SuppliersList() {
     queryKey: ['suppliers'],
     queryFn: () => listSuppliers(''),
   });
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('');
   const filtered = data?.items?.filter((s: any) =>
     s.name.toLowerCase().includes(filter.toLowerCase()),
@@ -42,7 +44,7 @@ export default function SuppliersList() {
       <div className="p-4 md:ml-60 mt-14">
         <h1 className="text-xl font-semibold mb-4">Suppliers</h1>
         <Input
-          placeholder="Search..."
+          placeholder={t('placeholders.search')}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="w-48 mb-2"
@@ -55,11 +57,16 @@ export default function SuppliersList() {
           </div>
         ) : isError ? (
           <div className="text-center text-red-600">
-            Failed to load suppliers.
-            <Button variant="outline" className="ml-2" onClick={() => refetch()}>Retry</Button>
+            {t('messages.suppliersLoadFailed')}
+            <Button variant="outline" className="ml-2" onClick={() => refetch()}>
+              {t('buttons.retry')}
+            </Button>
           </div>
         ) : !filtered.length ? (
-          <div className="text-sm text-gray-500">No suppliers</div>
+          <div className="text-center text-gray-500 text-sm">
+            {t('messages.noSuppliers')}
+            <Button className="ml-2" onClick={() => {}}>{t('buttons.addSupplier')}</Button>
+          </div>
         ) : (
           <>
             <div ref={parentRef} className="h-96 overflow-auto border rounded">
