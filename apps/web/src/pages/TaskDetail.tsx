@@ -1,6 +1,6 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, listSuppliers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -154,6 +154,7 @@ export default function TaskDetail() {
 
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
   const orderTypesQuery = useQuery({ queryKey: ['vali', 'orderType'], queryFn: () => listVali('orderType') });
+  const suppliersQuery = useQuery({ queryKey: ['suppliers'], queryFn: () => listSuppliers('') });
 
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState('');
@@ -161,6 +162,7 @@ export default function TaskDetail() {
   const [dueDate, setDueDate] = useState('');
   const [desc, setDesc] = useState('');
   const [assignees, setAssignees] = useState<string[]>([]);
+  const [supplierId, setSupplierId] = useState('');
   const [orderDate, setOrderDate] = useState('');
   const [orderReceivedDate, setOrderReceivedDate] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
@@ -192,6 +194,7 @@ export default function TaskDetail() {
       setEarlyDelivery(!!task.deliveryDate);
       setEmailSubject(`Task ${task.title}`);
       setEmailBody(task.description || '');
+      setSupplierId(task.supplier?.id || '');
       }
     }, [task]);
 
@@ -376,7 +379,42 @@ export default function TaskDetail() {
               </>
             )}
           </div>
-          <div>
+        <div>
+          <label className="block text-sm font-medium">{t('labels.supplier')}</label>
+          {suppliersQuery.isLoading ? (
+            <Skeleton className="h-10 w-full mt-1" />
+          ) : suppliersQuery.isError ? (
+            <div className="mt-1 text-red-600 text-sm">{t('messages.suppliersLoadFailed')}</div>
+          ) : (
+            <>
+              <select
+                className="mt-1 w-full border p-2 rounded-md"
+                value={supplierId}
+                onChange={(e) => {
+                  setSupplierId(e.target.value);
+                  save({ supplierId: e.target.value || null });
+                }}
+              >
+                <option value="">{t('placeholders.select')}</option>
+                {suppliersQuery.data?.items?.map((s: any) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              {supplierId && (
+                <Link
+                  to={`/suppliers/${supplierId}`}
+                  className="text-sm underline block mt-1"
+                >
+                  {t('buttons.view')}
+                </Link>
+              )}
+              <SaveIndicator mutation={update} />
+            </>
+          )}
+        </div>
+        <div>
             <OrderDeliveryPanel
               orderDate={orderDate}
               orderReceivedDate={orderReceivedDate}

@@ -150,6 +150,12 @@ export async function listSuppliers(q: string = '') {
   return r.json();
 }
 
+export async function getSupplier(id: string) {
+  const r = await fetch(`${base}/suppliers/${id}`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
 export async function listVali(key: string) {
   const r = await fetch(`${base}/vali/${key}`, { credentials: 'include' });
   if (!r.ok) throw new Error('Failed');

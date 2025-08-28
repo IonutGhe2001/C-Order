@@ -19,7 +19,8 @@ import Dashboard from './pages/Dashboard';
 import TasksBoard from './pages/TasksBoard';
 import TasksCalendar from './pages/TasksCalendar';
 import TasksTimeline from './pages/TasksTimeline';
-import SuppliersList from './pages/SuppliersList';
+import Suppliers from './pages/Suppliers';
+import SupplierDetail from './pages/SupplierDetail';
 import './styles.css';
 import { useAuth } from './lib/use-auth';
 import './lib/i18n';
@@ -40,7 +41,8 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
           <Route path="/tasks" element={<Protected><TasksHub /></Protected>} />
-          <Route path="/suppliers" element={<Protected><SuppliersList /></Protected>} />
+          <Route path="/suppliers" element={<Protected><Suppliers /></Protected>} />
+          <Route path="/suppliers/:id" element={<Protected><SupplierDetail /></Protected>} />
           <Route path="/tasks/board" element={<Protected><TasksBoard /></Protected>} />
           <Route path="/tasks/calendar" element={<Protected><TasksCalendar /></Protected>} />
           <Route path="/tasks/timeline" element={<Protected><TasksTimeline /></Protected>} />

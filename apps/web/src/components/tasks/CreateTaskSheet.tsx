@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toaster";
-import { listUsers, listVali, createTask } from "@/lib/api";
+import { listUsers, listVali, listSuppliers, createTask } from "@/lib/api";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 
@@ -53,6 +53,7 @@ export default function CreateTaskSheet() {
       status: "IN_PROGRESS",
       priority: "MEDIUM",
       assignees: [],
+      supplierId: undefined,
       dueDate: new Date(),
       earlyDelivery: false,
       attachments: [],
@@ -65,6 +66,12 @@ export default function CreateTaskSheet() {
   const usersQuery = useQuery({
     queryKey: ["users"],
     queryFn: listUsers,
+    enabled: open,
+  });
+
+  const suppliersQuery = useQuery({
+    queryKey: ["suppliers"],
+    queryFn: () => listSuppliers(""),
     enabled: open,
   });
 
@@ -250,9 +257,32 @@ export default function CreateTaskSheet() {
                   <AssigneeCombobox />
                 )}
                 {form.formState.errors.assignees && (
-                  <p className="text-sm text-red-600">
-                    {form.formState.errors.assignees.message}
-                  </p>
+                <p className="text-sm text-red-600">
+                  {form.formState.errors.assignees.message}
+                </p>
+              )}
+              </div>
+              <div>
+                <label className="text-sm font-medium">{t('labels.supplier')}</label>
+                {suppliersQuery.isLoading ? (
+                  <p className="text-sm">{t('messages.loading')}</p>
+                ) : suppliersQuery.isError ? (
+                  <p className="text-sm text-red-600">{t('messages.loadError')}</p>
+                ) : (
+                  <select
+                    className="mt-1 w-full border p-2 rounded-md"
+                    value={form.watch('supplierId') || ''}
+                    onChange={(e) =>
+                      form.setValue('supplierId', e.target.value || undefined)
+                    }
+                  >
+                    <option value="">{t('placeholders.select')}</option>
+                    {suppliersQuery.data?.items?.map((s: any) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
                 )}
               </div>
             </div>
