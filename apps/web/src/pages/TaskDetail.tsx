@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, listSuppliers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
 import { useState, useEffect } from 'react';
+import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
@@ -129,11 +130,15 @@ export default function TaskDetail() {
   const attachmentMut = useMutation({
     mutationFn: ({ attId, file }: { attId: string; file: File }) =>
       updateAttachment(id!, attId, file),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['task', id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['task', id] });
+      trackEvent('file_attached', { taskId: id });
+    },
   });
 
   const emailMut = useMutation({
     mutationFn: (data: any) => sendTaskEmail(id!, data),
+    onSuccess: () => trackEvent('email_sent', { taskId: id }),
   });
 
   const deleteMut = useMutation({

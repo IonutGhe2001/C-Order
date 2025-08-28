@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import {
   BrowserRouter,
@@ -23,9 +23,23 @@ import Suppliers from './pages/Suppliers';
 import SupplierDetail from './pages/SupplierDetail';
 import './styles.css';
 import { useAuth } from './lib/use-auth';
+import { setLoggerUser, logLoad } from './lib/logger';
+import { setAnalyticsUser } from './lib/analytics';
 import './lib/i18n';
 
 const qc = new QueryClient();
+
+function LoggingProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user?.id) {
+      setLoggerUser(user.id);
+      setAnalyticsUser(user.id);
+      logLoad();
+    }
+  }, [user]);
+  return <>{children}</>;
+}
 
 function Protected({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -59,9 +73,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={qc}>
         <Toaster>
           <ErrorBoundary>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
+            <LoggingProvider>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+            </LoggingProvider>
           </ErrorBoundary>
         </Toaster>
       </QueryClientProvider>

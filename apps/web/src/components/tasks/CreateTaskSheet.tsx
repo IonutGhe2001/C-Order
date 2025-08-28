@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toaster";
 import { listUsers, listVali, listSuppliers, createTask } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 
@@ -93,9 +94,10 @@ export default function CreateTaskSheet() {
         deliveryDate: rest.deliveryDate?.toISOString(),
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast({ title: t("messages.taskCreated"), variant: "success" });
+      trackEvent("task_created", { taskId: data?.id });
       setOpen(false);
       setStep(1);
       form.reset();

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { logError } from '@/lib/logger';
 
 interface State { error: Error | null }
 
@@ -13,6 +14,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}> & WithTr
     return { error };
   }
   componentDidCatch(error: Error, info: any) {
+    logError(error);
     console.error(error, info);
   }
   handleRetry = () => {
