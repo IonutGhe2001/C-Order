@@ -1,4 +1,20 @@
-const base = 'http://localhost:3001/api';
+export const base = 'http://localhost:3001/api';
+
+export async function fetchWithAuth(
+  url: string,
+  options: RequestInit = {},
+  retry = true,
+) {
+  const res = await fetch(url, { ...options, credentials: 'include' });
+  if (res.status === 401 && retry) {
+    const refresh = await fetch(`${base}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (refresh.ok) return fetchWithAuth(url, options, false);
+  }
+  return res;
+}
 
 export interface TaskPayload {
   title: string;
@@ -36,28 +52,27 @@ export async function listTasks(params: TaskFilters = {}) {
   const qs = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v != null && v !== '') as any,
   ).toString();
-  const r = await fetch(`${base}/tasks?${qs}`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/tasks?${qs}`);
   if (r.status === 401) throw new Error('Unauthorized');
   return r.json();
 }
 
 export async function getTask(id: string) {
-  const r = await fetch(`${base}/tasks/${id}`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/tasks/${id}`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function getTaskAudit(id: string) {
-  const r = await fetch(`${base}/tasks/${id}/audit`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/tasks/${id}/audit`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function updateTask(id: string, data: Partial<TaskPayload>) {
-  const r = await fetch(`${base}/tasks/${id}`, {
+  const r = await fetchWithAuth(`${base}/tasks/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(data),
   });
   if (!r.ok) throw new Error('Failed');
@@ -69,10 +84,9 @@ export function updateTaskStatus(id: string, status: string) {
 }
 
 export async function addComment(id: string, body: string) {
-  const r = await fetch(`${base}/tasks/${id}/comments`, {
+  const r = await fetchWithAuth(`${base}/tasks/${id}/comments`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify({ body }),
   });
   if (!r.ok) throw new Error('Failed');
@@ -86,9 +100,8 @@ export async function updateAttachment(
 ) {
   const fd = new FormData();
   fd.append('file', file);
-  const r = await fetch(`${base}/tasks/${taskId}/attachments/${attId}`, {
+  const r = await fetchWithAuth(`${base}/tasks/${taskId}/attachments/${attId}`, {
     method: 'PATCH',
-    credentials: 'include',
     body: fd,
   });
   if (!r.ok) throw new Error('Failed');
@@ -96,18 +109,16 @@ export async function updateAttachment(
 }
 
 export async function deleteTask(id: string) {
-  const r = await fetch(`${base}/tasks/${id}`, {
+  const r = await fetchWithAuth(`${base}/tasks/${id}`, {
     method: 'DELETE',
-    credentials: 'include',
   });
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function archiveTask(id: string) {
-  const r = await fetch(`${base}/tasks/${id}/archive`, {
+  const r = await fetchWithAuth(`${base}/tasks/${id}/archive`, {
     method: 'POST',
-    credentials: 'include',
   });
   if (!r.ok) throw new Error('Failed');
   return r.json();
@@ -117,10 +128,9 @@ export async function sendTaskEmail(
   id: string,
   data: { to: string[]; subject: string; body: string; attachments?: string[] },
 ) {
-  const r = await fetch(`${base}/tasks/${id}/send-email`, {
+  const r = await fetchWithAuth(`${base}/tasks/${id}/send-email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(data),
   });
   if (!r.ok) throw new Error('Failed');
@@ -128,10 +138,9 @@ export async function sendTaskEmail(
 }
 
 export async function createTask(data: TaskPayload) {
-  const r = await fetch(`${base}/tasks`, {
+  const r = await fetchWithAuth(`${base}/tasks`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(data),
   });
   if (!r.ok) throw new Error('Failed');
@@ -139,31 +148,31 @@ export async function createTask(data: TaskPayload) {
 }
 
 export async function listUsers() {
-  const r = await fetch(`${base}/users`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/users`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function listSuppliers(q: string = '') {
-  const r = await fetch(`${base}/suppliers?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/suppliers?q=${encodeURIComponent(q)}`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function getSupplier(id: string) {
-  const r = await fetch(`${base}/suppliers/${id}`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/suppliers/${id}`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function listVali(key: string) {
-  const r = await fetch(`${base}/vali/${key}`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/vali/${key}`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
 
 export async function getTaskSummary() {
-  const r = await fetch(`${base}/tasks/summary`, { credentials: 'include' });
+  const r = await fetchWithAuth(`${base}/tasks/summary`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
