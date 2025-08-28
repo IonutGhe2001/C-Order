@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, listVali, listSuppliers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, listSuppliers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
@@ -55,6 +55,12 @@ const priorityLabels: Record<string, string> = {
   MEDIUM: 'priority.MEDIUM',
   HIGH: 'priority.HIGH',
 };
+
+const orderTypeOptions = [
+  { value: 'Achizitie Directa', label: 'Achizitie Directa' },
+  { value: 'Acord Cadru', label: 'Acord Cadru' },
+  { value: 'Contract', label: 'Contract' },
+];
 
 function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
   const [content, setContent] = useState('');
@@ -158,7 +164,6 @@ export default function TaskDetail() {
   });
 
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
-  const orderTypesQuery = useQuery({ queryKey: ['vali', 'orderType'], queryFn: () => listVali('orderType') });
   const suppliersQuery = useQuery({ queryKey: ['suppliers'], queryFn: () => listSuppliers('') });
 
   const [title, setTitle] = useState('');
@@ -429,7 +434,7 @@ export default function TaskDetail() {
               productsReceivedDate={productsReceivedDate}
               earlyDelivery={earlyDelivery}
               deliveryDate={deliveryDate}
-              orderTypes={orderTypesQuery.data?.items || []}
+              orderTypes={orderTypeOptions}
               onChange={(d) => {
                 if (d.orderDate !== undefined) setOrderDate(d.orderDate);
                 if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);

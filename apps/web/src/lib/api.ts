@@ -165,12 +165,6 @@ export async function getSupplier(id: string) {
   return r.json();
 }
 
-export async function listVali(key: string) {
-  const r = await fetchWithAuth(`${base}/vali/${key}`);
-  if (!r.ok) throw new Error('Failed');
-  return r.json();
-}
-
 export async function getTaskSummary() {
   const r = await fetchWithAuth(`${base}/tasks/summary`);
   if (!r.ok) throw new Error('Failed');

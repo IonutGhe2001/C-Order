@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toaster";
-import { listUsers, listVali, listSuppliers, createTask } from "@/lib/api";
+import { listUsers, listSuppliers, createTask } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
@@ -40,6 +40,12 @@ const statusLabels: Record<string, string> = {
   FINALIZAT: "statuses.FINALIZAT",
   CANCELLED: "statuses.CANCELLED",
 };
+
+const orderTypeOptions = [
+  "Achizitie Directa",
+  "Acord Cadru",
+  "Contract",
+];
 
 export default function CreateTaskSheet() {
   const [open, setOpen] = useState(false);
@@ -73,12 +79,6 @@ export default function CreateTaskSheet() {
   const suppliersQuery = useQuery({
     queryKey: ["suppliers"],
     queryFn: () => listSuppliers(""),
-    enabled: open,
-  });
-
-  const orderTypesQuery = useQuery({
-    queryKey: ["vali", "orderType"],
-    queryFn: () => listVali("orderType"),
     enabled: open,
   });
 
@@ -314,23 +314,17 @@ export default function CreateTaskSheet() {
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.orderType')}</label>
-                {orderTypesQuery.isLoading ? (
-                  <p className="text-sm">{t('messages.loading')}</p>
-                ) : orderTypesQuery.isError ? (
-                  <p className="text-sm text-red-600">{t('messages.loadError')}</p>
-                ) : (
-                  <select
-                    className="mt-1 w-full border p-2 rounded-md"
-                    {...form.register("orderType")}
-                  >
-                    <option value="">{t('placeholders.select')}</option>
-                    {orderTypesQuery.data?.items?.map((o: any) => (
-                      <option key={o.id || o.value} value={o.value || o.id}>
-                        {o.label || o.name || o.value}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <select
+                  className="mt-1 w-full border p-2 rounded-md"
+                  {...form.register('orderType')}
+                >
+                  <option value="">{t('placeholders.select')}</option>
+                  {orderTypeOptions.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.orderReceivedDate')}</label>
