@@ -7,6 +7,7 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 function ViewSwitcher() {
+  const { t } = useTranslation();
   const links = [
     { to: '/tasks', label: t('nav.list') },
     { to: '/tasks/board', label: t('nav.board') },
