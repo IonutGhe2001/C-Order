@@ -13,6 +13,11 @@ export class TasksController {
   @Get()
   async list(@Query() q: any) { return { items: await this.tasks.list(q) }; }
 
+  @Get('summary')
+  summary() {
+    return this.tasks.summary();
+  }
+
   @Get(':id')
   get(@Param('id') id: string) { return this.tasks.get(id); }
 

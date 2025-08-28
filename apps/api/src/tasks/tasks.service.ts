@@ -45,6 +45,18 @@ export class TasksService {
       orderBy: { createdAt: 'desc' },
     });
   }
+  async summary() {
+    const grouped = await this.prisma.task.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    });
+    return Object.values(TaskStatus).map((status) => {
+      const found = grouped.find((g) => g.status === status);
+      const value = found ? found._count._all : 0;
+      return { title: status, value, trend: [value] };
+    });
+  }
+  
   get(id: string) {
     return this.prisma.task.findUnique({
       where: { id },
