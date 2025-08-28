@@ -4,13 +4,14 @@ import { listTasks } from '../lib/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function ViewSwitcher() {
   const links = [
-    { to: '/tasks', label: 'Listă' },
-    { to: '/tasks/board', label: 'Board' },
-    { to: '/tasks/calendar', label: 'Calendar' },
-    { to: '/tasks/timeline', label: 'Timeline' },
+    { to: '/tasks', label: t('nav.list') },
+    { to: '/tasks/board', label: t('nav.board') },
+    { to: '/tasks/calendar', label: t('nav.calendar') },
+    { to: '/tasks/timeline', label: t('nav.timeline') },
   ];
   return (
     <div className="flex space-x-2 mr-4">
@@ -32,6 +33,7 @@ function ViewSwitcher() {
 export default function TasksTimeline() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data } = useQuery({ queryKey: ['tasks'], queryFn: () => listTasks() });
+  const { t } = useTranslation();
   const tasks = useMemo(() => {
     return (data?.items || []).filter(
       (t: any) => t.orderDate && (t.deliveryDate || t.dueDate)
@@ -60,7 +62,7 @@ export default function TasksTimeline() {
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="pt-14 md:ml-60 ml-0 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">Timeline</h1>
+          <h1 className="text-xl font-bold">{t('nav.timeline')}</h1>
           <ViewSwitcher />
         </div>
         <div className="space-y-4">

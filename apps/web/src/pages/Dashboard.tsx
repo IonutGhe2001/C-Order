@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import KpiCard from '../components/dashboard/KpiCard';
 import { getTaskSummary } from '../lib/api';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
   const { data, isLoading, isError } = useQuery({
@@ -12,6 +13,7 @@ export default function Dashboard() {
     queryFn: getTaskSummary,
   });
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -25,7 +27,7 @@ export default function Dashboard() {
       >
         <h1 className="text-xl font-bold mb-4">Dashboard</h1>
         {isLoading && <div>Loading...</div>}
-        {isError && <div>Eroare la încărcare</div>}
+        {isError && <div>{t('messages.loadError')}</div>}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.isArray(data) &&
             data.map((kpi) => (

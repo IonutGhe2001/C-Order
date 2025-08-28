@@ -1,9 +1,11 @@
 import { Button } from '../ui/button';
 import { Icon } from '../../lib/lucide-icon';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
   const [content, setContent] = useState('');
+  const { t } = useTranslation();
   const isText = attachment.mimeType?.startsWith('text/');
   useEffect(() => {
     if (isText) {
@@ -18,7 +20,7 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
           const blob = new Blob([content], { type: attachment.mimeType });
           const file = new File([blob], attachment.filename, { type: attachment.mimeType });
           onSave(file);
-        }}>Salvează</Button>
+        }}>{t('buttons.save')}</Button>
       </div>
     );
   }
@@ -34,9 +36,10 @@ interface Props {
 }
 
 export default function AttachmentsPanel({ attachments, onSave }: Props) {
+  const { t } = useTranslation();
   return (
     <div>
-      <h2 className="font-medium mb-2">Fișiere</h2>
+      <h2 className="font-medium mb-2">{t('labels.files')}</h2>
       {attachments?.length ? (
         <ul className="space-y-4 mb-2">
           {attachments.map((a: any) => (
@@ -47,7 +50,7 @@ export default function AttachmentsPanel({ attachments, onSave }: Props) {
         </ul>
       ) : (
         <div className="text-sm text-gray-500 flex items-center mb-2">
-          <Icon name="inbox" className="h-4 w-4 mr-1" /> Niciun fișier
+          <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.filesEmpty')}
         </div>
       )}
       <input type="file" onChange={e => {

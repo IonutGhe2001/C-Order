@@ -1,0 +1,97 @@
+{
+  "nav": {
+    "list": "Listă",
+    "board": "Board",
+    "calendar": "Calendar",
+    "timeline": "Timeline",
+    "tasks": "Task-uri"
+  },
+  "statuses": {
+    "OPEN": "Deschis",
+    "IN_PROGRESS": "În progres",
+    "BLOCKED": "Blocat",
+    "DONE": "Finalizat",
+    "LIVRAT_PARTIAL": "Livrat parțial",
+    "FINALIZAT": "Finalizat",
+    "CANCELLED": "Anulat"
+  },
+  "priority": {
+    "LOW": "Scăzută",
+    "MEDIUM": "Medie",
+    "HIGH": "Ridicată",
+    "SMALL": "Mică"
+  },
+    "labels": {
+      "noType": "Fără tip",
+      "dueDate": "Data limită",
+      "orderDate": "Data comandă",
+      "orderReceivedDate": "Data primire comandă",
+      "orderNumber": "Număr comandă",
+      "orderType": "Tip comandă",
+      "files": "Fișiere",
+      "attachments": "Atașamente",
+      "priority": "Prioritate",
+      "assignees": "Responsabili",
+      "title": "Titlu",
+      "status": "Status",
+      "auditLog": "Jurnal audit",
+      "description": "Descriere",
+      "authority": "Autoritate",
+      "productsReceivedDate": "Data primire produse",
+      "earlyDelivery": "Livrare mai devreme",
+      "comments": "Comentarii",
+      "all": "Toate",
+      "columns": "Coloane"
+    },
+  "buttons": {
+    "save": "Salvează",
+    "retry": "Reîncearcă",
+    "cancel": "Anulează",
+    "add": "Adaugă",
+    "addTask": "Adaugă task",
+    "continue": "Continuă",
+    "back": "Înapoi",
+    "apply": "Aplică",
+    "send": "Trimite"
+  },
+  "placeholders": {
+    "search": "Caută...",
+    "filter": "Filtrează...",
+    "addComment": "Adaugă comentariu...",
+    "addAssignee": "Adaugă responsabil",
+    "dropFiles": "Lasă fișierele aici...",
+    "dragOrClick": "Trage fișiere sau apasă pentru a selecta",
+    "select": "Selectează",
+    "selectType": "Selectează tip",
+    "recipients": "Destinatari (virgule)",
+    "subject": "Subiect"
+  },
+    "messages": {
+      "loadError": "Eroare la încărcare",
+      "loading": "Încărcare...",
+      "taskLoadFailed": "Încărcarea task-ului a eșuat.",
+      "auditLoadFailed": "Încărcarea jurnalului de audit a eșuat",
+      "noAuditEntries": "Nicio intrare în jurnal",
+      "filesEmpty": "Niciun fișier",
+      "taskCreateFailed": "Crearea task-ului a eșuat",
+      "taskCreated": "Task creat",
+      "usersLoadFailed": "Încărcarea utilizatorilor a eșuat",
+      "tasksLoadFailed": "Încărcarea task-urilor a eșuat.",
+      "updateFailed": "Actualizare eșuată",
+      "updateSuccess": "Actualizare reușită",
+      "noComments": "Niciun comentariu",
+      "noTasks": "Niciun task",
+      "selectedCount": "{{count}} selectate"
+    },
+  "system": "Sistemul",
+  "anonymous": "Anonim",
+  "titles": {
+    "createTask": "Creează task",
+    "sendEmail": "Trimite e-mail"
+  },
+  "validation": {
+    "dueDateRequired": "Data limită este obligatorie",
+    "titleRequired": "Titlul este obligatoriu",
+    "assigneeRequired": "Responsabilul este obligatoriu"
+  }
+}

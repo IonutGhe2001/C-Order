@@ -1,0 +1,97 @@
+{
+  "nav": {
+    "list": "List",
+    "board": "Board",
+    "calendar": "Calendar",
+    "timeline": "Timeline",
+    "tasks": "Tasks"
+  },
+  "statuses": {
+    "OPEN": "Open",
+    "IN_PROGRESS": "In progress",
+    "BLOCKED": "Blocked",
+    "DONE": "Done",
+    "LIVRAT_PARTIAL": "Partially delivered",
+    "FINALIZAT": "Done",
+    "CANCELLED": "Cancelled"
+  },
+  "priority": {
+    "LOW": "Low",
+    "MEDIUM": "Medium",
+    "HIGH": "High",
+    "SMALL": "Small"
+  },
+  "labels": {
+    "noType": "No type",
+    "dueDate": "Due date",
+    "orderDate": "Order date",
+    "orderReceivedDate": "Order received date",
+    "orderNumber": "Order number",
+    "orderType": "Order type",
+    "files": "Files",
+    "attachments": "Attachments",
+    "priority": "Priority",
+    "assignees": "Assignees",
+    "title": "Title",
+    "status": "Status",
+    "auditLog": "Audit log",
+    "description": "Description",
+    "authority": "Authority",
+    "productsReceivedDate": "Products received date",
+    "earlyDelivery": "Early delivery",
+    "comments": "Comments",
+    "all": "All",
+    "columns": "Columns"
+  },
+  "buttons": {
+    "save": "Save",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "add": "Add",
+    "addTask": "Add task",
+    "continue": "Continue",
+    "back": "Back",
+    "apply": "Apply",
+    "send": "Send"
+  },
+  "placeholders": {
+    "search": "Search...",
+    "filter": "Filter...",
+    "addComment": "Add comment...",
+    "addAssignee": "Add assignee",
+    "dropFiles": "Drop files here...",
+    "dragOrClick": "Drag files or click to select",
+    "select": "Select",
+    "selectType": "Select type",
+    "recipients": "Recipients (comma separated)",
+    "subject": "Subject"
+  },
+  "messages": {
+    "loadError": "Failed to load",
+    "loading": "Loading...",
+    "taskLoadFailed": "Task loading failed.",
+    "auditLoadFailed": "Failed to load audit log",
+    "noAuditEntries": "No log entries",
+    "filesEmpty": "No files",
+    "taskCreateFailed": "Task creation failed",
+    "taskCreated": "Task created",
+    "usersLoadFailed": "Failed to load users",
+    "tasksLoadFailed": "Failed to load tasks.",
+    "updateFailed": "Update failed",
+    "updateSuccess": "Update successful",
+    "noComments": "No comments",
+    "noTasks": "No tasks",
+    "selectedCount": "{{count}} selected"
+  },
+  "system": "System",
+  "anonymous": "Anonymous",
+  "titles": {
+    "createTask": "Create task",
+    "sendEmail": "Send email"
+  },
+  "validation": {
+    "dueDateRequired": "Due date is required",
+    "titleRequired": "Title is required",
+    "assigneeRequired": "Assignee is required"
+  }
+}

@@ -4,6 +4,7 @@ import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { useTranslation } from 'react-i18next';
 
 interface User { id: string; name: string; }
 
@@ -28,6 +29,7 @@ function Chip({ id, name }: { id: string; name: string }) {
 
 export default function AssigneeChips({ users, value, onChange }: AssigneeChipsProps) {
   const [input, setInput] = useState('');
+  const { t } = useTranslation();
   const selectedUsers = value.map(id => users.find(u => u.id === id)).filter(Boolean) as User[];
 
   const addUser = () => {
@@ -60,10 +62,10 @@ export default function AssigneeChips({ users, value, onChange }: AssigneeChipsP
         <Input
           value={input}
           onChange={e => setInput(e.target.value)}
-          placeholder="Adaugă responsabil"
+          placeholder={t('placeholders.addAssignee')}
           className="h-8 text-sm"
         />
-        <Button type="button" onClick={addUser} className="h-8 px-2 text-xs">Adaugă</Button>
+        <Button type="button" onClick={addUser} className="h-8 px-2 text-xs">{t('buttons.add')}</Button>
       </div>
     </div>
   );

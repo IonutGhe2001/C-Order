@@ -6,6 +6,8 @@ import Sidebar from '../components/Sidebar';
 import TaskCard from '../components/tasks/TaskCard';
 import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { statusLabels } from '../components/tasks/columns';
 
 const statuses = [
   'OPEN',
@@ -16,22 +18,15 @@ const statuses = [
   'FINALIZAT',
   'CANCELLED',
 ];
-const labels: Record<string, string> = {
-  OPEN: 'Deschis',
-  IN_PROGRESS: 'În progres',
-  BLOCKED: 'Blocat',
-  DONE: 'Finalizat',
-  LIVRAT_PARTIAL: 'Livrat parțial',
-  FINALIZAT: 'Finalizat',
-  CANCELLED: 'Anulat',
-};
+const labels: Record<string, string> = statusLabels;
 
 function ViewSwitcher() {
+  const { t } = useTranslation();
   const links = [
-    { to: '/tasks', label: 'Listă' },
-    { to: '/tasks/board', label: 'Board' },
-    { to: '/tasks/calendar', label: 'Calendar' },
-    { to: '/tasks/timeline', label: 'Timeline' },
+    { to: '/tasks', label: t('nav.list') },
+    { to: '/tasks/board', label: t('nav.board') },
+    { to: '/tasks/calendar', label: t('nav.calendar') },
+    { to: '/tasks/timeline', label: t('nav.timeline') },
   ];
   return (
     <div className="flex space-x-2 mr-4">
@@ -73,9 +68,10 @@ function StatusColumn({
   groups: Record<string, any[]>;
 }) {
   const { setNodeRef } = useDroppable({ id: status });
+  const { t } = useTranslation();
   return (
     <div ref={setNodeRef} className="bg-gray-50 rounded p-2 min-h-[200px]">
-      <h2 className="font-medium text-sm mb-2">{labels[status] || status}</h2>
+      <h2 className="font-medium text-sm mb-2">{t(labels[status] || `statuses.${status}`)}</h2>
       {Object.entries(groups).map(([orderType, list]) => (
         <div key={orderType} className="mb-4">
           <h3 className="text-xs font-semibold mb-1">{orderType}</h3>
@@ -91,6 +87,7 @@ function StatusColumn({
 export default function TasksBoard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const { data } = useQuery({ queryKey: ['tasks'], queryFn: () => listTasks() });
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -102,7 +99,7 @@ export default function TasksBoard() {
     const result: Record<string, Record<string, any[]>> = {};
     (data?.items || []).forEach((t: any) => {
       const st = t.status || 'OPEN';
-      const ot = t.orderType || 'Fără tip';
+      const ot = t.orderType || t('labels.noType');
       if (!result[st]) result[st] = {};
       if (!result[st][ot]) result[st][ot] = [];
       result[st][ot].push(t);
@@ -123,7 +120,7 @@ export default function TasksBoard() {
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="pt-14 md:ml-60 ml-0 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">Task-uri</h1>
+         <h1 className="text-xl font-bold">{t('nav.tasks')}</h1>
           <div className="flex items-center">
             <ViewSwitcher />
           </div>

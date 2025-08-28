@@ -23,6 +23,8 @@ import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
 import CommentsPanel from '../components/tasks/CommentsPanel';
 import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
 import EmailDrawer from '../components/tasks/EmailDrawer';
+import { useTranslation } from 'react-i18next';
+import { statusLabels } from '../components/tasks/columns';
 
 const statuses = [
   'OPEN',
@@ -33,25 +35,18 @@ const statuses = [
   'FINALIZAT',
   'CANCELLED',
 ];
-const labels: Record<string, string> = {
-  OPEN: 'Deschis',
-  IN_PROGRESS: 'În progres',
-  BLOCKED: 'Blocat',
-  DONE: 'Finalizat',
-  LIVRAT_PARTIAL: 'Livrat parțial',
-  FINALIZAT: 'Finalizat',
-  CANCELLED: 'Anulat',
-};
+const labels: Record<string, string> = statusLabels;
 const priorities = ['LOW', 'MEDIUM', 'HIGH'];
 const priorityLabels: Record<string, string> = {
-  LOW: 'Scăzută',
-  MEDIUM: 'Medie',
-  HIGH: 'Ridicată',
+  LOW: 'priority.LOW',
+  MEDIUM: 'priority.MEDIUM',
+  HIGH: 'priority.HIGH',
 };
 
 function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
   const [content, setContent] = useState('');
   const isText = attachment.mimeType?.startsWith('text/');
+  const { t } = useTranslation();
   useEffect(() => {
     if (isText) {
       fetch(attachment.url)
@@ -76,7 +71,7 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
             onSave(file);
           }}
         >
-          Salvează
+          {t('buttons.save')}
         </Button>
       </div>
     );
@@ -94,8 +89,9 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
 export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
+  const { t } = useTranslation();
   const {
-    data: t,
+    data: task,
     isLoading,
     isError,
     refetch,
@@ -150,31 +146,31 @@ export default function TaskDetail() {
   const [emailBody, setEmailBody] = useState('');
 
   useEffect(() => {
-    if (t) {
-      setTitle(t.title);
-      setStatus(t.status);
-      setPriority(t.priority || '');
-      setDueDate(t.dueDate ? t.dueDate.slice(0, 10) : '');
-      setDesc(t.description || '');
-      setAssignees(t.assignees?.map((a: any) => a.id) || []);
-      setOrderDate(t.orderDate ? t.orderDate.slice(0, 10) : '');
-      setOrderReceivedDate(t.orderReceivedDate ? t.orderReceivedDate.slice(0, 10) : '');
-      setOrderNumber(t.orderNumber || '');
-      setAuthority(t.authority || '');
-      setOrderType(t.orderType || '');
-        setProductsReceivedDate(t.productsReceivedDate ? t.productsReceivedDate.slice(0, 10) : '');
-        setDeliveryDate(t.deliveryDate ? t.deliveryDate.slice(0, 10) : '');
-        setEarlyDelivery(!!t.deliveryDate);
-        setEmailSubject(`Task ${t.title}`);
-        setEmailBody(t.description || '');
+    if (task) {
+      setTitle(task.title);
+      setStatus(task.status);
+      setPriority(task.priority || '');
+      setDueDate(task.dueDate ? task.dueDate.slice(0, 10) : '');
+      setDesc(task.description || '');
+      setAssignees(task.assignees?.map((a: any) => a.id) || []);
+      setOrderDate(task.orderDate ? task.orderDate.slice(0, 10) : '');
+      setOrderReceivedDate(task.orderReceivedDate ? task.orderReceivedDate.slice(0, 10) : '');
+      setOrderNumber(task.orderNumber || '');
+      setAuthority(task.authority || '');
+      setOrderType(task.orderType || '');
+      setProductsReceivedDate(task.productsReceivedDate ? task.productsReceivedDate.slice(0, 10) : '');
+      setDeliveryDate(task.deliveryDate ? task.deliveryDate.slice(0, 10) : '');
+      setEarlyDelivery(!!task.deliveryDate);
+      setEmailSubject(`Task ${task.title}`);
+      setEmailBody(task.description || '');
       }
-    }, [t]);
+    }, [task]);
 
   const saveTitle = () => {
-    if (title !== t?.title) update.mutate({ title });
+    if (title !== task?.title) update.mutate({ title });
   };
   const saveDesc = () => {
-    if (desc !== t?.description) update.mutate({ description: desc });
+    if (desc !== task?.description) update.mutate({ description: desc });
   };
   const changeStatus = (s: string) => {
     setStatus(s);
@@ -212,8 +208,8 @@ export default function TaskDetail() {
         exit={{ opacity: 0, y: 20 }}
         className="p-6 text-center space-y-4"
       >
-        <p className="text-red-600">Încărcarea task-ului a eșuat.</p>
-        <Button onClick={() => refetch()}>Reîncearcă</Button>
+        <p className="text-red-600">{t('messages.taskLoadFailed')}</p>
+        <Button onClick={() => refetch()}>{t('buttons.retry')}</Button>
       </motion.div>
     );
   }
@@ -226,7 +222,7 @@ export default function TaskDetail() {
       exit={{ opacity: 0, y: 20 }}
       className="p-6 space-y-4"
     >
-      <Breadcrumb items={[{ label: 'Task-uri', href: '/tasks' }, { label: t.title }]} />
+      <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task.title }]} />
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div className="flex items-center flex-wrap gap-2 flex-1">
           <Input
@@ -237,13 +233,13 @@ export default function TaskDetail() {
           />
           <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
             {statuses.map(s => (
-              <option key={s} value={s}>{labels[s]}</option>
+              <option key={s} value={s}>{t(labels[s])}</option>
             ))}
           </select>
           <select value={priority} onChange={e => { setPriority(e.target.value); save({ priority: e.target.value || undefined }); }} className="border p-1 rounded">
-            <option value="">Prioritate</option>
+            <option value="">{t('labels.priority')}</option>
             {priorities.map(p => (
-              <option key={p} value={p}>{priorityLabels[p]}</option>
+              <option key={p} value={p}>{t(priorityLabels[p])}</option>
             ))}
           </select>
           <Input
@@ -284,11 +280,11 @@ export default function TaskDetail() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium">Responsabili</label>
+          <label className="block text-sm font-medium">{t('labels.assignees')}</label>
           {usersQuery.isLoading ? (
             <Skeleton className="h-10 w-full mt-1" />
           ) : usersQuery.isError ? (
-            <div className="mt-1 text-red-600 text-sm">Încărcarea utilizatorilor a eșuat</div>
+            <div className="mt-1 text-red-600 text-sm">{t('messages.usersLoadFailed')}</div>
           ) : (
             <AssigneeChips
               users={usersQuery.data?.items || []}
@@ -334,17 +330,17 @@ export default function TaskDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <h2 className="font-medium mb-2">Descriere</h2>
+            <h2 className="font-medium mb-2">{t('labels.description')}</h2>
             <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
           </div>
           <AttachmentsPanel
-            attachments={t.attachments || []}
+            attachments={task.attachments || []}
             onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
           />
         </div>
         <div className="space-y-4">
           <CommentsPanel
-            comments={t.comments || []}
+            comments={task.comments || []}
             onAdd={(body) => commentMut.mutate(body)}
           />
           <ActivityAuditPanel
@@ -371,7 +367,7 @@ export default function TaskDetail() {
           to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
           subject: emailSubject,
           body: emailBody,
-          attachments: t.attachments?.map((a: any) => a.id),
+          attachments: task.attachments?.map((a: any) => a.id),
         });
         setEmailOpen(false);
       }}

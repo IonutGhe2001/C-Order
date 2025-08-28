@@ -23,11 +23,13 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import TaskCard from './TaskCard';
-import { Task, taskColumns, statusOptions } from './columns';
+import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
+import { useTranslation } from 'react-i18next';
 
 function Filter({ column }: { column: any }) {
   const columnFilterValue = column.getFilterValue();
+  const { t } = useTranslation();
   if (column.id === 'status') {
     return (
       <select
@@ -35,10 +37,10 @@ function Filter({ column }: { column: any }) {
         value={(columnFilterValue ?? '') as string}
         onChange={(e) => column.setFilterValue(e.target.value || undefined)}
       >
-        <option value="">Toate</option>
+        <option value="">{t('labels.all')}</option>
         {statusOptions.map((s) => (
           <option key={s.value} value={s.value}>
-            {s.label}
+            {t(s.label)}
           </option>
         ))}
       </select>
@@ -49,7 +51,7 @@ function Filter({ column }: { column: any }) {
       className="w-full"
       value={(columnFilterValue ?? '') as string}
       onChange={(e) => column.setFilterValue(e.target.value)}
-      placeholder="Filtrează..."
+      placeholder={t('placeholders.filter')}
     />
   );
 }
@@ -62,6 +64,7 @@ export default function TasksDataTable({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const { t } = useTranslation();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['tasks'],
@@ -133,8 +136,8 @@ export default function TasksDataTable({
       enableColumnFilter: false,
       size: 40,
     };
-    return [selectColumn, ...taskColumns, actionColumn];
-  }, [navigate]);
+    return [selectColumn, ...createTaskColumns(t), actionColumn];
+  }, [navigate, t]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];
@@ -234,9 +237,9 @@ export default function TasksDataTable({
       if (ctx?.previous) {
         queryClient.setQueryData(['tasks'], ctx.previous);
       }
-      toast({ title: 'Actualizare eșuată', variant: 'error' });
+      toast({ title: t('messages.updateFailed'), variant: 'error' });
     },
-    onSuccess: () => toast({ title: 'Actualizare reușită', variant: 'success' }),
+    onSuccess: () => toast({ title: t('messages.updateSuccess'), variant: 'success' }),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setRowSelection({});
@@ -350,28 +353,28 @@ export default function TasksDataTable({
   if (isError) {
     return (
       <div className="text-center text-red-600">
-        Încărcarea task-urilor a eșuat.
-        <Button variant="outline" className="ml-2" onClick={() => refetch()}>Reîncearcă</Button>
+        {t('messages.tasksLoadFailed')}
+        <Button variant="outline" className="ml-2" onClick={() => refetch()}>{t('buttons.retry')}</Button>
       </div>
     );
   }
 
   if (!data?.items?.length) {
-    return <div className="text-center p-4 text-sm text-gray-500">Niciun task</div>;
+    return <div className="text-center p-4 text-sm text-gray-500">{t('messages.noTasks')}</div>;
   }
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <Input
-          placeholder="Caută..."
+          placeholder={t('placeholders.search')}
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="w-48"
         />
         <div className="relative">
           <Button variant="outline" size="sm" onClick={() => setShowColumns((s) => !s)}>
-            Coloane
+            {t('labels.columns')}
           </Button>
           {showColumns && (
             <div className="absolute z-10 bg-white border rounded shadow p-2 mt-1">
@@ -401,16 +404,16 @@ export default function TasksDataTable({
 
       {selectedRows.length > 0 && (
         <div className="p-2 border rounded flex flex-wrap items-end gap-2">
-          <span className="text-sm">{selectedRows.length} selectate</span>
+          <span className="text-sm">{t('messages.selectedCount', { count: selectedRows.length })}</span>
           <select
             className="border p-1 rounded"
             value={bulkStatus}
             onChange={(e) => setBulkStatus(e.target.value)}
           >
-            <option value="">Status</option>
+            <option value="">{t('labels.status')}</option>
             {statusOptions.map((s) => (
               <option key={s.value} value={s.value}>
-                {s.label}
+                {t(s.label)}
               </option>
             ))}
           </select>
@@ -439,7 +442,7 @@ export default function TasksDataTable({
             onChange={(e) => setBulkDueDate(e.target.value)}
           />
           <Button size="sm" onClick={handleBulkApply} disabled={mutation.isPending}>
-            Aplică
+            {t('buttons.apply')}
           </Button>
           <Button size="sm" variant="outline" onClick={exportCsv}>
             Export CSV

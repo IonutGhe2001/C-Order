@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { getStatusColor } from '@/lib/status-colors';
 import { useQueryClient } from '@tanstack/react-query';
 import { getTask } from '@/lib/api';
+import { useTranslation } from 'react-i18next';
+import { formatDate } from '@/lib/i18n';
 
 interface Props {
   task: Task;
@@ -14,6 +16,7 @@ interface Props {
 
 export default function TaskCard({ task, selected, onSelectChange, onClick }: Props) {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return (
     <div
       className="border rounded-md p-4 mb-2 cursor-pointer hover:bg-gray-50 transition-colors duration-200 motion-reduce:transition-none"
@@ -34,18 +37,22 @@ export default function TaskCard({ task, selected, onSelectChange, onClick }: Pr
           )}
           <h3 className="font-semibold text-sm">{task.title}</h3>
         </div>
-        <Badge variant={getStatusColor(task.status)}>{
-          statusLabels[task.status] || task.status
-        }</Badge>
+        <Badge variant={getStatusColor(task.status)}>
+          {t(statusLabels[task.status] || `statuses.${task.status}`)}
+        </Badge>
       </div>
       <div className="text-xs text-gray-600 mt-2 space-y-1">
-        <p>Prioritate: {task.priority}</p>
+        <p>
+          {t('labels.priority')}: {t(`priority.${task.priority}`)}
+        </p>
         {task.dueDate && (
-          <p>Termen: {new Date(task.dueDate).toLocaleDateString()}</p>
+          <p>
+            {t('labels.dueDate')}: {formatDate(new Date(task.dueDate))}
+          </p>
         )}
         {task.assignees?.length ? (
           <p>
-            Responsabili: {task.assignees.map((a) => a.name).join(', ')}
+            {t('labels.assignees')}: {task.assignees.map((a) => a.name).join(', ')}
           </p>
         ) : null}
       </div>

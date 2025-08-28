@@ -8,6 +8,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({
@@ -19,11 +20,12 @@ const localizer = dateFnsLocalizer({
 });
 
 function ViewSwitcher() {
+  const { t } = useTranslation();
   const links = [
-    { to: '/tasks', label: 'Listă' },
-    { to: '/tasks/board', label: 'Board' },
-    { to: '/tasks/calendar', label: 'Calendar' },
-    { to: '/tasks/timeline', label: 'Timeline' },
+    { to: '/tasks', label: t('nav.list') },
+    { to: '/tasks/board', label: t('nav.board') },
+    { to: '/tasks/calendar', label: t('nav.calendar') },
+    { to: '/tasks/timeline', label: t('nav.timeline') },
   ];
   return (
     <div className="flex space-x-2 mr-4">
@@ -44,6 +46,7 @@ function ViewSwitcher() {
 
 export default function TasksCalendar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { t } = useTranslation();
   const { data } = useQuery({ queryKey: ['tasks'], queryFn: () => listTasks() });
   const events = (data?.items || []).flatMap((t: any) => {
     const arr: any[] = [];
@@ -68,7 +71,7 @@ export default function TasksCalendar() {
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="pt-14 md:ml-60 ml-0 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold">Calendar</h1>
+          <h1 className="text-xl font-bold">{t('nav.calendar')}</h1>
           <ViewSwitcher />
         </div>
         <Calendar

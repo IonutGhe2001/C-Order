@@ -1,7 +1,8 @@
 import { z } from "zod";
+import i18n from '../i18n';
 
 export const taskSchema = z.object({
-  title: z.string().min(1, "Titlul este obligatoriu"),
+  title: z.string().min(1, i18n.t('validation.titleRequired')),
   description: z.string().optional(),
   status: z.enum([
     "OPEN",
@@ -13,8 +14,8 @@ export const taskSchema = z.object({
     "CANCELLED",
   ]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
-  assignees: z.array(z.string()).min(1, "Responsabilul este obligatoriu"),
-  dueDate: z.date({ required_error: "Data limită este obligatorie" }),
+  assignees: z.array(z.string()).min(1, i18n.t('validation.assigneeRequired')),
+  dueDate: z.date({ required_error: i18n.t('validation.dueDateRequired') }),
   orderDate: z.date().optional(),
   orderReceivedDate: z.date().optional(),
   orderNumber: z.string().optional(),

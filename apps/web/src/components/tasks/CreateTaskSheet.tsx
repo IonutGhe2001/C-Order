@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toaster";
 import { listUsers, listVali, createTask } from "@/lib/api";
 import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 
 const statuses = [
   "OPEN",
@@ -30,18 +31,19 @@ const statuses = [
 ] as const;
 
 const statusLabels: Record<string, string> = {
-  OPEN: "Deschis",
-  IN_PROGRESS: "În progres",
-  BLOCKED: "Blocat",
-  DONE: "Finalizat",
-  LIVRAT_PARTIAL: "Livrat parțial",
-  FINALIZAT: "Finalizat",
-  CANCELLED: "Anulat",
+  OPEN: "statuses.OPEN",
+  IN_PROGRESS: "statuses.IN_PROGRESS",
+  BLOCKED: "statuses.BLOCKED",
+  DONE: "statuses.DONE",
+  LIVRAT_PARTIAL: "statuses.LIVRAT_PARTIAL",
+  FINALIZAT: "statuses.FINALIZAT",
+  CANCELLED: "statuses.CANCELLED",
 };
 
 export default function CreateTaskSheet() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
+  const { t } = useTranslation();
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -86,12 +88,12 @@ export default function CreateTaskSheet() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast({ title: "Task creat", variant: "success" });
+      toast({ title: t("messages.taskCreated"), variant: "success" });
       setOpen(false);
       setStep(1);
       form.reset();
     },
-    onError: () => toast({ title: "Crearea task-ului a eșuat", variant: "error" }),
+    onError: () => toast({ title: t("messages.taskCreateFailed"), variant: "error" }),
   });
 
   const onSubmit = (values: TaskFormValues) => {
@@ -131,7 +133,7 @@ export default function CreateTaskSheet() {
     return (
       <div className="border p-2 rounded-md">
         <Input
-          placeholder="Caută..."
+          placeholder={t("placeholders.search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -172,9 +174,9 @@ export default function CreateTaskSheet() {
       >
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p>Lasă fișierele aici...</p>
+          <p>{t('placeholders.dropFiles')}</p>
         ) : (
-          <p>Trage fișiere sau apasă pentru a selecta</p>
+          <p>{t('placeholders.dragOrClick')}</p>
         )}
         {files && files.length > 0 && (
           <ul className="mt-2 text-sm text-left">
@@ -190,17 +192,17 @@ export default function CreateTaskSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>Adaugă task</Button>
+        <Button>{t('buttons.addTask')}</Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Creează task</SheetTitle>
+          <SheetTitle>{t('titles.createTask')}</SheetTitle>
         </SheetHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
           {step === 1 && (
             <div className="flex-1 overflow-y-auto space-y-4">
               <div>
-                <label className="text-sm font-medium">Titlu</label>
+                <label className="text-sm font-medium">{t('labels.title')}</label>
                 <Input className="mt-1" {...form.register("title")} />
                 {form.formState.errors.title && (
                   <p className="text-sm text-red-600">
@@ -209,11 +211,11 @@ export default function CreateTaskSheet() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium">Descriere</label>
+                <label className="text-sm font-medium">{t('labels.description')}</label>
                 <Textarea className="mt-1" {...form.register("description")} />
               </div>
               <div>
-                <label className="text-sm font-medium">Status</label>
+                <label className="text-sm font-medium">{t('labels.status')}</label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {statuses.map((s) => (
                     <Button
@@ -222,28 +224,28 @@ export default function CreateTaskSheet() {
                       variant={form.watch("status") === s ? "default" : "outline"}
                       onClick={() => form.setValue("status", s)}
                     >
-                      {statusLabels[s]}
+                      {t(statusLabels[s])}
                     </Button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium">Prioritate</label>
+                <label className="text-sm font-medium">{t('labels.priority')}</label>
                 <select
                   className="mt-1 w-full border p-2 rounded-md"
                   {...form.register("priority")}
                 >
-                  <option value="LOW">Mică</option>
-                  <option value="MEDIUM">Medie</option>
-                  <option value="HIGH">Mare</option>
+                  <option value="LOW">{t('priority.LOW')}</option>
+                  <option value="MEDIUM">{t('priority.MEDIUM')}</option>
+                  <option value="HIGH">{t('priority.HIGH')}</option>
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium">Responsabili</label>
+                <label className="text-sm font-medium">{t('labels.assignees')}</label>
                 {usersQuery.isLoading ? (
-                  <p className="text-sm">Încărcare...</p>
+                  <p className="text-sm">{t('messages.loading')}</p>
                 ) : usersQuery.isError ? (
-                  <p className="text-sm text-red-600">Eroare la încărcare</p>
+                  <p className="text-sm text-red-600">{t('messages.loadError')}</p>
                 ) : (
                   <AssigneeCombobox />
                 )}
@@ -258,7 +260,7 @@ export default function CreateTaskSheet() {
           {step === 2 && (
             <div className="flex-1 overflow-y-auto space-y-4">
               <div>
-                <label className="text-sm font-medium">Data limită</label>
+                <label className="text-sm font-medium">{t('labels.dueDate')}</label>
                 <Input type="date" className="mt-1" {...registerDate("dueDate")} />
                 {form.formState.errors.dueDate && (
                   <p className="text-sm text-red-600">
@@ -267,29 +269,29 @@ export default function CreateTaskSheet() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium">Data comandă</label>
+                <label className="text-sm font-medium">{t('labels.orderDate')}</label>
                 <Input type="date" className="mt-1" {...registerDate("orderDate")} />
               </div>
               <div>
-                <label className="text-sm font-medium">Număr comandă</label>
+                <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
                 <Input className="mt-1" {...form.register("orderNumber")} />
               </div>
               <div>
-                <label className="text-sm font-medium">Autoritate</label>
+                <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
                 <Input className="mt-1" {...form.register("authority")} />
               </div>
               <div>
-                <label className="text-sm font-medium">Tip comandă</label>
+                <label className="text-sm font-medium">{t('labels.orderType')}</label>
                 {orderTypesQuery.isLoading ? (
-                  <p className="text-sm">Încărcare...</p>
+                  <p className="text-sm">{t('messages.loading')}</p>
                 ) : orderTypesQuery.isError ? (
-                  <p className="text-sm text-red-600">Eroare la încărcare</p>
+                  <p className="text-sm text-red-600">{t('messages.loadError')}</p>
                 ) : (
                   <select
                     className="mt-1 w-full border p-2 rounded-md"
                     {...form.register("orderType")}
                   >
-                    <option value="">Selectează</option>
+                    <option value="">{t('placeholders.select')}</option>
                     {orderTypesQuery.data?.items?.map((o: any) => (
                       <option key={o.id || o.value} value={o.value || o.id}>
                         {o.label || o.name || o.value}
@@ -299,7 +301,7 @@ export default function CreateTaskSheet() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium">Data primire comandă</label>
+                <label className="text-sm font-medium">{t('labels.orderReceivedDate')}</label>
                 <Input
                   type="date"
                   className="mt-1"
@@ -307,7 +309,7 @@ export default function CreateTaskSheet() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Data primire produse</label>
+                <label className="text-sm font-medium">{t('labels.productsReceivedDate')}</label>
                 <Input
                   type="date"
                   className="mt-1"
@@ -320,13 +322,13 @@ export default function CreateTaskSheet() {
                   checked={form.watch("earlyDelivery")}
                   onChange={(e) => form.setValue("earlyDelivery", e.target.checked)}
                 />
-                <span className="text-sm font-medium">Livrare mai devreme</span>
+                <span className="text-sm font-medium">{t('labels.earlyDelivery')}</span>
               </div>
               {form.watch("earlyDelivery") && (
                 <Input type="date" className="mt-1" {...registerDate("deliveryDate")} />
               )}
               <div>
-                <label className="text-sm font-medium">Atașamente</label>
+                <label className="text-sm font-medium">{t('labels.attachments')}</label>
                 <DropzoneField />
               </div>
             </div>
@@ -336,19 +338,19 @@ export default function CreateTaskSheet() {
               <>
                 <SheetClose asChild>
                   <Button type="button" variant="outline">
-                    Anulează
+                    {t('buttons.cancel')}
                   </Button>
                 </SheetClose>
                 <Button type="button" onClick={() => setStep(2)}>
-                  Continuă
+                  {t('buttons.continue')}
                 </Button>
               </>
             ) : (
               <>
                 <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                  Înapoi
+                  {t('buttons.back')}
                 </Button>
-                <Button type="submit">Salvează</Button>
+                <Button type="submit">{t('buttons.save')}</Button>
               </>
             )}
           </SheetFooter>

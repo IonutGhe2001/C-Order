@@ -22,6 +22,7 @@ import TasksTimeline from './pages/TasksTimeline';
 import SuppliersList from './pages/SuppliersList';
 import './styles.css';
 import { useAuth } from './lib/use-auth';
+import './lib/i18n';
 
 const qc = new QueryClient();
 
