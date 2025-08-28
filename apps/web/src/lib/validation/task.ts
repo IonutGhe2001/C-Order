@@ -24,7 +24,7 @@ export const taskSchema = z.object({
   productsReceivedDate: z.date().optional(),
   earlyDelivery: z.boolean().optional(),
   deliveryDate: z.date().optional(),
-  supplierId: z.string().optional().nullable(),
+  supplier: z.string().optional(),
   attachments: z.array(z.any()).optional(),
 });
 

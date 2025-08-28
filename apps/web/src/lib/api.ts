@@ -22,7 +22,7 @@ export interface TaskPayload {
   status?: string;
   priority?: string;
   assignees?: string[];
-  supplierId?: string | null;
+  supplier?: string | null;
   dueDate?: string | null;
   amount?: number | null;
   currency?: string | null;

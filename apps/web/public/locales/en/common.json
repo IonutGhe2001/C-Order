@@ -32,6 +32,7 @@
     "attachments": "Attachments",
     "priority": "Priority",
     "assignees": "Assignees",
+    "supplier": "Supplier",
     "title": "Title",
     "status": "Status",
     "auditLog": "Audit log",

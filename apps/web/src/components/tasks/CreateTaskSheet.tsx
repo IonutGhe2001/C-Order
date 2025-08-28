@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toaster";
-import { listUsers, listSuppliers, createTask } from "@/lib/api";
+import { listUsers, createTask } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
@@ -60,7 +60,7 @@ export default function CreateTaskSheet() {
       status: "IN_PROGRESS",
       priority: "MEDIUM",
       assignees: [],
-      supplierId: undefined,
+      supplier: "",
       dueDate: new Date(),
       earlyDelivery: false,
       attachments: [],
@@ -76,11 +76,6 @@ export default function CreateTaskSheet() {
     enabled: open,
   });
 
-  const suppliersQuery = useQuery({
-    queryKey: ["suppliers"],
-    queryFn: () => listSuppliers(""),
-    enabled: open,
-  });
 
   const createMutation = useMutation({
     mutationFn: (values: TaskFormValues) => {
@@ -266,26 +261,11 @@ export default function CreateTaskSheet() {
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.supplier')}</label>
-                {suppliersQuery.isLoading ? (
-                  <p className="text-sm">{t('messages.loading')}</p>
-                ) : suppliersQuery.isError ? (
-                  <p className="text-sm text-red-600">{t('messages.loadError')}</p>
-                ) : (
-                  <select
-                    className="mt-1 w-full border p-2 rounded-md"
-                    value={form.watch('supplierId') || ''}
-                    onChange={(e) =>
-                      form.setValue('supplierId', e.target.value || undefined)
-                    }
-                  >
-                    <option value="">{t('placeholders.select')}</option>
-                    {suppliersQuery.data?.items?.map((s: any) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <Input
+                  className="mt-1"
+                  value={form.watch('supplier') || ''}
+                  onChange={(e) => form.setValue('supplier', e.target.value)}
+                />
               </div>
             </div>
           )}
