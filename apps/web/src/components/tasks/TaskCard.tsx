@@ -2,6 +2,8 @@ import React from 'react';
 import { Task, statusLabels } from './columns';
 import { Badge } from '@/components/ui/badge';
 import { getStatusColor } from '@/lib/status-colors';
+import { useQueryClient } from '@tanstack/react-query';
+import { getTask } from '@/lib/api';
 
 interface Props {
   task: Task;
@@ -11,10 +13,14 @@ interface Props {
 }
 
 export default function TaskCard({ task, selected, onSelectChange, onClick }: Props) {
+  const qc = useQueryClient();
   return (
     <div
       className="border rounded-md p-4 mb-2 cursor-pointer hover:bg-gray-50 transition-colors duration-200 motion-reduce:transition-none"
       onClick={onClick}
+      onMouseEnter={() =>
+        qc.prefetchQuery({ queryKey: ['task', task.id], queryFn: () => getTask(task.id) })
+      }
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">

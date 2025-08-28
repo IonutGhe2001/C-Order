@@ -17,7 +17,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listTasks, listUsers, updateTask, TaskPayload } from '@/lib/api';
+import { listTasks, listUsers, updateTask, TaskPayload, getTask } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -79,6 +79,7 @@ export default function TasksDataTable({
   const [globalFilter, setGlobalFilter] = useState('');
   const [showColumns, setShowColumns] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -170,6 +171,7 @@ export default function TasksDataTable({
       columnPinning,
       rowSelection,
       globalFilter,
+      pagination,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -178,6 +180,7 @@ export default function TasksDataTable({
     onColumnPinningChange: setColumnPinning,
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
     enableMultiSort: true,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -197,12 +200,47 @@ export default function TasksDataTable({
     mutationFn: async ({ ids, data }: { ids: string[]; data: Partial<TaskPayload> }) => {
       await Promise.all(ids.map((id) => updateTask(id, data)));
     },
-    onSuccess: () => {
+    onMutate: async ({ ids, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previous = queryClient.getQueryData<any>(['tasks']);
+      const userMap: Record<string, string> = Object.fromEntries(
+        usersQuery.data?.items?.map((u: any) => [u.id, u.name]) || [],
+      );
+      queryClient.setQueryData(['tasks'], (old: any) => {
+        if (!old?.items) return old;
+        return {
+          ...old,
+          items: old.items.map((t: any) => {
+            if (!ids.includes(t.id)) return t;
+            return {
+              ...t,
+              ...(data.status ? { status: data.status } : {}),
+              ...(data.assignees
+                ? {
+                    assignees: data.assignees.map((id: string) => ({
+                      id,
+                      name: userMap[id] || id,
+                    })),
+                  }
+                : {}),
+              ...(data.dueDate ? { dueDate: data.dueDate } : {}),
+            };
+          }),
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['tasks'], ctx.previous);
+      }
+      toast({ title: 'Actualizare eșuată', variant: 'error' });
+    },
+    onSuccess: () => toast({ title: 'Actualizare reușită', variant: 'success' }),
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setRowSelection({});
-      toast({ title: 'Actualizare reușită', variant: 'success' });
     },
-    onError: () => toast({ title: 'Actualizare eșuată', variant: 'error' }),
   });
 
   const [bulkStatus, setBulkStatus] = useState('');
@@ -477,6 +515,12 @@ export default function TasksDataTable({
                     tabIndex={0}
                     className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     onClick={() => navigate(`/tasks/${row.original.id}`)}
+                    onMouseEnter={() =>
+                      queryClient.prefetchQuery({
+                        queryKey: ['task', row.original.id],
+                        queryFn: () => getTask(row.original.id),
+                      })
+                    }
                     onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -501,6 +545,38 @@ export default function TasksDataTable({
           </table>
         </div>
       )}
+      <div className="flex items-center justify-end gap-2 mt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Prev
+        </Button>
+        <span className="text-sm">
+          {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+        <select
+          className="border rounded p-1 text-sm"
+          value={table.getState().pagination.pageSize}
+          onChange={(e) => table.setPageSize(Number(e.target.value))}
+        >
+          {[25, 50, 100].map((s) => (
+            <option key={s} value={s}>
+              {s} / pag
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Command } from 'cmdk';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { listTasks, listUsers, listSuppliers } from '@/lib/api';
+import { listTasks, listUsers, listSuppliers, getTask } from '@/lib/api';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -11,7 +11,8 @@ interface CommandPaletteProps {
 }
 
 export default function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const qc = useQueryClient();
 
   const tasksQuery = useQuery({
     queryKey: ['cp-tasks'],
@@ -77,6 +78,12 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
                   <Command.Item
                     key={t.id}
                     onSelect={() => onSelect(() => navigate(`/tasks/${t.id}`))}
+                    onMouseEnter={() =>
+                      qc.prefetchQuery({
+                        queryKey: ['task', t.id],
+                        queryFn: () => getTask(t.id),
+                      })
+                    }
                     className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {t.title}
