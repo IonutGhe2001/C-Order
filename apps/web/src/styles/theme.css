@@ -3,6 +3,10 @@
   --success: 142 69% 35%;
   --warning: 38 92% 40%;
   --danger: 0 84% 40%;
+  --brand: 221 83% 53%;
+  --brand-foreground: 210 40% 98%;
+  --brand-muted: 221 83% 94%;
+  --ring: var(--brand);
   --density: 1;
 }
 
@@ -15,9 +19,23 @@
   --density: 0.75;
 }
 
-.dark {
+:root.dark {
   --info: 217 91% 60%;
   --success: 142 69% 55%;
   --warning: 38 92% 50%;
   --danger: 0 84% 55%;
+--brand: 221 83% 66%;
+  --brand-foreground: 222 47% 11%;
+  --brand-muted: 221 83% 20%;
+  --ring: var(--brand);
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+::selection {
+  background: hsl(var(--brand));
+  color: hsl(var(--brand-foreground));
 }
