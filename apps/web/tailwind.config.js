@@ -10,10 +10,18 @@ export default {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
+        brand: {
+          DEFAULT: 'hsl(var(--brand))',
+          fg: 'hsl(var(--brand-foreground))',
+          muted: 'hsl(var(--brand-muted))',
+        },
         info: 'hsl(var(--info))',
         success: 'hsl(var(--success))',
         warning: 'hsl(var(--warning))',
         danger: 'hsl(var(--danger))',
+      },
+      ringColor: {
+        brand: 'hsl(var(--ring))',
       },
       spacing: {
         0: '0px',
