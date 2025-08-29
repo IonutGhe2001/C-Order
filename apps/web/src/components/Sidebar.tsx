@@ -18,9 +18,13 @@ export default function Sidebar({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center rounded hover:bg-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+    `flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
       collapsed ? 'justify-center p-2' : 'px-4 py-2'
-    } ${isActive ? 'bg-brand-muted text-brand' : ''}`;
+    } ${
+      isActive
+        ? 'bg-brand-muted text-brand'
+        : 'text-gray-600 hover:bg-brand-muted'
+    }`;
 
   const linkRefs = useRef<HTMLAnchorElement[]>([]);
   const handleKeyDown = (
