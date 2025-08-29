@@ -26,6 +26,12 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
 
   return (
     <>
+    <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 p-2 bg-white dark:bg-gray-900 text-brand z-50"
+      >
+        Skip to content
+      </a>
       <TooltipProvider>
         <header className="sticky top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center px-4 z-10">
           <div className="flex items-center space-x-4 flex-shrink-0">

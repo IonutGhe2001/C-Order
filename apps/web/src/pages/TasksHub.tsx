@@ -46,7 +46,7 @@ export default function TasksHub() {
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <div className="p-4 md:ml-60 mt-14">
+      <main id="main-content" className="p-4 md:ml-60 mt-14">
         <div className="flex justify-between mb-4 items-center">
           <h1 className="text-xl font-semibold">Tasks</h1>
           <div className="flex items-center gap-2">
@@ -140,7 +140,7 @@ export default function TasksHub() {
           </div>
         </div>
         <TasksDataTable quickFilter={quickFilter} onSelectionChange={setSelected} />
-      </div>
+      </main>
     </>
   );
 }

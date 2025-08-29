@@ -59,7 +59,7 @@ export default function Suppliers() {
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <div className="p-4 md:ml-60 mt-14">
+      <main id="main-content" className="p-4 md:ml-60 mt-14">
         <h1 className="text-xl font-semibold mb-4">{t('titles.suppliers')}</h1>
         {isLoading ? (
           <div className="space-y-2">
@@ -98,8 +98,15 @@ export default function Suppliers() {
                   {table.getRowModel().rows.map((row) => (
                     <tr
                       key={row.id}
-                      className="border-b hover:bg-gray-50 cursor-pointer"
+                      tabIndex={0}
+                      className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       onClick={() => navigate(`/suppliers/${row.original.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          navigate(`/suppliers/${row.original.id}`);
+                        }
+                      }}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td key={cell.id} className="p-2">
@@ -134,7 +141,7 @@ export default function Suppliers() {
             </div>
           </div>
         )}
-      </div>
+      </main>
     </>
   );
 }

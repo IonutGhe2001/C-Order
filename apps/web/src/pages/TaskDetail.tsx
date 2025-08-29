@@ -7,7 +7,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 import { getStatusColor } from '../lib/status-colors';
 import Breadcrumb from '../components/Breadcrumb';
@@ -179,6 +179,8 @@ export default function TaskDetail() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const commentsRef = useRef<HTMLDetailsElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const MotionDiv: any = shouldReduceMotion ? 'div' : motion.div;
 
   useEffect(() => {
     if (task) {
@@ -234,38 +236,46 @@ export default function TaskDetail() {
   };
   if (isLoading) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        className="p-6 space-y-4"
-      >
-        <Skeleton className="h-6 w-24" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-[150px]" />
+      <main id="main-content">
+        <MotionDiv
+          {...(!shouldReduceMotion && {
+            initial: { opacity: 0, y: 20 },
+            animate: { opacity: 1, y: 0 },
+            exit: { opacity: 0, y: 20 },
+          })}
+          className="p-6 space-y-4"
+        >
+          <Skeleton className="h-6 w-24" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-[150px]" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-64" />
+            </div>
           </div>
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-64" />
-          </div>
-        </div>
-      </motion.div>
+        </MotionDiv>
+      </main>
     );
   }
 
   if (isError || !t) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        className="p-6 text-center space-y-4"
-      >
-        <p className="text-red-600">{t('messages.taskLoadFailed')}</p>
-        <Button onClick={() => refetch()}>{t('buttons.retry')}</Button>
-      </motion.div>
+      <main id="main-content">
+        <MotionDiv
+          {...(!shouldReduceMotion && {
+            initial: { opacity: 0, y: 20 },
+            animate: { opacity: 1, y: 0 },
+            exit: { opacity: 0, y: 20 },
+          })}
+          className="p-6 text-center space-y-4"
+        >
+          <p className="text-red-600">{t('messages.taskLoadFailed')}</p>
+          <Button onClick={() => refetch()}>{t('buttons.retry')}</Button>
+        </MotionDiv>
+      </main>
     );
   }
 
@@ -307,10 +317,13 @@ export default function TaskDetail() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
+    <main id="main-content">
+    <MotionDiv
+      {...(!shouldReduceMotion && {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: 20 },
+      })}
       className="p-6 space-y-4"
     >
       <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task.title }]} />
@@ -465,12 +478,13 @@ export default function TaskDetail() {
             </details>
         </div>
       </div>
-    </motion.div>
+    </MotionDiv>
     <div className="md:hidden sticky bottom-4 flex justify-end p-4">
       <Button onClick={() => { commentsRef.current && (commentsRef.current.open = true); document.getElementById('add-comment-input')?.focus(); }}>
         {t('buttons.add')}
       </Button>
     </div>
+    </main>
       <EmailDrawer
       open={emailOpen}
       to={emailTo}

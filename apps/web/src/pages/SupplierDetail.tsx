@@ -46,7 +46,7 @@ export default function SupplierDetail() {
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <div className="p-4 md:ml-60 mt-14 space-y-4">
+      <main id="main-content" className="p-4 md:ml-60 mt-14 space-y-4">
         <div>
           <h1 className="text-2xl font-semibold">{supplier.name}</h1>
           <p className="text-sm text-gray-600">
@@ -66,8 +66,15 @@ export default function SupplierDetail() {
               {supplier.tasks?.map((task: any) => (
                 <tr
                   key={task.id}
-                  className="border-b hover:bg-gray-50 cursor-pointer"
+                  tabIndex={0}
+                  className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={() => navigate(`/tasks/${task.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/tasks/${task.id}`);
+                    }
+                  }}
                 >
                   <td className="p-2">{task.title}</td>
                   <td className="p-2">{task.status}</td>
@@ -93,7 +100,7 @@ export default function SupplierDetail() {
             <p className="text-sm text-gray-600">{t('messages.noAttachments')}</p>
           )}
         </div>
-      </div>
+      </main>
     </>
   );
 }

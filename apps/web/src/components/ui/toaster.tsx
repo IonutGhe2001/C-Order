@@ -27,6 +27,7 @@ export function Toaster({ children }: { children: React.ReactNode }) {
       <Toast.Provider swipeDirection="right">
         {children}
         <Toast.Root
+          role="status"
           open={open}
           onOpenChange={setOpen}
           className={`bg-white rounded shadow p-4 border flex flex-col gap-1 ${
