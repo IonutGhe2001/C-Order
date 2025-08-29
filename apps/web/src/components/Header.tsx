@@ -27,8 +27,8 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
   return (
     <>
       <TooltipProvider>
-        <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center justify-between px-4 z-10">
-          <div className="flex items-center space-x-4">
+        <header className="sticky top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center px-4 z-10">
+          <div className="flex items-center space-x-4 flex-shrink-0">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -43,17 +43,17 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
             </Tooltip>
             <div className="text-xl font-bold">Task Manager</div>
           </div>
-          <div className="flex-1 mx-4 max-w-md hidden sm:block">
+          <div className="flex-1 mx-4">
             <Input placeholder="Search..." className="w-full" />
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" variant="ghost" aria-label="Quick add">
-                  <Icon name="plus" className="h-4 w-4" />
+                <Button variant="primary" aria-label="Add">
+                  <Icon name="plus" className="h-4 w-4 mr-2" />Add
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Quick add</TooltipContent>
+              <TooltipContent>Add</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
