@@ -59,14 +59,20 @@
   "placeholders": {
     "search": "Search...",
     "filter": "Filter...",
-    "addComment": "Add comment...",
+    "addComment": "Add comment e.g. 'Waiting for approval'",
     "addAssignee": "Add assignee",
     "dropFiles": "Drop files here...",
     "dragOrClick": "Drag files or click to select",
     "select": "Select",
     "selectType": "Select type",
     "recipients": "Recipients (comma separated)",
-    "subject": "Subject"
+    "subject": "Subject",
+    "taskTitleExample": "Order 10 laptops",
+    "taskDescriptionExample": "Requesting new laptops for dev team",
+    "supplierExample": "TechCorp",
+    "orderNumberExample": "PO-12345",
+    "authorityExample": "Ministry of Finance",
+    "assigneeSearchExample": "Search e.g. 'John Doe'"
   },
   "messages": {
     "loadError": "Couldn't load data. Check your connection and retry.",
@@ -97,6 +103,9 @@
   "validation": {
     "dueDateRequired": "Due date is required",
     "titleRequired": "Title is required",
-    "assigneeRequired": "Assignee is required"
+    "assigneeRequired": "Assignee is required",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "commentRequired": "Comment is required"
   }
 }

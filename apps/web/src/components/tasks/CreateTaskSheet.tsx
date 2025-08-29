@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toaster";
 import { listUsers, createTask } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
@@ -55,6 +56,7 @@ export default function CreateTaskSheet({
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const { t } = useTranslation();
+  let ti = 1;
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -121,7 +123,7 @@ export default function CreateTaskSheet({
     return () => clearTimeout(t);
   }, [watched]);
 
-  const AssigneeCombobox = () => {
+  const AssigneeCombobox = ({ tabIndex }: { tabIndex: number }) => {
     const [query, setQuery] = useState("");
     const options = usersQuery.data?.items || [];
     const filtered = options.filter((o: any) =>
@@ -141,7 +143,8 @@ export default function CreateTaskSheet({
     return (
       <div className="border p-2 rounded-md">
         <Input
-          placeholder={t("placeholders.search")}
+          tabIndex={tabIndex}
+          placeholder={t("placeholders.assigneeSearchExample")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -170,7 +173,7 @@ export default function CreateTaskSheet({
     };
   };
 
-  const DropzoneField = () => {
+  const DropzoneField = ({ tabIndex }: { tabIndex: number }) => {
     const files = form.watch("attachments") as File[];
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
       onDrop: (accepted) => form.setValue("attachments", accepted),
@@ -178,6 +181,7 @@ export default function CreateTaskSheet({
     return (
       <div
         {...getRootProps()}
+        tabIndex={tabIndex}
         className="p-4 border-2 border-dashed rounded-md text-center cursor-pointer"
       >
         <input {...getInputProps()} />
@@ -211,16 +215,26 @@ export default function CreateTaskSheet({
             <div className="flex-1 overflow-y-auto space-y-4">
               <div>
                 <label className="text-sm font-medium">{t('labels.title')}</label>
-                <Input className="mt-1" {...form.register("title")} />
+                <Input
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder={t('placeholders.taskTitleExample')}
+                  {...form.register("title")}
+                />
                 {form.formState.errors.title && (
-                  <p className="text-sm text-red-600">
-                    {form.formState.errors.title.message}
-                  </p>
+                  <p className="text-sm text-danger">
+                  {form.formState.errors.title.message}
+                </p>
                 )}
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.description')}</label>
-                <Textarea className="mt-1" {...form.register("description")} />
+                <Textarea
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder={t('placeholders.taskDescriptionExample')}
+                  {...form.register("description")}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.status')}</label>
@@ -229,6 +243,7 @@ export default function CreateTaskSheet({
                     <Button
                       type="button"
                       key={s}
+                      tabIndex={ti++}
                       variant={form.watch("status") === s ? "default" : "outline"}
                       onClick={() => form.setValue("status", s)}
                     >
@@ -241,6 +256,7 @@ export default function CreateTaskSheet({
                 <label className="text-sm font-medium">{t('labels.priority')}</label>
                 <select
                   className="mt-1 w-full border p-2 rounded-md"
+                  tabIndex={ti++}
                   {...form.register("priority")}
                 >
                   <option value="LOW">{t('priority.LOW')}</option>
@@ -251,14 +267,14 @@ export default function CreateTaskSheet({
               <div>
                 <label className="text-sm font-medium">{t('labels.assignees')}</label>
                 {usersQuery.isLoading ? (
-                  <p className="text-sm">{t('messages.loading')}</p>
+                  <Skeleton className="h-10 w-full" />
                 ) : usersQuery.isError ? (
-                  <p className="text-sm text-red-600">{t('messages.loadError')}</p>
+                  <p className="text-sm text-danger">{t('messages.loadError')}</p>
                 ) : (
-                  <AssigneeCombobox />
+                  <AssigneeCombobox tabIndex={ti++} />
                 )}
                 {form.formState.errors.assignees && (
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-danger">
                   {form.formState.errors.assignees.message}
                 </p>
               )}
@@ -267,6 +283,8 @@ export default function CreateTaskSheet({
                 <label className="text-sm font-medium">{t('labels.supplier')}</label>
                 <Input
                   className="mt-1"
+                  tabIndex={ti++}
+                  placeholder={t('placeholders.supplierExample')}
                   value={form.watch('supplier') || ''}
                   onChange={(e) => form.setValue('supplier', e.target.value)}
                 />
@@ -277,29 +295,52 @@ export default function CreateTaskSheet({
             <div className="flex-1 overflow-y-auto space-y-4">
               <div>
                 <label className="text-sm font-medium">{t('labels.dueDate')}</label>
-                <Input type="date" className="mt-1" {...registerDate("dueDate")} />
+                <Input
+                  type="date"
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder="2024-12-31"
+                  {...registerDate("dueDate")}
+                />
                 {form.formState.errors.dueDate && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-danger">
                     {form.formState.errors.dueDate.message}
                   </p>
                 )}
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.orderDate')}</label>
-                <Input type="date" className="mt-1" {...registerDate("orderDate")} />
+                <Input
+                  type="date"
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder="2024-01-01"
+                  {...registerDate("orderDate")}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
-                <Input className="mt-1" {...form.register("orderNumber")} />
+                <Input
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder={t('placeholders.orderNumberExample')}
+                  {...form.register("orderNumber")}
+                />
               </div>
               <div>
-                <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
-                <Input className="mt-1" {...form.register("authority")} />
+                <label className="text-sm font-medium">{t('labels.authority')}</label>
+                <Input
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder={t('placeholders.authorityExample')}
+                  {...form.register("authority")}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium">{t('labels.orderType')}</label>
                 <select
                   className="mt-1 w-full border p-2 rounded-md"
+                  tabIndex={ti++}
                   {...form.register('orderType')}
                 >
                   <option value="">{t('placeholders.select')}</option>
@@ -315,6 +356,8 @@ export default function CreateTaskSheet({
                 <Input
                   type="date"
                   className="mt-1"
+                  tabIndex={ti++}
+                  placeholder="2024-01-10"
                   {...registerDate("orderReceivedDate")}
                 />
               </div>
@@ -323,23 +366,32 @@ export default function CreateTaskSheet({
                 <Input
                   type="date"
                   className="mt-1"
+                  tabIndex={ti++}
+                  placeholder="2024-02-01"
                   {...registerDate("productsReceivedDate")}
                 />
               </div>
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
+                  tabIndex={ti++}
                   checked={form.watch("earlyDelivery")}
                   onChange={(e) => form.setValue("earlyDelivery", e.target.checked)}
                 />
                 <span className="text-sm font-medium">{t('labels.earlyDelivery')}</span>
               </div>
               {form.watch("earlyDelivery") && (
-                <Input type="date" className="mt-1" {...registerDate("deliveryDate")} />
+                <Input
+                  type="date"
+                  className="mt-1"
+                  tabIndex={ti++}
+                  placeholder="2024-01-15"
+                  {...registerDate("deliveryDate")}
+                />
               )}
               <div>
                 <label className="text-sm font-medium">{t('labels.attachments')}</label>
-                <DropzoneField />
+                <DropzoneField tabIndex={ti++} />
               </div>
             </div>
           )}
@@ -347,20 +399,35 @@ export default function CreateTaskSheet({
             {step === 1 ? (
               <>
                 <SheetClose asChild>
-                  <Button type="button" variant="outline">
+                  <Button type="button" variant="outline" tabIndex={ti++}>
                     {t('buttons.cancel')}
                   </Button>
                 </SheetClose>
-                <Button type="button" onClick={() => setStep(2)}>
+                <Button type="button" tabIndex={ti++} onClick={() => setStep(2)}>
                   {t('buttons.continue')}
                 </Button>
               </>
             ) : (
               <>
-                <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  tabIndex={ti++}
+                  onClick={() => setStep(1)}
+                >
                   {t('buttons.back')}
                 </Button>
-                <Button type="submit">{t('buttons.save')}</Button>
+                <Button
+                  type="submit"
+                  tabIndex={ti++}
+                  disabled={createMutation.isPending}
+                >
+                  {createMutation.isPending ? (
+                    <Skeleton className="h-4 w-20" />
+                  ) : (
+                    t('buttons.save')
+                  )}
+                </Button>
               </>
             )}
           </SheetFooter>

@@ -59,14 +59,20 @@
   "placeholders": {
     "search": "Caută...",
     "filter": "Filtrează...",
-    "addComment": "Adaugă comentariu...",
+    "addComment": "Adaugă comentariu ex: 'Aștept aprobarea'",
     "addAssignee": "Adaugă responsabil",
     "dropFiles": "Lasă fișierele aici...",
     "dragOrClick": "Trage fișiere sau apasă pentru a selecta",
     "select": "Selectează",
     "selectType": "Selectează tip",
     "recipients": "Destinatari (virgule)",
-    "subject": "Subiect"
+    "subject": "Subiect",
+    "taskTitleExample": "Comandă 10 laptopuri",
+    "taskDescriptionExample": "Solicităm laptopuri pentru echipă",
+    "supplierExample": "TechCorp",
+    "orderNumberExample": "PO-12345",
+    "authorityExample": "Ministerul Finanțelor",
+    "assigneeSearchExample": "Caută ex: 'Ion Pop'"
   },
     "messages": {
       "loadError": "Nu s-au putut încărca datele. Verifică conexiunea și reîncearcă.",
@@ -97,6 +103,9 @@
   "validation": {
     "dueDateRequired": "Data limită este obligatorie",
     "titleRequired": "Titlul este obligatoriu",
-    "assigneeRequired": "Responsabilul este obligatoriu"
+    "assigneeRequired": "Responsabilul este obligatoriu",
+    "emailRequired": "Emailul este obligatoriu",
+    "passwordRequired": "Parola este obligatorie",
+    "commentRequired": "Comentariul este obligatoriu"
   }
 }
