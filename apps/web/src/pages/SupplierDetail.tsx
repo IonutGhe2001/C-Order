@@ -89,7 +89,12 @@ export default function SupplierDetail() {
             <ul className="list-disc pl-5 space-y-1">
               {attachments.map((att: any) => (
                 <li key={att.id}>
-                  <a href={att.url} className="underline" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={att.url}
+                    className="text-brand hover:underline focus-visible:ring-brand"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {att.filename}
                   </a>{' '}
                   <span className="text-sm text-gray-600">({att.taskTitle})</span>

@@ -93,7 +93,10 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
     return <iframe src={attachment.url} title={attachment.filename} className="w-full h-64 border" />;
   }
   return (
-    <a className="underline" href={attachment.url}>
+    <a
+      className="text-brand hover:underline focus-visible:ring-brand"
+      href={attachment.url}
+    >
       {attachment.filename}
     </a>
   );

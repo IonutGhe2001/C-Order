@@ -27,7 +27,14 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
   if (attachment.mimeType?.startsWith('image/') || attachment.mimeType === 'application/pdf') {
     return <iframe src={attachment.url} title={attachment.filename} className="w-full h-64 border" />;
   }
-  return <a className="underline" href={attachment.url}>{attachment.filename}</a>;
+  return (
+    <a
+      className="text-brand hover:underline focus-visible:ring-brand"
+      href={attachment.url}
+    >
+      {attachment.filename}
+    </a>
+  );
 }
 
 interface Props {
