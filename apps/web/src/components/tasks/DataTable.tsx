@@ -542,27 +542,6 @@ export default function TasksDataTable({
             </Button>
           </div>
         )}
-        {columnFilters.length > 0 && (
-          <div className="flex flex-wrap gap-2 p-2 border-b">
-            {columnFilters.map((cf) => {
-              const column = table.getColumn(cf.id);
-              if (!column) return null;
-              return (
-                <Badge key={cf.id} className="flex items-center gap-1">
-                  <span>
-                    {cf.id}: {String(cf.value)}
-                  </span>
-                  <button
-                    onClick={() => column.setFilterValue(undefined)}
-                    aria-label="Remove filter"
-                  >
-                    <Icon name="x" className="h-3 w-3" />
-                  </button>
-                </Badge>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {isMobile ? (
@@ -616,6 +595,34 @@ export default function TasksDataTable({
               ))}
             </thead>
             <tbody>
+              {columnFilters.length > 0 && (
+                <tr>
+                  <td
+                    colSpan={table.getVisibleLeafColumns().length}
+                    className="p-2 border-b"
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {columnFilters.map((cf) => {
+                        const column = table.getColumn(cf.id);
+                        if (!column) return null;
+                        return (
+                          <Badge key={cf.id} className="flex items-center gap-1">
+                            <span>
+                              {cf.id}: {String(cf.value)}
+                            </span>
+                            <button
+                              onClick={() => column.setFilterValue(undefined)}
+                              aria-label="Remove filter"
+                            >
+                              <Icon name="x" className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </td>
+                </tr>
+              )}
               {useVirtual ? (
                 <>
                   {paddingTop > 0 && (
