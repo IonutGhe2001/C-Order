@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { useTranslation } from 'react-i18next';
 import { useIsFetching, useMutation, useQueryClient } from "@tanstack/react-query";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import TasksDataTable from "../components/tasks/DataTable";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
@@ -19,6 +18,9 @@ import {
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
 import { deleteTask, archiveTask } from "../lib/api";
+import PageSkeleton from '../components/PageSkeleton';
+
+const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 
 export default function TasksHub() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -141,7 +143,9 @@ export default function TasksHub() {
             )}
           </div>
         </div>
-        <TasksDataTable quickFilter={quickFilter} onSelectionChange={setSelected} />
+        <Suspense fallback={<PageSkeleton />}>
+          <TasksDataTable quickFilter={quickFilter} onSelectionChange={setSelected} />
+        </Suspense>
       </main>
     </>
   );

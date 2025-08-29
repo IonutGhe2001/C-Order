@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useToast } from '../components/ui/toaster';
 import { Skeleton } from '../components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
+import { useTimeToAction } from '../lib/use-tta';
 
 export default function Login(){
   const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ export default function Login(){
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const toast = useToast();
   const { t } = useTranslation();
+  const logLogin = useTimeToAction('login_submit');
 
   async function handleSubmit(){
     if (loading) return;
@@ -25,6 +27,7 @@ export default function Login(){
     if (Object.keys(newErrors).length) return;
     setLoading(true);
     try {
+      logLogin();
       await login(email, password);
       toast({ title: t('messages.signInSuccess'), variant: 'success' });
       window.location.href = '/tasks';

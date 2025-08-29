@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -8,7 +8,9 @@ import { Skeleton } from '../components/ui/skeleton';
 import { Button } from '../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ColumnDef, useReactTable, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, flexRender, ColumnFiltersState } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTranslation } from 'react-i18next';
+import { useTimeToAction } from '../lib/use-tta';
 
 interface Supplier {
   id: string;
@@ -55,6 +57,20 @@ export default function Suppliers() {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const useVirtual = table.getRowModel().rows.length > 200;
+  const rowVirtualizer = useVirtual
+    ? useVirtualizer({
+        count: table.getRowModel().rows.length,
+        getScrollElement: () => tableContainerRef.current,
+        estimateSize: () => 48,
+        overscan: 5,
+      })
+    : null;
+  const logRowClick = useTimeToAction('open_supplier_detail');
+  const MemoCell = React.memo(({ cell }: { cell: any }) => (
+    <td className="p-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+  ));
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
@@ -76,7 +92,7 @@ export default function Suppliers() {
           </div>
         ) : (
           <div>
-            <div className="overflow-auto">
+            <div className="overflow-auto" ref={tableContainerRef}>
               <table className="min-w-full border">
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (
@@ -94,27 +110,68 @@ export default function Suppliers() {
                     </tr>
                   ))}
                 </thead>
-                <tbody>
-                  {table.getRowModel().rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      tabIndex={0}
-                      className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      onClick={() => navigate(`/suppliers/${row.original.id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          navigate(`/suppliers/${row.original.id}`);
-                        }
-                      }}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="p-2">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
+                <tbody
+                  style={
+                    useVirtual
+                      ? { height: `${rowVirtualizer!.getTotalSize()}px`, position: 'relative' }
+                      : undefined
+                  }
+                >
+                  {useVirtual
+                    ? rowVirtualizer!.getVirtualItems().map((virtualRow) => {
+                        const row = table.getRowModel().rows[virtualRow.index];
+                        return (
+                          <tr
+                            key={row.id}
+                            tabIndex={0}
+                            ref={rowVirtualizer!.measureElement}
+                            className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              transform: `translateY(${virtualRow.start}px)`,
+                              width: '100%',
+                            }}
+                            onClick={() => {
+                              logRowClick();
+                              navigate(`/suppliers/${row.original.id}`);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                logRowClick();
+                                navigate(`/suppliers/${row.original.id}`);
+                              }
+                            }}
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <MemoCell key={cell.id} cell={cell} />
+                            ))}
+                          </tr>
+                        );
+                      })
+                    : table.getRowModel().rows.map((row) => (
+                        <tr
+                          key={row.id}
+                          tabIndex={0}
+                          className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          onClick={() => {
+                            logRowClick();
+                            navigate(`/suppliers/${row.original.id}`);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              logRowClick();
+                              navigate(`/suppliers/${row.original.id}`);
+                            }
+                          }}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <MemoCell key={cell.id} cell={cell} />
+                          ))}
+                        </tr>
                       ))}
-                    </tr>
-                  ))}
                 </tbody>
               </table>
             </div>

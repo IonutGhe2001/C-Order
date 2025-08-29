@@ -28,6 +28,7 @@ import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
 import CreateTaskSheet from './CreateTaskSheet';
+import { useTimeToAction } from '@/lib/use-tta';
 
 function Filter({ column }: { column: any }) {
   const columnFilterValue = column.getFilterValue();
@@ -328,6 +329,14 @@ export default function TasksDataTable({
         overscan: 5,
       })
     : null;
+    const logRowClick = useTimeToAction('open_task_detail');
+  const MemoCell = React.memo(({ cell }: { cell: any }) => (
+    <td
+      className={`p-2 ${cell.column.id === 'menu' ? 'sticky right-0 bg-white' : ''}`}
+    >
+      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+    </td>
+  ));
   const handleRowKeyDown = (
     e: React.KeyboardEvent<HTMLTableRowElement>,
     index: number,
@@ -335,6 +344,7 @@ export default function TasksDataTable({
   ) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
+      logRowClick();
       navigate(`/tasks/${id}`);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -642,7 +652,10 @@ export default function TasksDataTable({
                         data-index={virtualRow.index}
                         tabIndex={0}
                         className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        onClick={() => navigate(`/tasks/${row.original.id}`)}
+                        onClick={() => {
+                          logRowClick();
+                          navigate(`/tasks/${row.original.id}`);
+                        }}
                         onMouseEnter={() =>
                           queryClient.prefetchQuery({
                             queryKey: ['task', row.original.id],
@@ -652,14 +665,7 @@ export default function TasksDataTable({
                         onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <td
-                            key={cell.id}
-                            className={`p-2 ${
-                              cell.column.id === 'menu' ? 'sticky right-0 bg-white' : ''
-                            }`}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
+                          <MemoCell key={cell.id} cell={cell} />
                         ))}
                       </tr>
                     );
@@ -680,7 +686,10 @@ export default function TasksDataTable({
                     data-index={index}
                     tabIndex={0}
                     className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    onClick={() => navigate(`/tasks/${row.original.id}`)}
+                    onClick={() => {
+                      logRowClick();
+                      navigate(`/tasks/${row.original.id}`);
+                    }}
                     onMouseEnter={() =>
                       queryClient.prefetchQuery({
                         queryKey: ['task', row.original.id],
@@ -690,14 +699,7 @@ export default function TasksDataTable({
                     onKeyDown={(e) => handleRowKeyDown(e, index, row.original.id)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className={`p-2 ${
-                          cell.column.id === 'menu' ? 'sticky right-0 bg-white' : ''
-                        }`}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
+                      <MemoCell key={cell.id} cell={cell} />
                     ))}
                   </tr>
                 ))

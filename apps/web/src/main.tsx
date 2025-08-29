@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import {
   BrowserRouter,
@@ -13,14 +13,17 @@ import { ThemeProvider } from 'next-themes';
 import { Toaster } from './components/ui/toaster';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
-import TasksHub from './pages/TasksHub';
-import TaskDetail from './pages/TaskDetail';
 import Dashboard from './pages/Dashboard';
 import TasksBoard from './pages/TasksBoard';
 import TasksCalendar from './pages/TasksCalendar';
 import TasksTimeline from './pages/TasksTimeline';
-import Suppliers from './pages/Suppliers';
 import SupplierDetail from './pages/SupplierDetail';
+import PageSkeleton from './components/PageSkeleton';
+
+const TasksHub = lazy(() => import('./pages/TasksHub'));
+const TaskDetail = lazy(() => import('./pages/TaskDetail'));
+const Suppliers = lazy(() => import('./pages/Suppliers'));
+const DesignSamples = lazy(() => import('./pages/DesignSamples'));
 import './styles.css';
 import { useAuth } from './lib/use-auth';
 import { setLoggerUser, logLoad } from './lib/logger';
@@ -54,13 +57,50 @@ function AppRoutes() {
       <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
-          <Route path="/tasks" element={<Protected><TasksHub /></Protected>} />
-          <Route path="/suppliers" element={<Protected><Suppliers /></Protected>} />
+          <Route
+            path="/tasks"
+            element={
+              <Protected>
+                <Suspense fallback={<PageSkeleton />}>
+                  <TasksHub />
+                </Suspense>
+              </Protected>
+            }
+          />
+          <Route
+            path="/suppliers"
+            element={
+              <Protected>
+                <Suspense fallback={<PageSkeleton />}>
+                  <Suppliers />
+                </Suspense>
+              </Protected>
+            }
+          />
           <Route path="/suppliers/:id" element={<Protected><SupplierDetail /></Protected>} />
           <Route path="/tasks/board" element={<Protected><TasksBoard /></Protected>} />
           <Route path="/tasks/calendar" element={<Protected><TasksCalendar /></Protected>} />
           <Route path="/tasks/timeline" element={<Protected><TasksTimeline /></Protected>} />
-          <Route path="/tasks/:id" element={<Protected><TaskDetail /></Protected>} />
+          <Route
+            path="/tasks/:id"
+            element={
+              <Protected>
+                <Suspense fallback={<PageSkeleton />}>
+                  <TaskDetail />
+                </Suspense>
+              </Protected>
+            }
+          />
+          <Route
+            path="/design"
+            element={
+              <Protected>
+                <Suspense fallback={<PageSkeleton />}>
+                  <DesignSamples />
+                </Suspense>
+              </Protected>
+            }
+          />
           <Route path="*" element={<Navigate to="/tasks" replace />} />
       </Routes>
     </AnimatePresence>
