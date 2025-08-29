@@ -50,10 +50,18 @@ const orderTypeOptions = [
 
 export default function CreateTaskSheet({
   triggerText,
+  open: openProp,
+  onOpenChange,
+  showTrigger = true,
 }: {
   triggerText?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [step, setStep] = useState(1);
   const { t } = useTranslation();
   let ti = 1;
@@ -203,9 +211,11 @@ export default function CreateTaskSheet({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button>{triggerText ?? t('buttons.addTask')}</Button>
-      </SheetTrigger>
+      {showTrigger && (
+        <SheetTrigger asChild>
+          <Button>{triggerText ?? t('buttons.addTask')}</Button>
+        </SheetTrigger>
+      )}
       <SheetContent>
         <SheetHeader>
           <SheetTitle>{t('titles.createTask')}</SheetTitle>
