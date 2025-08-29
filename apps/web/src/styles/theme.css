@@ -39,3 +39,9 @@
   background: hsl(var(--brand));
   color: hsl(var(--brand-foreground));
 }
+
+@layer components {
+  .input-base {
+    @apply border rounded-lg hover:border-brand focus:ring-2 ring-brand;
+  }
+}
