@@ -4,20 +4,22 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
+const primaryClasses = 'bg-brand text-brand-fg hover:bg-brand-muted'
+
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background',
   {
     variants: {
       variant: {
-        primary:
-          'bg-brand text-[color:var(--brand-foreground)] hover:bg-[#B71C1C]',
-        secondary: 'bg-brand-muted text-brand hover:bg-[#FFD7D7]',
+        primary: primaryClasses,
+        default: primaryClasses,
+        secondary: 'bg-brand-muted text-brand hover:bg-brand',
         link: 'text-brand underline-offset-4 hover:underline',
-        destructive: 'bg-[#C62828] text-white hover:bg-[#8E0000]',
-        default: 'bg-brand text-[color:var(--brand-foreground)] hover:bg-[#B71C1C]',
-        ghost: 'bg-transparent text-brand hover:bg-[#FFD7D7]',
+        destructive:
+          'bg-danger text-[color:var(--brand-foreground)] hover:bg-danger/90',
+        ghost: 'bg-transparent text-brand hover:bg-brand-muted',
         outline:
-          'border border-brand bg-transparent text-brand hover:bg-[#FFD7D7]',
+          'border border-brand bg-transparent text-brand hover:bg-brand-muted',
       },
       size: {
         sm: 'h-9 rounded-md px-3',

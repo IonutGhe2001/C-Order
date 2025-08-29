@@ -24,9 +24,9 @@
   --success: 142 69% 55%;
   --warning: 38 92% 50%;
   --danger: 0 84% 55%;
---brand: 221 83% 66%;
+  --brand: 221 83% 66%;
   --brand-foreground: 222 47% 11%;
-  --brand-muted: 221 83% 20%;
+   --brand-muted: 221 83% 30%;
   --ring: var(--brand);
 }
 
