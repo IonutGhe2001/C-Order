@@ -13,6 +13,10 @@ const buttonVariants = cva(
         secondary: 'bg-brand-muted text-brand hover:bg-[#FFD7D7]',
         link: 'text-brand underline-offset-4 hover:underline',
         destructive: 'bg-[#C62828] text-white hover:bg-[#8E0000]',
+        default: 'bg-brand text-[color:var(--brand-foreground)] hover:bg-[#B71C1C]',
+        ghost: 'bg-transparent text-brand hover:bg-[#FFD7D7]',
+        outline:
+          'border border-brand bg-transparent text-brand hover:bg-[#FFD7D7]',
       },
       size: {
         sm: 'h-9 rounded-md px-3',
