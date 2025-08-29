@@ -9,13 +9,14 @@ interface Props {
   loading: boolean;
   error: boolean;
   onRetry: () => void;
+  hideTitle?: boolean;
 }
 
-export default function ActivityAuditPanel({ audit, loading, error, onRetry }: Props) {
+export default function ActivityAuditPanel({ audit, loading, error, onRetry, hideTitle }: Props) {
   const { t } = useTranslation();
   return (
     <div>
-      <h2 className="font-medium mb-2">{t('labels.auditLog')}</h2>
+      {!hideTitle && <h2 className="font-medium mb-2">{t('labels.auditLog')}</h2>}
       {loading ? (
         <Skeleton className="h-32" />
       ) : error ? (
@@ -26,9 +27,15 @@ export default function ActivityAuditPanel({ audit, loading, error, onRetry }: P
           </Button>
         </div>
       ) : audit?.length ? (
-        <ul className="text-xs space-y-1 max-h-64 overflow-auto">
+        <ul className="text-xs space-y-2 max-h-64 overflow-auto relative pl-4 border-l">
           {audit.map((a: any) => (
-            <li key={a.id}>{a.user?.name || t('system')} {a.action} {formatDateTime(new Date(a.createdAt))}</li>
+            <li key={a.id} className="flex items-start">
+              <Icon name="circle" className="h-2 w-2 text-gray-400 mr-2 mt-1" />
+              <span>
+                {a.user?.name || t('system')} {a.action}{' '}
+                {formatDateTime(new Date(a.createdAt))}
+              </span>
+            </li>
           ))}
         </ul>
       ) : (

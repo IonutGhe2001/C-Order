@@ -1,18 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from '../components/ui/tooltip';
 import { motion } from 'framer-motion';
 import { Icon } from '../lib/lucide-icon';
 import { getStatusColor } from '../lib/status-colors';
@@ -184,6 +178,7 @@ export default function TaskDetail() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
+  const commentsRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     if (task) {
@@ -218,6 +213,25 @@ export default function TaskDetail() {
     update.mutate({ status: s });
   };
   const save = (data: Partial<TaskPayload>) => update.mutate(data);
+  const handleSave = () => {
+    const payload: Partial<TaskPayload> = {
+      title,
+      status,
+      priority,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+      description: desc,
+      assignees,
+      supplier: supplier || null,
+      orderDate: orderDate ? new Date(orderDate).toISOString() : null,
+      orderReceivedDate: orderReceivedDate ? new Date(orderReceivedDate).toISOString() : null,
+      orderNumber: orderNumber || null,
+      authority: authority || null,
+      orderType: orderType || null,
+      productsReceivedDate: productsReceivedDate ? new Date(productsReceivedDate).toISOString() : null,
+      deliveryDate: deliveryDate ? new Date(deliveryDate).toISOString() : null,
+    };
+    update.mutate(payload);
+  };
   if (isLoading) {
     return (
       <motion.div
@@ -257,6 +271,42 @@ export default function TaskDetail() {
 
   return (
     <>
+    <div className="sticky top-0 z-10 bg-white border-b p-2 flex justify-end gap-2">
+      <Button size="sm" onClick={handleSave}>{t('buttons.save')}</Button>
+      <Button variant="outline" size="sm" onClick={() => setEmailOpen(true)}>
+        <Icon name="mail" className="h-4 w-4 mr-1" /> {t('labels.email')}
+      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline" size="sm">{t('buttons.archive')}</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Archive this task?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => archiveMut.mutate()}>Archive</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" size="sm">{t('buttons.delete')}</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this task?</AlertDialogTitle>
+            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteMut.mutate()}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -275,13 +325,13 @@ export default function TaskDetail() {
               />
               <SaveIndicator mutation={update} />
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
               <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
                 {statuses.map(s => (
                   <option key={s} value={s}>{t(labels[s])}</option>
                 ))}
               </select>
-              <SaveIndicator mutation={update} />
+              <Badge variant={getStatusColor(status)}>{t(labels[status])}</Badge>
             </div>
             <div className="flex items-center">
               <select value={priority} onChange={e => { setPriority(e.target.value); save({ priority: e.target.value || undefined }); }} className="border p-1 rounded">
@@ -302,70 +352,7 @@ export default function TaskDetail() {
               <SaveIndicator mutation={update} />
             </div>
         </div>
-        <TooltipProvider>
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Icon name="share-2" className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Share</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" onClick={() => setEmailOpen(true)}>
-                  <Icon name="mail" className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Email</TooltipContent>
-            </Tooltip>
-            <AlertDialog>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Icon name="archive" className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Archive</TooltipContent>
-              </Tooltip>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Archive this task?</AlertDialogTitle>
-                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => archiveMut.mutate()}>Archive</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <AlertDialog>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon">
-                      <Icon name="trash" className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Delete</TooltipContent>
-              </Tooltip>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this task?</AlertDialogTitle>
-                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => deleteMut.mutate()}>Delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </TooltipProvider>
+
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -441,25 +428,49 @@ export default function TaskDetail() {
               <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
               <SaveIndicator mutation={update} />
             </div>
-            <AttachmentsPanel
-              attachments={task.attachments || []}
-              onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-            />
+            <details className="border rounded">
+              <summary className="cursor-pointer font-medium px-2 py-1">{t('labels.files')}</summary>
+              <div className="p-2">
+                <AttachmentsPanel
+                  hideTitle
+                  attachments={task.attachments || []}
+                  onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+                />
+              </div>
+            </details>
         </div>
         <div className="space-y-4">
-          <CommentsPanel
-            comments={task.comments || []}
-            onAdd={(body) => commentMut.mutate(body)}
-          />
-          <ActivityAuditPanel
-            audit={audit?.items || []}
-            loading={auditLoading}
-            error={!!auditError}
-            onRetry={() => refetchAudit()}
-          />
+          <details ref={commentsRef} className="border rounded">
+              <summary className="cursor-pointer font-medium px-2 py-1">{t('labels.comments')}</summary>
+              <div className="p-2">
+                <CommentsPanel
+                  hideTitle
+                  inputId="add-comment-input"
+                  comments={task.comments || []}
+                  onAdd={(body) => commentMut.mutate(body)}
+                />
+              </div>
+            </details>
+            <details className="border rounded">
+              <summary className="cursor-pointer font-medium px-2 py-1">{t('labels.auditLog')}</summary>
+              <div className="p-2">
+                <ActivityAuditPanel
+                  hideTitle
+                  audit={audit?.items || []}
+                  loading={auditLoading}
+                  error={!!auditError}
+                  onRetry={() => refetchAudit()}
+                />
+              </div>
+            </details>
         </div>
       </div>
     </motion.div>
+    <div className="md:hidden sticky bottom-4 flex justify-end p-4">
+      <Button onClick={() => { commentsRef.current && (commentsRef.current.open = true); document.getElementById('add-comment-input')?.focus(); }}>
+        {t('buttons.add')}
+      </Button>
+    </div>
       <EmailDrawer
       open={emailOpen}
       to={emailTo}

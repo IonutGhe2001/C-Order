@@ -33,13 +33,14 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
 interface Props {
   attachments: any[];
   onSave: (attId: string, file: File) => void;
+  hideTitle?: boolean;
 }
 
-export default function AttachmentsPanel({ attachments, onSave }: Props) {
+export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Props) {
   const { t } = useTranslation();
   return (
     <div>
-      <h2 className="font-medium mb-2">{t('labels.files')}</h2>
+      {!hideTitle && <h2 className="font-medium mb-2">{t('labels.files')}</h2>}
       {attachments?.length ? (
         <ul className="space-y-4 mb-2">
           {attachments.map((a: any) => (

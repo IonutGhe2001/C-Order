@@ -9,9 +9,11 @@ interface Comment { id: string; body: string; author?: { name?: string }; }
 interface Props {
   comments: Comment[];
   onAdd: (body: string) => void;
+  hideTitle?: boolean;
+  inputId?: string;
 }
 
-export default function CommentsPanel({ comments, onAdd }: Props) {
+export default function CommentsPanel({ comments, onAdd, hideTitle, inputId }: Props) {
   const [comment, setComment] = useState('');
   const { t } = useTranslation();
 
@@ -25,7 +27,7 @@ export default function CommentsPanel({ comments, onAdd }: Props) {
 
   return (
     <div>
-      <h2 className="font-medium mb-2">{t('labels.comments')}</h2>
+      {!hideTitle && <h2 className="font-medium mb-2">{t('labels.comments')}</h2>}
       {comments?.length ? (
         <ul className="space-y-2 text-sm mb-2 max-h-64 overflow-auto">
           {comments.map(c => (
@@ -39,6 +41,7 @@ export default function CommentsPanel({ comments, onAdd }: Props) {
       )}
       <form onSubmit={submit} className="flex space-x-2">
         <Input
+          id={inputId}
           value={comment}
           onChange={e => setComment(e.target.value)}
           className="flex-1 text-sm"
