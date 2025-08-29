@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from './ui/tooltip';
 import { Icon } from '../lib/lucide-icon';
+import { motion } from 'framer-motion';
 
 export default function Sidebar({
   isOpen = false,
@@ -106,16 +107,18 @@ export default function Sidebar({
           collapsed ? 'w-[72px] p-2' : 'w-60 p-4'
         }`}
       >
-        <button
+        <motion.button
           onClick={() => setCollapsed(!collapsed)}
           className="p-2 mb-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Toggle sidebar"
+          whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
+          whileTap={{ scale: 0.97, transition: { duration: 0.15 } }}
         >
           <Icon
             name={collapsed ? 'chevron-right' : 'chevron-left'}
             className="h-4 w-4"
           />
-        </button>
+        </motion.button>
         <TooltipProvider>{renderContent()}</TooltipProvider>
       </aside>
     </>

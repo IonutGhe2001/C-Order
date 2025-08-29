@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const Sheet = DialogPrimitive.Root;
@@ -32,16 +33,20 @@ const SheetContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      role="dialog"
-      className={cn(
-        "fixed inset-y-0 right-0 z-50 w-full max-w-md border-l bg-white p-6 shadow-lg",
-        className
-      )}
-      {...props}
-    >
-      {children}
+    <DialogPrimitive.Content asChild {...props}>
+      <motion.div
+        ref={ref}
+        role="dialog"
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 w-full max-w-md border-l bg-white p-6 shadow-lg",
+          className
+        )}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15 }}
+      >
+        {children}
+      </motion.div>
     </DialogPrimitive.Content>
   </SheetPortal>
 ));

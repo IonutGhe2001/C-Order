@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Icon } from '../lib/lucide-icon';
 import CommandPalette from './CommandPalette';
+import { motion } from 'framer-motion';
 import {
   Tooltip,
   TooltipTrigger,
@@ -37,13 +38,15 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
           <div className="flex items-center space-x-4 flex-shrink-0 z-10">
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
+                <motion.button
                   className="sm:block md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={onToggleSidebar}
                   aria-label="Toggle sidebar"
+                  whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
+                  whileTap={{ scale: 0.97, transition: { duration: 0.15 } }}
                 >
                   <Icon name="menu" className="h-5 w-5" />
-                </button>
+                </motion.button>
               </TooltipTrigger>
               <TooltipContent>Toggle sidebar</TooltipContent>
             </Tooltip>
