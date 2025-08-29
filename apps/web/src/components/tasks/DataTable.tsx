@@ -17,11 +17,12 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listTasks, listUsers, updateTask, TaskPayload, getTask } from '@/lib/api';
+import { listTasks, listUsers, updateTask, TaskPayload, getTask, deleteTask } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
+import { Badge } from '@/components/ui/badge';
 import TaskCard from './TaskCard';
 import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
@@ -79,13 +80,17 @@ export default function TasksDataTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
-    right: ['actions'],
+    right: ['menu'],
   });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState('');
   const [showColumns, setShowColumns] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [density, setDensity] = useState<'default' | 'compact'>(() =>
+    document.body.dataset.density === 'compact' ? 'compact' : 'default',
+  );
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -95,6 +100,28 @@ export default function TasksDataTable({
     mq.addEventListener('change', handle);
     return () => mq.removeEventListener('change', handle);
   }, []);
+
+  useEffect(() => {
+    const close = () => setOpenMenu(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, []);
+
+  const toggleDensity = () => {
+    const next = density === 'compact' ? 'default' : 'compact';
+    setDensity(next);
+    if (next === 'compact') {
+      document.body.dataset.density = 'compact';
+    } else {
+      delete document.body.dataset.density;
+    }
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+    onError: () => toast({ title: t('messages.updateFailed'), variant: 'error' }),
+  });
 
   const columns = useMemo<ColumnDef<Task>[]>(() => {
     const selectColumn: ColumnDef<Task> = {
@@ -120,27 +147,57 @@ export default function TasksDataTable({
       size: 30,
     };
     const actionColumn: ColumnDef<Task> = {
-      id: 'actions',
-      header: 'Actions',
+      id: 'menu',
+      header: () => '...',
       cell: ({ row }) => (
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/tasks/${row.original.id}`);
-          }}
-          aria-label="View task"
-        >
-          <Icon name="more-horizontal" className="h-4 w-4" />
-        </Button>
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() =>
+              setOpenMenu(openMenu === row.original.id ? null : row.original.id)
+            }
+            aria-label="More options"
+          >
+            <Icon name="more-horizontal" className="h-4 w-4" />
+          </Button>
+          {openMenu === row.original.id && (
+            <div
+              className="absolute right-0 mt-1 bg-white border rounded shadow flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  navigate(`/tasks/${row.original.id}`);
+                  setOpenMenu(null);
+                }}
+                aria-label="View task"
+              >
+                <Icon name="eye" className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  deleteMutation.mutate(row.original.id);
+                  setOpenMenu(null);
+                }}
+                aria-label="Delete task"
+              >
+                <Icon name="trash" className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
       ),
       enableSorting: false,
       enableColumnFilter: false,
       size: 40,
     };
     return [selectColumn, ...createTaskColumns(t), actionColumn];
-  }, [navigate, t]);
+  }, [navigate, t, openMenu, deleteMutation]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];
@@ -262,12 +319,15 @@ export default function TasksDataTable({
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
   const rowRefs = useRef<Record<number, HTMLTableRowElement | null>>({});
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const rowVirtualizer = useVirtualizer({
-    count: table.getRowModel().rows.length,
-    getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 48,
-    overscan: 5,
-  });
+  const useVirtual = filteredData.length > 200;
+  const rowVirtualizer = useVirtual
+    ? useVirtualizer({
+        count: table.getRowModel().rows.length,
+        getScrollElement: () => tableContainerRef.current,
+        estimateSize: () => 48,
+        overscan: 5,
+      })
+    : null;
   const handleRowKeyDown = (
     e: React.KeyboardEvent<HTMLTableRowElement>,
     index: number,
@@ -278,11 +338,19 @@ export default function TasksDataTable({
       navigate(`/tasks/${id}`);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      rowVirtualizer.scrollToIndex(index + 1);
+      if (useVirtual) {
+        rowVirtualizer?.scrollToIndex(index + 1);
+      } else {
+        rowRefs.current[index + 1]?.scrollIntoView({ block: 'nearest' });
+      }
       rowRefs.current[index + 1]?.focus();
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      rowVirtualizer.scrollToIndex(index - 1);
+      if (useVirtual) {
+        rowVirtualizer?.scrollToIndex(index - 1);
+      } else {
+        rowRefs.current[index - 1]?.scrollIntoView({ block: 'nearest' });
+      }
       rowRefs.current[index - 1]?.focus();
     }
   };
@@ -335,11 +403,11 @@ export default function TasksDataTable({
     setColumnOrder(newOrder);
   };
 
-  const virtualRows = rowVirtualizer.getVirtualItems();
-  const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
+  const virtualRows = useVirtual ? rowVirtualizer!.getVirtualItems() : [];
+  const paddingTop = useVirtual && virtualRows.length > 0 ? virtualRows[0].start : 0;
   const paddingBottom =
-    virtualRows.length > 0
-      ? rowVirtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
+    useVirtual && virtualRows.length > 0
+      ? rowVirtualizer!.getTotalSize() - virtualRows[virtualRows.length - 1].end
       : 0;
 
   if (isLoading) {
@@ -372,97 +440,130 @@ export default function TasksDataTable({
     return (
       <div className="text-center p-4 text-sm text-gray-500 space-y-2">
         <p>{t('messages.noTasks')}</p>
-        <CreateTaskSheet />
+        <CreateTaskSheet triggerText="Creează" />
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder={t('placeholders.search')}
-          value={globalFilter}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          className="w-48"
-        />
-        <div className="relative">
-          <Button variant="outline" size="sm" onClick={() => setShowColumns((s) => !s)}>
-            {t('labels.columns')}
-          </Button>
-          {showColumns && (
-            <div className="absolute z-10 bg-white border rounded shadow p-2 mt-1">
-              {table.getAllLeafColumns().map((column) => (
-                <div key={column.id} className="flex items-center justify-between py-1">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={column.getIsVisible()}
-                      onChange={column.getToggleVisibilityHandler()}
-                    />
-                    {column.id}
-                  </label>
-                  {column.getCanPin() && (
-                    <div className="space-x-1">
-                      <Button size="sm" variant="ghost" onClick={() => column.pin('left')}>L</Button>
-                      <Button size="sm" variant="ghost" onClick={() => column.pin('right')}>R</Button>
-                      <Button size="sm" variant="ghost" onClick={() => column.pin(false)}>U</Button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {selectedRows.length > 0 && (
-        <div className="p-2 border rounded flex flex-wrap items-end gap-2">
-          <span className="text-sm">{t('messages.selectedCount', { count: selectedRows.length })}</span>
-          <select
-            className="border p-1 rounded"
-            value={bulkStatus}
-            onChange={(e) => setBulkStatus(e.target.value)}
-          >
-            <option value="">{t('labels.status')}</option>
-            {statusOptions.map((s) => (
-              <option key={s.value} value={s.value}>
-                {t(s.label)}
-              </option>
-            ))}
-          </select>
-          {usersQuery.isLoading ? (
-            <Skeleton className="h-8 w-40" />
-          ) : usersQuery.isError ? null : (
+      <div className="sticky top-0 z-20 bg-white">
+        {selectedRows.length > 0 ? (
+          <div className="flex flex-wrap items-end gap-2 p-2 border-b">
+            <span className="text-sm">
+              {t('messages.selectedCount', { count: selectedRows.length })}
+            </span>
             <select
-              multiple
-              className="border p-1 rounded h-20"
-              value={bulkAssignees}
-              onChange={(e) =>
-                setBulkAssignees(Array.from(e.target.selectedOptions, (o) => o.value))
-              }
+              className="border p-1 rounded"
+              value={bulkStatus}
+              onChange={(e) => setBulkStatus(e.target.value)}
             >
-              {usersQuery.data?.items?.map((u: any) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
+              <option value="">{t('labels.status')}</option>
+              {statusOptions.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {t(s.label)}
                 </option>
               ))}
             </select>
-          )}
-          <Input
-            type="date"
-            className="w-40"
-            value={bulkDueDate}
-            onChange={(e) => setBulkDueDate(e.target.value)}
-          />
-          <Button size="sm" onClick={handleBulkApply} disabled={mutation.isPending}>
-            {t('buttons.apply')}
-          </Button>
-          <Button size="sm" variant="outline" onClick={exportCsv}>
-            Export CSV
-          </Button>
-        </div>
-      )}
+          {usersQuery.isLoading ? (
+              <Skeleton className="h-8 w-40" />
+            ) : usersQuery.isError ? null : (
+              <select
+                multiple
+                className="border p-1 rounded h-20"
+                value={bulkAssignees}
+                onChange={(e) =>
+                  setBulkAssignees(Array.from(e.target.selectedOptions, (o) => o.value))
+                }
+              >
+                {usersQuery.data?.items?.map((u: any) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <Input
+              type="date"
+              className="w-40"
+              value={bulkDueDate}
+              onChange={(e) => setBulkDueDate(e.target.value)}
+            />
+            <Button size="sm" onClick={handleBulkApply} disabled={mutation.isPending}>
+              {t('buttons.apply')}
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
+              Export CSV
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 p-2 border-b">
+            <Input
+              placeholder={t('placeholders.search')}
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="w-48"
+            />
+            <div className="relative">
+              <Button variant="outline" size="sm" onClick={() => setShowColumns((s) => !s)}>
+                {t('labels.columns')}
+              </Button>
+              {showColumns && (
+                <div className="absolute z-10 bg-white border rounded shadow p-2 mt-1">
+                  {table.getAllLeafColumns().map((column) => (
+                    <div key={column.id} className="flex items-center justify-between py-1">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={column.getIsVisible()}
+                          onChange={column.getToggleVisibilityHandler()}
+                        />
+                        {column.id}
+                      </label>
+                      {column.getCanPin() && (
+                        <div className="space-x-1">
+                          <Button size="sm" variant="ghost" onClick={() => column.pin('left')}>L</Button>
+                          <Button size="sm" variant="ghost" onClick={() => column.pin('right')}>R</Button>
+                          <Button size="sm" variant="ghost" onClick={() => column.pin(false)}>U</Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={toggleDensity}
+              aria-label="Toggle density"
+            >
+              <Icon name="list" className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        {columnFilters.length > 0 && (
+          <div className="flex flex-wrap gap-2 p-2 border-b">
+            {columnFilters.map((cf) => {
+              const column = table.getColumn(cf.id);
+              if (!column) return null;
+              return (
+                <Badge key={cf.id} className="flex items-center gap-1">
+                  <span>
+                    {cf.id}: {String(cf.value)}
+                  </span>
+                  <button
+                    onClick={() => column.setFilterValue(undefined)}
+                    aria-label="Remove filter"
+                  >
+                    <Icon name="x" className="h-3 w-3" />
+                  </button>
+                </Badge>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {isMobile ? (
         <div className="grid gap-2">
@@ -487,7 +588,7 @@ export default function TasksDataTable({
                       key={header.id}
                       colSpan={header.colSpan}
                       className={`p-2 border-b text-left ${
-                        header.column.id === 'actions' ? 'sticky right-0 bg-gray-50' : 'bg-gray-50'
+                        header.column.id === 'menu' ? 'sticky right-0 bg-gray-50' : 'bg-gray-50'
                       }`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, header.column)}
@@ -515,21 +616,61 @@ export default function TasksDataTable({
               ))}
             </thead>
             <tbody>
-              {paddingTop > 0 && (
-                <tr>
-                  <td style={{ height: paddingTop }} />
-                </tr>
-              )}
-              {virtualRows.map((virtualRow) => {
-                const row = table.getRowModel().rows[virtualRow.index];
-                return (
+              {useVirtual ? (
+                <>
+                  {paddingTop > 0 && (
+                    <tr>
+                      <td style={{ height: paddingTop }} />
+                    </tr>
+                  )}
+                  {virtualRows.map((virtualRow) => {
+                    const row = table.getRowModel().rows[virtualRow.index];
+                    return (
+                      <tr
+                        key={row.id}
+                        ref={(el) => {
+                          rowRefs.current[virtualRow.index] = el;
+                          if (el) rowVirtualizer!.measureElement(el);
+                        }}
+                        data-index={virtualRow.index}
+                        tabIndex={0}
+                        className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        onClick={() => navigate(`/tasks/${row.original.id}`)}
+                        onMouseEnter={() =>
+                          queryClient.prefetchQuery({
+                            queryKey: ['task', row.original.id],
+                            queryFn: () => getTask(row.original.id),
+                          })
+                        }
+                        onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td
+                            key={cell.id}
+                            className={`p-2 ${
+                              cell.column.id === 'menu' ? 'sticky right-0 bg-white' : ''
+                            }`}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                  {paddingBottom > 0 && (
+                    <tr>
+                      <td style={{ height: paddingBottom }} />
+                    </tr>
+                  )}
+                </>
+              ) : (
+                table.getRowModel().rows.map((row, index) => (
                   <tr
                     key={row.id}
                     ref={(el) => {
-                      rowRefs.current[virtualRow.index] = el;
-                      if (el) rowVirtualizer.measureElement(el);
+                      rowRefs.current[index] = el;
                     }}
-                    data-index={virtualRow.index}
+                    data-index={index}
                     tabIndex={0}
                     className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     onClick={() => navigate(`/tasks/${row.original.id}`)}
@@ -539,25 +680,20 @@ export default function TasksDataTable({
                         queryFn: () => getTask(row.original.id),
                       })
                     }
-                    onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
+                    onKeyDown={(e) => handleRowKeyDown(e, index, row.original.id)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
                         className={`p-2 ${
-                          cell.column.id === 'actions' ? 'sticky right-0 bg-white' : ''
+                          cell.column.id === 'menu' ? 'sticky right-0 bg-white' : ''
                         }`}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
                   </tr>
-                );
-              })}
-              {paddingBottom > 0 && (
-                <tr>
-                  <td style={{ height: paddingBottom }} />
-                </tr>
+                ))
               )}
             </tbody>
           </table>

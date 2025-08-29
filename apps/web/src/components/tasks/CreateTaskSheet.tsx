@@ -47,7 +47,11 @@ const orderTypeOptions = [
   "Contract",
 ];
 
-export default function CreateTaskSheet() {
+export default function CreateTaskSheet({
+  triggerText,
+}: {
+  triggerText?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const { t } = useTranslation();
@@ -196,7 +200,7 @@ export default function CreateTaskSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>{t('buttons.addTask')}</Button>
+        <Button>{triggerText ?? t('buttons.addTask')}</Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
