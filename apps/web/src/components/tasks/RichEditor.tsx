@@ -13,12 +13,19 @@ interface RichEditorProps {
 
 export default function RichEditor({ value, onChange, onBlur }: RichEditorProps) {
   const editor = useEditor({
-    extensions: [StarterKit, TaskList, TaskItem, Mention.configure({
-      HTMLAttributes: { class: 'text-blue-600' },
-      suggestion: {
-        items: () => [],
-      },
-    })],
+    extensions: [
+      StarterKit,
+      TaskList,
+      TaskItem,
+      Mention.configure({
+        HTMLAttributes: {
+          class: 'text-brand hover:underline focus-visible:ring-brand',
+        },
+        suggestion: {
+          items: () => [],
+        },
+      }),
+    ],
     content: value,
     onUpdate({ editor }) {
       onChange(editor.getHTML());
