@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { listTasks, listUsers, listSuppliers, getTask } from '@/lib/api';
+import { useTranslation } from 'react-i18next';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface CommandPaletteProps {
 export default function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     const navigate = useNavigate();
     const qc = useQueryClient();
+    const { t } = useTranslation();
 
   const tasksQuery = useQuery({
     queryKey: ['cp-tasks'],
@@ -33,12 +35,12 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
   });
 
   const viewsQuery = useQuery({
-    queryKey: ['cp-views'],
+    queryKey: ['cp-views', t],
     queryFn: async () => [
-      { id: 'dashboard', name: 'Dashboard', path: '/' },
-      { id: 'tasks', name: 'Tasks', path: '/tasks' },
-      { id: 'tasks-board', name: 'Tasks Board', path: '/tasks-board' },
-      { id: 'tasks-calendar', name: 'Tasks Calendar', path: '/tasks-calendar' },
+      { id: 'dashboard', name: t('nav.dashboard'), path: '/' },
+      { id: 'tasks', name: t('nav.tasks'), path: '/tasks' },
+      { id: 'tasks-board', name: t('nav.board'), path: '/tasks/board' },
+      { id: 'tasks-calendar', name: t('nav.calendar'), path: '/tasks/calendar' },
     ],
     enabled: open,
   });
@@ -51,16 +53,16 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 overflow-hidden">
-        <Command label="Global Command Palette" loop>
+        <Command label={t('titles.commandPalette')} loop>
           <Command.Input
             autoFocus
-            placeholder="Type a command or search..."
+            placeholder={t('placeholders.commandSearch')}
             className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
           <Command.List>
-            <Command.Empty>No results found.</Command.Empty>
+            <Command.Empty>{t('messages.noResults')}</Command.Empty>
             {viewsQuery.data && (
-              <Command.Group heading="Views">
+              <Command.Group heading={t('labels.views')}>
                 {viewsQuery.data.map((v) => (
                   <Command.Item
                     key={v.id}
@@ -73,7 +75,7 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
               </Command.Group>
             )}
             {tasksQuery.data?.items && (
-              <Command.Group heading="Tasks">
+              <Command.Group heading={t('nav.tasks')}>
                 {tasksQuery.data.items.map((t: any) => (
                   <Command.Item
                     key={t.id}
@@ -92,7 +94,7 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
               </Command.Group>
             )}
             {usersQuery.data?.items && (
-              <Command.Group heading="Users">
+              <Command.Group heading={t('labels.users')}>
                 {usersQuery.data.items.map((u: any) => (
                   <Command.Item
                     key={u.id}
@@ -105,7 +107,7 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
               </Command.Group>
             )}
             {suppliersQuery.data?.items && (
-              <Command.Group heading="Suppliers">
+              <Command.Group heading={t('labels.suppliers')}>
                 {suppliersQuery.data.items.map((s: any) => (
                   <Command.Item
                     key={s.id}

@@ -10,9 +10,11 @@ import {
   TooltipContent,
   TooltipProvider,
 } from './ui/tooltip';
+import { useTranslation } from 'react-i18next';
 
 export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const [commandOpen, setCommandOpen] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -31,7 +33,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         href="#main-content"
         className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 p-2 bg-white dark:bg-gray-900 text-brand z-50"
       >
-        Skip to content
+        {t('labels.skipToContent')}
       </a>
       <TooltipProvider>
         <header className="sticky top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center px-4 z-10 relative">
@@ -41,62 +43,62 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
                 <motion.button
                   className="sm:block md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={onToggleSidebar}
-                  aria-label="Toggle sidebar"
+                  aria-label={t('buttons.toggleSidebar')}
                   whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
                   whileTap={{ scale: 0.97, transition: { duration: 0.15 } }}
                 >
                   <Icon name="menu" className="h-5 w-5" />
                 </motion.button>
               </TooltipTrigger>
-              <TooltipContent>Toggle sidebar</TooltipContent>
+              <TooltipContent>{t('buttons.toggleSidebar')}</TooltipContent>
             </Tooltip>
-            <div className="text-xl font-bold">Task Manager</div>
+            <div className="text-xl font-bold">{t('titles.appName')}</div>
           </div>
           <div className="flex items-center space-x-2 ml-auto z-10">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="primary" aria-label="Add">
-                  <Icon name="plus" className="h-4 w-4 mr-2" />Add
+                <Button variant="primary" aria-label={t('buttons.add')}>
+                  <Icon name="plus" className="h-4 w-4 mr-2" />{t('buttons.add')}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Add</TooltipContent>
+              <TooltipContent>{t('buttons.add')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label="Command palette"
+                  aria-label={t('labels.commandPalette')}
                   onClick={() => setCommandOpen(true)}
                 >
                   <Icon name="command" className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Command palette</TooltipContent>
+              <TooltipContent>{t('labels.commandPalette')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
                   href="/help"
                   className="p-2 text-gray-600 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  aria-label="Help"
+                  aria-label={t('labels.help')}
                 >
                   <Icon name="help-circle" className="h-4 w-4" />
                 </a>
               </TooltipTrigger>
-              <TooltipContent>Help</TooltipContent>
+              <TooltipContent>{t('labels.help')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" variant="outline" aria-label="User menu">
+                <Button size="icon" variant="outline" aria-label={t('labels.userMenu')}>
                   <Icon name="user" className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>User menu</TooltipContent>
+              <TooltipContent>{t('labels.userMenu')}</TooltipContent>
             </Tooltip>
           </div>
           <div className="absolute inset-x-0 flex justify-center px-4 pointer-events-none">
-            <Input placeholder="Search..." className="w-full max-w-md pointer-events-auto" />
+            <Input placeholder={t('placeholders.search')} className="w-full max-w-md pointer-events-auto" />
           </div>
         </header>
       </TooltipProvider>

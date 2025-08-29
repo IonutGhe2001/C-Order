@@ -22,8 +22,8 @@ export default function Dashboard() {
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       {shouldReduceMotion ? (
         <main id="main-content" className="pt-14 md:ml-60 ml-0 p-6">
-          <h1 className="text-xl font-bold mb-4">Dashboard</h1>
-          {isLoading && <div>Loading...</div>}
+          <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
+          {isLoading && <div>{t('messages.loading')}</div>}
           {isError && <div>{t('messages.loadError')}</div>}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.isArray(data) &&
@@ -40,8 +40,8 @@ export default function Dashboard() {
           exit={{ opacity: 0, y: 20 }}
           className="pt-14 md:ml-60 ml-0 p-6"
         >
-          <h1 className="text-xl font-bold mb-4">Dashboard</h1>
-          {isLoading && <div>Loading...</div>}
+          <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
+          {isLoading && <div>{t('messages.loading')}</div>}
           {isError && <div>{t('messages.loadError')}</div>}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.isArray(data) &&

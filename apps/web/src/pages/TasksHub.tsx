@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { useIsFetching, useMutation, useQueryClient } from "@tanstack/react-query";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -25,6 +26,7 @@ export default function TasksHub() {
   const [selected, setSelected] = useState<string[]>([]);
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
   const qc = useQueryClient();
+  const { t } = useTranslation();
 
   const deleteMut = useMutation({
     mutationFn: (ids: string[]) => Promise.all(ids.map((id) => deleteTask(id))),
@@ -48,7 +50,7 @@ export default function TasksHub() {
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main id="main-content" className="p-4 md:ml-60 mt-14">
         <div className="flex justify-between mb-4 items-center">
-          <h1 className="text-xl font-semibold">Tasks</h1>
+          <h1 className="text-xl font-semibold">{t('nav.tasks')}</h1>
           <div className="flex items-center gap-2">
             {isLoading ? (
               <>
@@ -64,20 +66,20 @@ export default function TasksHub() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button size="sm" variant="outline">
-                          Archive
+                          {t('buttons.archive')}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Archive selected tasks?</AlertDialogTitle>
+                          <AlertDialogTitle>{t('dialogs.archiveSelected')}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone.
+                            {t('messages.confirmAction')}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>{t('buttons.cancel')}</AlertDialogCancel>
                           <AlertDialogAction onClick={() => archiveMut.mutate(selected)}>
-                            Archive
+                            {t('buttons.archive')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -85,20 +87,20 @@ export default function TasksHub() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button size="sm" variant="destructive">
-                          Delete
+                          {t('buttons.delete')}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete selected tasks?</AlertDialogTitle>
+                          <AlertDialogTitle>{t('dialogs.deleteSelected')}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone.
+                            {t('messages.confirmAction')}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>{t('buttons.cancel')}</AlertDialogCancel>
                           <AlertDialogAction onClick={() => deleteMut.mutate(selected)}>
-                            Delete
+                            {t('buttons.delete')}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -112,7 +114,7 @@ export default function TasksHub() {
                     setQuickFilter((f) => (f === "overdue" ? "" : "overdue"))
                   }
                 >
-                  Overdue
+                  {t('filters.overdue')}
                 </Button>
                 <Button
                   size="sm"
@@ -121,7 +123,7 @@ export default function TasksHub() {
                     setQuickFilter((f) => (f === "today" ? "" : "today"))
                   }
                 >
-                  Today
+                  {t('filters.today')}
                 </Button>
                 <Button
                   size="sm"
@@ -132,7 +134,7 @@ export default function TasksHub() {
                     )
                   }
                 >
-                  No assignee
+                  {t('filters.noAssignee')}
                 </Button>
                 <CreateTaskSheet />
               </>

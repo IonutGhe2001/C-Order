@@ -9,6 +9,7 @@ import {
 } from './ui/tooltip';
 import { Icon } from '../lib/lucide-icon';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function Sidebar({
   isOpen = false,
@@ -41,17 +42,18 @@ export default function Sidebar({
     }
   };
 
+  const { t } = useTranslation();
   const groups = [
     {
-      label: 'General',
-      links: [{ to: '/dashboard', label: 'Dashboard' }],
+      label: t('labels.general'),
+      links: [{ to: '/dashboard', label: t('nav.dashboard') }],
     },
     {
-      label: 'Tasks',
+      label: t('nav.tasks'),
       links: [
-        { to: '/tasks', label: 'Inbox' },
-        { to: '/tasks?assigned=me', label: 'Assigned to me' },
-        { to: '/tasks?status=done', label: 'Completed' },
+        { to: '/tasks', label: t('labels.inbox') },
+        { to: '/tasks?assigned=me', label: t('labels.assignedToMe') },
+        { to: '/tasks?status=done', label: t('labels.completed') },
       ],
     },
   ];
@@ -110,7 +112,7 @@ export default function Sidebar({
         <motion.button
           onClick={() => setCollapsed(!collapsed)}
           className="p-2 mb-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          aria-label="Toggle sidebar"
+          aria-label={t('buttons.toggleSidebar')}
           whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
           whileTap={{ scale: 0.97, transition: { duration: 0.15 } }}
         >

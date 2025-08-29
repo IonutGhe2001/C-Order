@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogClose,
 } from './ui/dialog'
+import { useTranslation } from 'react-i18next'
 
 interface ModalProps {
   open: boolean
@@ -22,6 +23,7 @@ interface ModalProps {
 }
 
 export default function Modal({ open, onClose, title, children }: ModalProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent>
@@ -31,12 +33,12 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <DialogClose asChild>
-                  <Button variant="ghost" size="icon" aria-label="Close">
+                  <Button variant="ghost" size="icon" aria-label={t('buttons.close')}>
                     <Icon name="x" className="h-4 w-4" />
                   </Button>
                 </DialogClose>
               </TooltipTrigger>
-              <TooltipContent>Close</TooltipContent>
+              <TooltipContent>{t('buttons.close')}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>

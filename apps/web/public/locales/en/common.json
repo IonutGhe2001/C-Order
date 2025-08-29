@@ -4,7 +4,8 @@
     "board": "Board",
     "calendar": "Calendar",
     "timeline": "Timeline",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "dashboard": "Dashboard"
   },
   "statuses": {
     "OPEN": "Open",
@@ -42,7 +43,18 @@
     "earlyDelivery": "Early delivery",
     "comments": "Comments",
     "all": "All",
-    "columns": "Columns"
+    "columns": "Columns",
+    "skipToContent": "Skip to content",
+    "commandPalette": "Command palette",
+    "help": "Help",
+    "userMenu": "User menu",
+    "views": "Views",
+    "users": "Users",
+    "suppliers": "Suppliers",
+    "general": "General",
+    "inbox": "Inbox",
+    "assignedToMe": "Assigned to me",
+    "completed": "Completed"
   },
   "buttons": {
     "save": "Save",
@@ -54,7 +66,14 @@
     "continue": "Continue",
     "back": "Back",
     "apply": "Apply",
-    "send": "Send"
+    "send": "Send",
+    "archive": "Archive",
+    "delete": "Delete",
+    "signIn": "Sign in",
+    "show": "Show",
+    "hide": "Hide",
+    "close": "Close",
+    "toggleSidebar": "Toggle sidebar"
   },
   "placeholders": {
     "search": "Search...",
@@ -73,7 +92,10 @@
     "supplierExample": "TechCorp",
     "orderNumberExample": "PO-12345",
     "authorityExample": "Ministry of Finance",
-    "assigneeSearchExample": "Search e.g. 'John Doe'"
+    "assigneeSearchExample": "Search e.g. 'John Doe'",
+    "emailExample": "you@example.com",
+    "passwordExample": "Ex: StrongPass123",
+    "commandSearch": "Type a command or search..."
   },
   "messages": {
     "loadError": "Couldn't load data. Check your connection and retry.",
@@ -93,13 +115,35 @@
     "noSuppliers": "No suppliers yet.",
     "suppliersLoadFailed": "Couldn't load suppliers. Check your connection and retry.",
     "selectedCount": "{{count}} selected",
-    "unexpectedError": "Unexpected error. Please retry."
+    "unexpectedError": "Unexpected error. Please retry.",
+    "signInSuccess": "Signed in",
+    "signInFailed": "Can't sign in. Check credentials and try again.",
+    "confirmAction": "This action cannot be undone.",
+    "saving": "saving...",
+    "saved": "saved",
+    "noResults": "No results found."
   },
   "system": "System",
   "anonymous": "Anonymous",
   "titles": {
     "createTask": "Create task",
-    "sendEmail": "Send email"
+    "sendEmail": "Send email",
+    "signIn": "Sign In",
+    "dashboard": "Dashboard",
+    "commandPalette": "Command palette",
+    "suppliers": "Suppliers",
+    "appName": "Task Manager"
+  },
+  "dialogs": {
+    "archiveSelected": "Archive selected tasks?",
+    "deleteSelected": "Delete selected tasks?",
+    "archiveTask": "Archive this task?",
+    "deleteTask": "Delete this task?"
+  },
+  "filters": {
+    "overdue": "Overdue",
+    "today": "Today",
+    "noAssignee": "No assignee"
   },
   "validation": {
     "dueDateRequired": "Due date is required",

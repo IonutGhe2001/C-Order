@@ -26,10 +26,10 @@ export default function Login(){
     setLoading(true);
     try {
       await login(email, password);
-      toast({ title: 'Signed in', variant: 'success' });
+      toast({ title: t('messages.signInSuccess'), variant: 'success' });
       window.location.href = '/tasks';
     } catch {
-      toast({ title: "Can't sign in. Check credentials and try again.", variant: 'error' });
+      toast({ title: t('messages.signInFailed'), variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -39,9 +39,9 @@ export default function Login(){
   return shouldReduceMotion ? (
     <main id="main-content" className="min-h-screen flex items-center justify-center p-6">
       <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
-        <h1 className="text-2xl font-semibold">Sign In</h1>
+        <h1 className="text-2xl font-semibold">{t('titles.signIn')}</h1>
         <Input
-          placeholder="you@example.com"
+          placeholder={t('placeholders.emailExample')}
           autoFocus
           value={email}
           onChange={e=>setEmail(e.target.value)}
@@ -53,7 +53,7 @@ export default function Login(){
         <div className="relative">
           <Input
             className="pr-16"
-            placeholder="Ex: StrongPass123"
+            placeholder={t('placeholders.passwordExample')}
             type={showPwd ? 'text' : 'password'}
             value={password}
             onChange={e=>setPassword(e.target.value)}
@@ -69,7 +69,7 @@ export default function Login(){
             tabIndex={3}
             disabled={loading}
           >
-            {showPwd ? 'Hide' : 'Show'}
+            {t(showPwd ? 'buttons.hide' : 'buttons.show')}
           </Button>
         </div>
         {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
@@ -79,7 +79,7 @@ export default function Login(){
           disabled={loading}
           tabIndex={4}
         >
-          {loading ? <Skeleton className="h-4 w-20" /> : 'Sign in'}
+          {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
         </Button>
       </form>
     </main>
@@ -92,9 +92,9 @@ export default function Login(){
       className="min-h-screen flex items-center justify-center p-6"
     >
       <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
-        <h1 className="text-2xl font-semibold">Sign In</h1>
+        <h1 className="text-2xl font-semibold">{t('titles.signIn')}</h1>
         <Input
-          placeholder="you@example.com"
+          placeholder={t('placeholders.emailExample')}
           autoFocus
           value={email}
           onChange={e=>setEmail(e.target.value)}
@@ -106,7 +106,7 @@ export default function Login(){
         <div className="relative">
           <Input
             className="pr-16"
-            placeholder="Ex: StrongPass123"
+            placeholder={t('placeholders.passwordExample')}
             type={showPwd ? 'text' : 'password'}
             value={password}
             onChange={e=>setPassword(e.target.value)}
@@ -122,7 +122,7 @@ export default function Login(){
             tabIndex={3}
             disabled={loading}
           >
-            {showPwd ? 'Hide' : 'Show'}
+            {t(showPwd ? 'buttons.hide' : 'buttons.show')}
           </Button>
         </div>
         {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
@@ -132,7 +132,7 @@ export default function Login(){
           disabled={loading}
           tabIndex={4}
         >
-          {loading ? <Skeleton className="h-4 w-20" /> : 'Sign in'}
+          {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
         </Button>
       </form>
     </motion.main>
