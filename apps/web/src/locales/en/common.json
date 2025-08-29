@@ -65,8 +65,9 @@
     "dragOrClick": "Drag files or click to select",
     "select": "Select",
     "selectType": "Select type",
-    "recipients": "Recipients (comma separated)",
-    "subject": "Subject",
+    "recipients": "e.g. john@example.com, jane@example.com",
+    "subject": "e.g. Order update",
+    "emailBodyExample": "e.g. Hello, the order is ready.",
     "taskTitleExample": "Order 10 laptops",
     "taskDescriptionExample": "Requesting new laptops for dev team",
     "supplierExample": "TechCorp",
@@ -106,6 +107,9 @@
     "assigneeRequired": "Assignee is required",
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
-    "commentRequired": "Comment is required"
+    "commentRequired": "Comment is required",
+    "recipientsRequired": "Recipients are required",
+    "subjectRequired": "Subject is required",
+    "bodyRequired": "Message is required"
   }
 }

@@ -65,8 +65,9 @@
     "dragOrClick": "Trage fișiere sau apasă pentru a selecta",
     "select": "Selectează",
     "selectType": "Selectează tip",
-    "recipients": "Destinatari (virgule)",
-    "subject": "Subiect",
+    "recipients": "ex: ion@example.com, ana@example.com",
+    "subject": "ex: Actualizare comanda",
+    "emailBodyExample": "ex: Buna ziua, comanda este pregatita.",
     "taskTitleExample": "Comandă 10 laptopuri",
     "taskDescriptionExample": "Solicităm laptopuri pentru echipă",
     "supplierExample": "TechCorp",
@@ -106,6 +107,9 @@
     "assigneeRequired": "Responsabilul este obligatoriu",
     "emailRequired": "Emailul este obligatoriu",
     "passwordRequired": "Parola este obligatorie",
-    "commentRequired": "Comentariul este obligatoriu"
+    "commentRequired": "Comentariul este obligatoriu",
+    "recipientsRequired": "Destinatarii sunt obligatorii",
+    "subjectRequired": "Subiectul este obligatoriu",
+    "bodyRequired": "Mesajul este obligatoriu"
   }
 }
