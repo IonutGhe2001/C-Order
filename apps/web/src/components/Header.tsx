@@ -31,17 +31,17 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
     <>
     <a
         href="#main-content"
-        className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 p-2 bg-white dark:bg-brand-muted text-brand z-50"
+        className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 p-2 bg-brand text-brand-fg z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
       >
         {t('labels.skipToContent')}
       </a>
       <TooltipProvider>
-        <header className="sticky top-0 left-0 right-0 h-14 bg-white dark:bg-brand-muted shadow flex items-center px-4 z-10 relative">
+        <header className="sticky top-0 left-0 right-0 h-14 bg-brand dark:bg-brand-muted text-brand-fg shadow flex items-center px-4 z-10 relative">
           <div className="flex items-center space-x-4 flex-shrink-0 z-10">
             <Tooltip>
               <TooltipTrigger asChild>
                 <motion.button
-                  className="sm:block md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="sm:block md:hidden text-brand-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   onClick={onToggleSidebar}
                   aria-label={t('buttons.toggleSidebar')}
                   whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
@@ -57,7 +57,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
           <div className="flex items-center space-x-2 ml-auto z-10">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="primary" aria-label={t('buttons.add')}>
+                <Button variant="primary" aria-label={t('buttons.add')} className="text-brand-fg">
                   <Icon name="plus" className="h-4 w-4 mr-2" />{t('buttons.add')}
                 </Button>
               </TooltipTrigger>
@@ -68,6 +68,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
                 <Button
                   size="icon"
                   variant="ghost"
+                  className="text-brand-fg"
                   aria-label={t('labels.commandPalette')}
                   onClick={() => setCommandOpen(true)}
                 >
@@ -80,7 +81,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
               <TooltipTrigger asChild>
                 <a
                   href="/help"
-                  className="p-2 text-brand-fg hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="p-2 text-brand-fg hover:text-brand-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   aria-label={t('labels.help')}
                 >
                   <Icon name="help-circle" className="h-4 w-4" />
@@ -90,7 +91,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" variant="outline" aria-label={t('labels.userMenu')}>
+                <Button size="icon" variant="outline" aria-label={t('labels.userMenu')} className="text-brand-fg border-brand-fg">
                   <Icon name="user" className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>

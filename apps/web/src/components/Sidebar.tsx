@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent } from './ui/sheet';
 import {
   Tooltip,
@@ -19,12 +19,12 @@ export default function Sidebar({
   onOpenChange?: (open: boolean) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+  const linkClass = (isActive: boolean) =>
+    `flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
       collapsed ? 'justify-center p-2' : 'px-4 py-2'
     } ${
       isActive
-        ? 'bg-brand-muted text-brand'
+        ? 'text-brand border-l-4 border-brand'
         : 'text-brand-fg hover:bg-brand-muted'
     }`;
 
@@ -57,7 +57,8 @@ export default function Sidebar({
       ],
     },
   ];
-
+  
+  const location = useLocation();
   const renderContent = () => {
     let i = -1;
     return groups.map((group) => (
@@ -70,17 +71,20 @@ export default function Sidebar({
         <nav className="space-y-1">
           {group.links.map((l) => {
             i++;
+            const isActive =
+              location.pathname + location.search === l.to;
             const link = (
-              <NavLink
+              <Link
                 key={l.label}
                 to={l.to}
-                className={linkClass}
+                className={linkClass(isActive)}
                 ref={(el) => (linkRefs.current[i] = el!)}
                 onKeyDown={(e) => handleKeyDown(e, i)}
                 aria-label={collapsed ? l.label : undefined}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <span className={collapsed ? 'sr-only' : ''}>{l.label}</span>
-              </NavLink>
+              </Link>
             );
             return collapsed ? (
               <Tooltip key={l.label}>
@@ -99,19 +103,19 @@ export default function Sidebar({
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="p-4 w-60 md:hidden left-0 right-auto border-r">
+        <SheetContent className="p-4 w-60 md:hidden left-0 right-auto border-r bg-white dark:bg-brand-muted">
           <TooltipProvider>{renderContent()}</TooltipProvider>
         </SheetContent>
       </Sheet>
       <aside
         role="navigation"
-        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-brand-muted border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
+        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-white dark:bg-brand-muted border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
           collapsed ? 'w-[72px] p-2' : 'w-60 p-4'
         }`}
       >
         <motion.button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 mb-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="p-2 mb-4 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
           aria-label={t('buttons.toggleSidebar')}
           whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
           whileTap={{ scale: 0.97, transition: { duration: 0.15 } }}
