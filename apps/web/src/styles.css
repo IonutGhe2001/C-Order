@@ -42,6 +42,7 @@
 
 @layer components {
   .input-base {
+    /* stylelint-disable-next-line at-rule-no-unknown */
     @apply border rounded-lg hover:border-brand focus:ring-2 ring-brand;
   }
   }
