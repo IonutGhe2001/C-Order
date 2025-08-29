@@ -49,7 +49,7 @@ export default function SupplierDetail() {
       <main id="main-content" className="p-4 md:ml-60 mt-14 space-y-4">
         <div>
           <h1 className="text-2xl font-semibold">{supplier.name}</h1>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-brand-fg">
             {supplier.email || '-'} {supplier.phone ? ` | ${supplier.phone}` : ''}
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function SupplierDetail() {
                 <tr
                   key={task.id}
                   tabIndex={0}
-                  className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="border-b hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={() => navigate(`/tasks/${task.id}`)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -97,12 +97,12 @@ export default function SupplierDetail() {
                   >
                     {att.filename}
                   </a>{' '}
-                  <span className="text-sm text-gray-600">({att.taskTitle})</span>
+                  <span className="text-sm text-brand-fg">({att.taskTitle})</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-gray-600">{t('messages.noAttachments')}</p>
+            <p className="text-sm text-brand-fg">{t('messages.noAttachments')}</p>
           )}
         </div>
       </main>

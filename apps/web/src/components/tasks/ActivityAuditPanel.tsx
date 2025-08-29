@@ -30,7 +30,7 @@ export default function ActivityAuditPanel({ audit, loading, error, onRetry, hid
         <ul className="text-xs space-y-2 max-h-64 overflow-auto relative pl-4 border-l">
           {audit.map((a: any) => (
             <li key={a.id} className="flex items-start">
-              <Icon name="circle" className="h-2 w-2 text-gray-400 mr-2 mt-1" />
+              <Icon name="circle" className="h-2 w-2 text-brand-fg mr-2 mt-1" />
               <span>
                 {a.user?.name || t('system')} {a.action}{' '}
                 {formatDateTime(new Date(a.createdAt))}
@@ -39,7 +39,7 @@ export default function ActivityAuditPanel({ audit, loading, error, onRetry, hid
           ))}
         </ul>
       ) : (
-        <div className="text-sm text-gray-500 flex items-center">
+        <div className="text-sm text-brand-fg flex items-center">
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.noAuditEntries')}
         </div>
       )}

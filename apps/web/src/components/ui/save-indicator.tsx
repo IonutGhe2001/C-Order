@@ -17,7 +17,7 @@ export function SaveIndicator({ mutation }: { mutation: UseMutationResult<any, a
   }, [mutation.isSuccess]);
 
   if (mutation.isPending) {
-    return <span className="ml-2 text-xs text-gray-500">{t('messages.saving')}</span>;
+    return <span className="ml-2 text-xs text-brand-fg">{t('messages.saving')}</span>;
   }
   if (showSaved) {
     return <span className="ml-2 text-xs text-green-600">{t('messages.saved')}</span>;

@@ -3,9 +3,9 @@
   --success: 142 69% 35%;
   --warning: 38 92% 40%;
   --danger: 0 84% 40%;
-  --brand: 221 83% 53%;
-  --brand-foreground: 210 40% 98%;
-  --brand-muted: 221 83% 94%;
+  --brand: 0 72% 51%;
+  --brand-foreground: 0 0% 100%;
+  --brand-muted: 0 72% 90%;
   --ring: var(--brand);
   --density: 1;
 }
@@ -24,9 +24,9 @@
   --success: 142 69% 55%;
   --warning: 38 92% 50%;
   --danger: 0 84% 55%;
-  --brand: 221 83% 66%;
-  --brand-foreground: 222 47% 11%;
-   --brand-muted: 221 83% 30%;
+  --brand: 0 72% 60%;
+  --brand-foreground: 0 0% 10%;
+  --brand-muted: 0 72% 30%;
   --ring: var(--brand);
 }
 

@@ -23,7 +23,7 @@ export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
               <span>{item.label}</span>
             )}
             {idx < items.length - 1 && (
-              <span className="mx-2 text-gray-500">/</span>
+              <span className="mx-2 text-brand-fg">/</span>
             )}
           </li>
         ))}

@@ -125,7 +125,7 @@ export default function Suppliers() {
                             key={row.id}
                             tabIndex={0}
                             ref={rowVirtualizer!.measureElement}
-                            className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="border-b hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             style={{
                               position: 'absolute',
                               top: 0,
@@ -154,7 +154,7 @@ export default function Suppliers() {
                         <tr
                           key={row.id}
                           tabIndex={0}
-                          className="border-b hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          className="border-b hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           onClick={() => {
                             logRowClick();
                             navigate(`/suppliers/${row.original.id}`);

@@ -31,12 +31,12 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
     <>
     <a
         href="#main-content"
-        className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 p-2 bg-white dark:bg-gray-900 text-brand z-50"
+        className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 p-2 bg-white dark:bg-brand-muted text-brand z-50"
       >
         {t('labels.skipToContent')}
       </a>
       <TooltipProvider>
-        <header className="sticky top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 shadow flex items-center px-4 z-10 relative">
+        <header className="sticky top-0 left-0 right-0 h-14 bg-white dark:bg-brand-muted shadow flex items-center px-4 z-10 relative">
           <div className="flex items-center space-x-4 flex-shrink-0 z-10">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -80,7 +80,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
               <TooltipTrigger asChild>
                 <a
                   href="/help"
-                  className="p-2 text-gray-600 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="p-2 text-brand-fg hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   aria-label={t('labels.help')}
                 >
                   <Icon name="help-circle" className="h-4 w-4" />

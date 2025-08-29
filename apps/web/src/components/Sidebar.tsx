@@ -25,7 +25,7 @@ export default function Sidebar({
     } ${
       isActive
         ? 'bg-brand-muted text-brand'
-        : 'text-gray-600 hover:bg-brand-muted'
+        : 'text-brand-fg hover:bg-brand-muted'
     }`;
 
   const linkRefs = useRef<HTMLAnchorElement[]>([]);
@@ -63,7 +63,7 @@ export default function Sidebar({
     return groups.map((group) => (
       <div key={group.label} className="mb-6">
         {!collapsed && (
-          <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
+          <div className="text-xs font-semibold text-brand-fg uppercase mb-2">
             {group.label}
           </div>
         )}
@@ -105,7 +105,7 @@ export default function Sidebar({
       </Sheet>
       <aside
         role="navigation"
-        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-gray-50 border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
+        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-brand-muted border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
           collapsed ? 'w-[72px] p-2' : 'w-60 p-4'
         }`}
       >

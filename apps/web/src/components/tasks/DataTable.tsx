@@ -448,7 +448,7 @@ export default function TasksDataTable({
 
   if (!data?.items?.length) {
     return (
-      <div className="text-center p-4 text-sm text-gray-500 space-y-2">
+      <div className="text-center p-4 text-sm text-brand-fg space-y-2">
         <p>{t('messages.noTasks')}</p>
         <CreateTaskSheet triggerText="Creează" />
       </div>
@@ -569,7 +569,7 @@ export default function TasksDataTable({
       ) : (
         <div ref={tableContainerRef} className="overflow-auto">
           <table className="min-w-full border">
-            <thead className="sticky top-0 bg-gray-50 z-10">
+            <thead className="sticky top-0 bg-brand-muted z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
@@ -577,7 +577,7 @@ export default function TasksDataTable({
                       key={header.id}
                       colSpan={header.colSpan}
                       className={`p-2 border-b text-left ${
-                        header.column.id === 'menu' ? 'sticky right-0 bg-gray-50' : 'bg-gray-50'
+                        header.column.id === 'menu' ? 'sticky right-0 bg-brand-muted' : 'bg-brand-muted'
                       }`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, header.column)}
@@ -651,7 +651,7 @@ export default function TasksDataTable({
                         }}
                         data-index={virtualRow.index}
                         tabIndex={0}
-                        className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         onClick={() => {
                           logRowClick();
                           navigate(`/tasks/${row.original.id}`);
@@ -685,7 +685,7 @@ export default function TasksDataTable({
                     }}
                     data-index={index}
                     tabIndex={0}
-                    className="border-t hover:bg-gray-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     onClick={() => {
                       logRowClick();
                       navigate(`/tasks/${row.original.id}`);

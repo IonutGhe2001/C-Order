@@ -21,7 +21,7 @@ function ViewSwitcher() {
           key={l.to}
           to={l.to}
           className={({ isActive }) =>
-            `px-3 py-1 rounded ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-200'}`
+            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted'}`
           }
         >
           {l.label}
@@ -75,9 +75,9 @@ export default function TasksTimeline() {
             return (
               <div key={t.id}>
                 <div className="text-sm mb-1">{t.title}</div>
-                <div className="relative h-4 bg-gray-200 rounded">
+                <div className="relative h-4 bg-brand-muted rounded">
                   <div
-                    className="absolute h-4 bg-blue-500 rounded"
+                    className="absolute h-4 bg-brand rounded"
                     style={{ left: `${left}%`, width: `${width}%` }}
                   ></div>
                 </div>

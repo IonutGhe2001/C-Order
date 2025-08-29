@@ -19,7 +19,7 @@ export default function TaskCard({ task, selected, onSelectChange, onClick }: Pr
   const { t } = useTranslation();
   return (
     <div
-      className="border rounded-md p-4 mb-2 cursor-pointer hover:bg-gray-50 transition-colors duration-200 motion-reduce:transition-none"
+      className="border rounded-md p-4 mb-2 cursor-pointer hover:bg-brand-muted transition-colors duration-200 motion-reduce:transition-none"
       onClick={onClick}
       onMouseEnter={() =>
         qc.prefetchQuery({ queryKey: ['task', task.id], queryFn: () => getTask(task.id) })
@@ -41,7 +41,7 @@ export default function TaskCard({ task, selected, onSelectChange, onClick }: Pr
           {t(statusLabels[task.status] || `statuses.${task.status}`)}
         </Badge>
       </div>
-      <div className="text-xs text-gray-600 mt-2 space-y-1">
+      <div className="text-xs text-brand-fg mt-2 space-y-1">
         <p>
           {t('labels.priority')}: {t(`priority.${task.priority}`)}
         </p>
