@@ -44,4 +44,11 @@
   .input-base {
     @apply border rounded-lg hover:border-brand focus:ring-2 ring-brand;
   }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

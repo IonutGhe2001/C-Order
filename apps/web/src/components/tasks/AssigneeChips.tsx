@@ -16,9 +16,10 @@ interface AssigneeChipsProps {
 
 function Chip({ id, name }: { id: string; name: string }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: reduceMotion ? undefined : transition,
   };
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="px-2 py-1 bg-gray-200 rounded cursor-move text-sm">

@@ -102,7 +102,7 @@ export default function Sidebar({
       </Sheet>
       <aside
         role="navigation"
-        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-gray-50 border-r overflow-y-auto transition-all duration-300 ${
+        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-gray-50 border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
           collapsed ? 'w-[72px] p-2' : 'w-60 p-4'
         }`}
       >
