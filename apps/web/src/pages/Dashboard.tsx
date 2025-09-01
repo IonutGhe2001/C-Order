@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import KpiCardModern from '../components/dashboard/KpiCardModern';
-import KpiSkeleton from '../components/dashboard/KpiSkeleton';
-import EmptyState from '../components/EmptyState';
+import { KpiCardModern, KpiSkeleton, EmptyState } from '../components/dashboard';
 import { Button } from '../components/ui/button';
 import { Icon } from '../lib/lucide-icon';
 import { getTaskSummary } from '../lib/api';
@@ -52,13 +50,15 @@ export default function Dashboard() {
         </div>
       )}
       {data.length === 0 && !isLoading && !isError ? (
-        <EmptyState
-          onReset={() => {
-            setRange('7d');
-            refetch();
-          }}
-        />
-      ) : (
+          <EmptyState
+            title="No data available"
+            description="Try adjusting your filters"
+            onReset={() => {
+              setRange('7d');
+              refetch();
+            }}
+          />
+        ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
