@@ -5,6 +5,8 @@ import Sidebar from '../components/Sidebar';
 import { KpiCardModern, KpiSkeleton, EmptyState } from '../components/dashboard';
 import { Button } from '../components/ui/button';
 import { Icon } from '../lib/lucide-icon';
+import QuickActions from '../components/dashboard/QuickActions';
+import RecentActivity from '../components/dashboard/RecentActivity';
 import { getTaskSummary } from '../lib/api';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -75,6 +77,14 @@ export default function Dashboard() {
               ))}
         </div>
       )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mt-4">
+        <div className="md:col-span-2">
+          <RecentActivity />
+        </div>
+        <div className="md:col-span-1">
+          <QuickActions />
+        </div>
+      </div>
     </>
   );
   return (
