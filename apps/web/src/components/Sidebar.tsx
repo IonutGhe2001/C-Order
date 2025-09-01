@@ -25,7 +25,7 @@ export default function Sidebar({
     } ${
       isActive
         ? 'text-brand border-l-4 border-brand'
-        : 'text-brand-fg hover:bg-brand-muted'
+        : 'text-gray-800 dark:text-brand-fg hover:bg-brand-muted'
     }`;
 
   const linkRefs = useRef<HTMLAnchorElement[]>([]);
@@ -64,7 +64,7 @@ export default function Sidebar({
     return groups.map((group) => (
       <div key={group.label} className="mb-6">
         {!collapsed && (
-          <div className="text-xs font-semibold text-brand-fg uppercase mb-2">
+          <div className="text-xs font-semibold text-gray-700 dark:text-brand-fg uppercase mb-2">
             {group.label}
           </div>
         )}
@@ -103,13 +103,13 @@ export default function Sidebar({
   return (
     <>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetContent className="p-4 w-60 md:hidden left-0 right-auto border-r bg-white dark:bg-brand-muted">
+        <SheetContent className="p-4 w-60 md:hidden left-0 right-auto border-r bg-white dark:bg-brand-muted text-gray-800 dark:text-brand-fg">
           <TooltipProvider>{renderContent()}</TooltipProvider>
         </SheetContent>
       </Sheet>
       <aside
         role="navigation"
-        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-white dark:bg-brand-muted border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
+        className={`hidden md:flex flex-col fixed top-14 left-0 bottom-0 bg-white dark:bg-brand-muted text-gray-800 dark:text-brand-fg border-r overflow-y-auto transition-all duration-300 motion-reduce:transition-none ${
           collapsed ? 'w-[72px] p-2' : 'w-60 p-4'
         }`}
       >
