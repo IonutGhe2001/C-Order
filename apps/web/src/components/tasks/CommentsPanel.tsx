@@ -46,7 +46,7 @@ export default function CommentsPanel({ comments, onAdd, hideTitle, inputId }: P
           ))}
         </ul>
       ) : (
-        <div className="text-sm text-brand-fg flex items-center">
+        <div className="text-sm text-foreground flex items-center">
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.noComments')}
         </div>
       )}

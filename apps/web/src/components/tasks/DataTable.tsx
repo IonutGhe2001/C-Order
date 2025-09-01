@@ -156,7 +156,7 @@ export default function TasksDataTable({
           <Button
             size="icon"
             variant="ghost"
-            className="text-brand hover:text-brand-fg"
+            className="text-brand hover:text-brand/80"
             onClick={() =>
               setOpenMenu(openMenu === row.original.id ? null : row.original.id)
             }
@@ -166,7 +166,7 @@ export default function TasksDataTable({
           </Button>
           {openMenu === row.original.id && (
             <div
-              className="absolute right-0 mt-1 bg-white border rounded shadow flex flex-col"
+              className="absolute right-0 mt-1 bg-background border rounded shadow flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <Button
@@ -334,7 +334,7 @@ export default function TasksDataTable({
     const logRowClick = useTimeToAction('open_task_detail');
   const MemoCell = React.memo(({ cell }: { cell: any }) => (
     <td
-      className={`p-2 ${cell.column.id === 'menu' ? 'sticky right-0 bg-white' : ''}`}
+      className={`p-2 ${cell.column.id === 'menu' ? 'sticky right-0 bg-background' : ''}`}
     >
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </td>
@@ -450,7 +450,7 @@ export default function TasksDataTable({
 
   if (!data?.items?.length) {
     return (
-      <div className="text-center p-4 text-sm text-brand-fg space-y-2">
+      <div className="text-center p-4 text-sm text-foreground space-y-2">
         <p>{t('messages.noTasks')}</p>
         <CreateTaskSheet triggerText="Creează" />
       </div>
@@ -459,7 +459,7 @@ export default function TasksDataTable({
 
   return (
     <div className="space-y-2">
-      <div className="sticky top-0 z-20 bg-white">
+      <div className="sticky top-0 z-20 bg-background">
         {selectedRows.length > 0 ? (
           <div className="flex flex-wrap items-end gap-2 p-2 border-b">
             <span className="text-sm">
@@ -521,7 +521,7 @@ export default function TasksDataTable({
                 {t('labels.columns')}
               </Button>
               {showColumns && (
-                <div className="absolute z-10 bg-white border rounded shadow p-2 mt-1">
+                <div className="absolute z-10 bg-background border rounded shadow p-2 mt-1">
                   {table.getAllLeafColumns().map((column) => (
                     <div key={column.id} className="flex items-center justify-between py-1">
                       <label className="flex items-center gap-2">

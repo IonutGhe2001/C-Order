@@ -15,6 +15,8 @@ export default {
           fg: 'hsl(var(--brand-foreground))',
           muted: 'hsl(var(--brand-muted))',
         },
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
         info: 'hsl(var(--info))',
         success: 'hsl(var(--success))',
         warning: 'hsl(var(--warning))',

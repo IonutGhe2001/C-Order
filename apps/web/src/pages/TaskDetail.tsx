@@ -284,7 +284,7 @@ export default function TaskDetail() {
 
   return (
     <>
-    <div className="sticky top-0 z-10 bg-white border-b p-2 flex justify-end gap-2">
+    <div className="sticky top-0 z-10 bg-background border-b p-2 flex justify-end gap-2">
       <Button size="sm" onClick={handleSave}>{t('buttons.save')}</Button>
       <Button variant="outline" size="sm" onClick={() => setEmailOpen(true)}>
         <Icon name="mail" className="h-4 w-4 mr-1" /> {t('labels.email')}

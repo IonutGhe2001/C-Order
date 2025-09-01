@@ -49,7 +49,7 @@ export default function SupplierDetail() {
       <main id="main-content" className="p-4 md:ml-60 mt-14 space-y-4">
         <div>
           <h1 className="text-2xl font-semibold">{supplier.name}</h1>
-          <p className="text-sm text-brand-fg">
+          <p className="text-sm text-foreground">
             {supplier.email || '-'} {supplier.phone ? ` | ${supplier.phone}` : ''}
           </p>
         </div>
@@ -97,12 +97,12 @@ export default function SupplierDetail() {
                   >
                     {att.filename}
                   </a>{' '}
-                  <span className="text-sm text-brand-fg">({att.taskTitle})</span>
+                  <span className="text-sm text-foreground">({att.taskTitle})</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-brand-fg">{t('messages.noAttachments')}</p>
+            <p className="text-sm text-foreground">{t('messages.noAttachments')}</p>
           )}
         </div>
       </main>

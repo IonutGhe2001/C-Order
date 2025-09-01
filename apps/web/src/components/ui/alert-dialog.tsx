@@ -25,7 +25,7 @@ const AlertDialogContent = React.forwardRef<
       <motion.div
         ref={ref}
         className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg text-gray-800 dark:bg-brand-muted',
+          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg text-foreground',
           className
         )}
         role="alertdialog"
@@ -66,7 +66,7 @@ const AlertDialogAction = React.forwardRef<React.ElementRef<typeof AlertDialogPr
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
 
 const AlertDialogCancel = React.forwardRef<React.ElementRef<typeof AlertDialogPrimitive.Cancel>, React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>>(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Cancel ref={ref} className={cn('mt-2 inline-flex h-9 items-center justify-center rounded-md border border-brand-muted bg-white px-4 py-2 text-sm font-medium text-brand hover:bg-brand-muted sm:mt-0', className)} {...props} />
+  <AlertDialogPrimitive.Cancel ref={ref} className={cn('mt-2 inline-flex h-9 items-center justify-center rounded-md border border-brand-muted bg-background px-4 py-2 text-sm font-medium text-brand hover:bg-brand-muted sm:mt-0', className)} {...props} />
 ));
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 

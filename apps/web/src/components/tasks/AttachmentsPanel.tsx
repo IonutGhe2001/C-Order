@@ -62,7 +62,7 @@ export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Pro
           ))}
         </ul>
       ) : (
-        <div className="text-sm text-brand-fg flex items-center">
+        <div className="text-sm text-foreground flex items-center">
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.filesEmpty')}
         </div>
       )}

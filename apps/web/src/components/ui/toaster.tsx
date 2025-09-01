@@ -29,7 +29,7 @@ export function Toaster({ children }: { children: React.ReactNode }) {
         {children}
         <Toast.Root role="status" open={open} onOpenChange={setOpen} asChild>
           <motion.div
-            className={`bg-white rounded shadow p-4 border flex flex-col gap-1 ${
+            className={`bg-background rounded shadow p-4 border flex flex-col gap-1 ${
               msg?.variant === "error" ? "border-red-500" : "border-green-500"
             }`}
             initial={{ opacity: 0, y: 8 }}

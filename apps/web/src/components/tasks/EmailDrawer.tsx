@@ -36,7 +36,7 @@ export default function EmailDrawer({ open, to, subject, body, onChange, onSend,
   };
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-      <div className="bg-white p-4 space-y-2 w-full max-w-lg">
+      <div className="bg-background p-4 space-y-2 w-full max-w-lg">
         <h2 className="text-lg font-medium">{t('titles.sendEmail')}</h2>
         <Input
           placeholder={t('placeholders.recipients')}

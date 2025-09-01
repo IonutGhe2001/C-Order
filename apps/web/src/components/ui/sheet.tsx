@@ -38,7 +38,7 @@ const SheetContent = React.forwardRef<
         ref={ref}
         role="dialog"
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-full max-w-md border-l bg-white p-6 shadow-lg",
+          "fixed inset-y-0 right-0 z-50 w-full max-w-md border-l bg-background p-6 shadow-lg",
           className
         )}
         initial={{ opacity: 0, y: 8 }}
@@ -70,7 +70,7 @@ const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-brand-fg", className)}
+    className={cn("text-sm text-foreground", className)}
     {...props}
   />
 ));
