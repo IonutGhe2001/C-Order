@@ -48,6 +48,7 @@ export default function Dashboard() {
   const { t } = useTranslation();
 
   const shouldReduceMotion = useReducedMotion();
+  const Main = shouldReduceMotion ? 'main' : motion.main;
   const content = (
     <>
       <div className="flex items-center gap-2 mb-4">
@@ -124,23 +125,20 @@ export default function Dashboard() {
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
-      {shouldReduceMotion ? (
-        <main id="main-content" className="pt-14 md:ml-60 ml-0 p-6">
-          <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
-          {content}
-        </main>
-      ) : (
-        <motion.main
-          id="main-content"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className="pt-14 md:ml-60 ml-0 p-6"
-        >
-          <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
-          {content}
-        </motion.main>
-      )}
+      <Main
+        id="main-content"
+        className="pt-14 md:ml-60 ml-0 p-6"
+        {...(shouldReduceMotion
+          ? {}
+          : {
+              initial: { opacity: 0, y: 20 },
+              animate: { opacity: 1, y: 0 },
+              exit: { opacity: 0, y: 20 },
+            })}
+      >
+        <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
+        {content}
+      </Main>
     </>
   );
 }
