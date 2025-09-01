@@ -14,8 +14,8 @@ export class TasksController {
   async list(@Query() q: any) { return { items: await this.tasks.list(q) }; }
 
   @Get('summary')
-  summary() {
-    return this.tasks.summary();
+  summary(@Query('range') range?: string) {
+    return this.tasks.summary(range);
   }
 
   @Get(':id')

@@ -45,15 +45,19 @@ export class TasksService {
       orderBy: { createdAt: 'desc' },
     });
   }
-  async summary() {
+  async summary(range?: string) {
     const grouped = await this.prisma.task.groupBy({
       by: ['status'],
       _count: { _all: true },
     });
     return Object.values(TaskStatus).map((status) => {
-      const found = grouped.find((g) => g.status === status);
+      const found: any = grouped.find((g) => g.status === status);
       const value = found ? found._count._all : 0;
-      return { title: status, value, trend: [value] };
+      const result: any = { title: status, value, trend: [value] };
+      if (found?.delta !== undefined) result.delta = found.delta;
+      if (found?.icon !== undefined) result.icon = found.icon;
+      if (found?.href !== undefined) result.href = found.href;
+      return result;
     });
   }
   

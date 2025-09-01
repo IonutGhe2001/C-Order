@@ -42,6 +42,15 @@ export interface TaskFilters {
   authority?: string;
 }
 
+export interface Kpi {
+  title: string;
+  value: number;
+  trend: number[];
+  delta?: number;
+  icon?: string;
+  href?: string;
+}
+
 export async function login(email: string, password: string) {
   const r = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email, password }) });
   if (!r.ok) throw new Error('Auth failed');
@@ -165,8 +174,10 @@ export async function getSupplier(id: string) {
   return r.json();
 }
 
-export async function getTaskSummary() {
-  const r = await fetchWithAuth(`${base}/tasks/summary`);
+export async function getTaskSummary(rangeOrCtx?: string | { queryKey: any }): Promise<Kpi[]> {
+  const range = typeof rangeOrCtx === 'string' ? rangeOrCtx : undefined;
+  const qs = range ? `?range=${encodeURIComponent(range)}` : '';
+  const r = await fetchWithAuth(`${base}/tasks/summary${qs}`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }
