@@ -12,8 +12,12 @@ export interface KpiCardProps {
 export default function KpiCard({ title, value, trend }: KpiCardProps) {
   const data = trend.map((v, i) => ({ index: i, value: v }));
   return (
-    <Link to="/reports" className="block">
-      <Card className="p-4 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
+    <Link
+      to="/reports"
+      aria-label={title}
+      className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+    >
+      <Card className="p-4 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none border bg-background">
         <Text>{title}</Text>
         <Metric className="mt-2">{formatNumber(value)}</Metric>
         <SparkAreaChart

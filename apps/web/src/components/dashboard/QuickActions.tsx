@@ -19,7 +19,9 @@ export default function QuickActions() {
           variant="secondary"
           className="w-full justify-start"
         >
-          <Link to={action.href}>{action.label}</Link>
+          <Link to={action.href} aria-label={action.label}>
+            {action.label}
+          </Link>
         </Button>
       ))}
     </div>

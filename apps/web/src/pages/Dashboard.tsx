@@ -29,13 +29,17 @@ export default function Dashboard() {
           aria-label="Date range"
           value={range}
           onChange={(e) => setRange(e.target.value as '7d' | '30d' | '90d')}
-          className="border rounded-md p-2 bg-transparent"
+          className="border bg-background rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
           <option value="90d">Last 90 days</option>
         </select>
-        <Button variant="secondary" onClick={() => refetch()}>
+        <Button
+          variant="secondary"
+          onClick={() => refetch()}
+          aria-label="Refresh"
+        >
           Refresh
         </Button>
       </div>
