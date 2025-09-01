@@ -10,7 +10,7 @@ export const statusColors: Record<string, StatusColor> = {
   DONE: 'success',
   LIVRAT_PARTIAL: 'warning',
   FINALIZAT: 'success',
-  CANCELLED: 'info',
+  CANCELLED: 'danger',
 };
 
 export function getStatusColor(status: string): StatusColor {

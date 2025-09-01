@@ -155,6 +155,7 @@ export default function TasksDataTable({
           <Button
             size="icon"
             variant="ghost"
+            className="text-brand hover:text-brand-fg"
             onClick={() =>
               setOpenMenu(openMenu === row.original.id ? null : row.original.id)
             }
@@ -651,7 +652,7 @@ export default function TasksDataTable({
                         }}
                         data-index={virtualRow.index}
                         tabIndex={0}
-                        className="border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className={`border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
                         onClick={() => {
                           logRowClick();
                           navigate(`/tasks/${row.original.id}`);
@@ -685,7 +686,7 @@ export default function TasksDataTable({
                     }}
                     data-index={index}
                     tabIndex={0}
-                    className="border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className={`border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
                     onClick={() => {
                       logRowClick();
                       navigate(`/tasks/${row.original.id}`);
