@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { KpiCardModern, KpiSkeleton, EmptyState } from '../components/dashboard';
@@ -12,7 +13,32 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
-  const [range, setRange] = useState<'7d' | '30d' | '90d'>('7d');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [range, setRange] = useState<'7d' | '30d' | '90d'>(() => {
+    const params = new URLSearchParams(location.search);
+    const r = params.get('range');
+    return r === '7d' || r === '30d' || r === '90d' ? r : '7d';
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const r = params.get('range');
+    if (r === '7d' || r === '30d' || r === '90d') {
+      setRange(r as '7d' | '30d' | '90d');
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('range') !== range) {
+      params.set('range', range);
+      navigate(
+        { pathname: location.pathname, search: params.toString() },
+        { replace: true }
+      );
+    }
+  }, [range, navigate, location.pathname, location.search]);
   const { data = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['tasks', 'summary', range],
     queryFn: () => getTaskSummary(range),
@@ -76,7 +102,10 @@ export default function Dashboard() {
                   trend={kpi.trend}
                   delta={kpi.delta}
                   icon={kpi.icon}
-                  href={kpi.href}
+                  href=
+                    {kpi.href
+                      ? `${kpi.href}${kpi.href.includes('?') ? '&' : '?'}range=${range}`
+                      : undefined}
                 />
               ))}
         </div>
