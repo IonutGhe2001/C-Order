@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import KpiCard from '../components/dashboard/KpiCard';
+import KpiCardModern from '../components/dashboard/KpiCardModern';
 import KpiSkeleton from '../components/dashboard/KpiSkeleton';
 import EmptyState from '../components/EmptyState';
 import { Button } from '../components/ui/button';
@@ -63,11 +63,14 @@ export default function Dashboard() {
           {isLoading
             ? Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
             : data.map((kpi) => (
-                <KpiCard
+                <KpiCardModern
                   key={kpi.title}
                   title={kpi.title}
                   value={kpi.value}
                   trend={kpi.trend}
+                  delta={kpi.delta}
+                  icon={kpi.icon}
+                  href={kpi.href}
                 />
               ))}
         </div>
