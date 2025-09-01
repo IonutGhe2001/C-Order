@@ -55,7 +55,15 @@
     "general": "General",
     "inbox": "Inbox",
     "assignedToMe": "Alocate mie",
-    "completed": "Finalizate"
+    "completed": "Finalizate",
+    "last7days": "Ultimele 7 zile",
+    "last30days": "Ultimele 30 de zile",
+    "last90days": "Ultimele 90 de zile",
+    "reports": "Rapoarte",
+    "myInbox": "Inboxul meu",
+    "quickActions": "Acțiuni rapide",
+    "recentActivity": "Activitate recentă",
+    "viewAll": "Vezi tot"
   },
   "buttons": {
     "save": "Salvează",
@@ -74,7 +82,10 @@
     "show": "Arată",
     "hide": "Ascunde",
     "close": "Închide",
-    "toggleSidebar": "Comută bara laterală"
+    "toggleSidebar": "Comută bara laterală",
+    "refresh": "Reîmprospătează",
+    "newTask": "Task nou",
+    "newSupplier": "Furnizor nou"
   },
   "placeholders": {
     "search": "Caută...",
@@ -122,7 +133,9 @@
     "confirmAction": "Această acțiune nu poate fi anulată.",
     "saving": "se salvează...",
     "saved": "salvat",
-    "noResults": "Niciun rezultat găsit."
+    "noResults": "Niciun rezultat găsit.",
+    "tryAgainLater": "Încearcă din nou mai târziu.",
+    "comingSoon": "În curând"
   },
   "system": "Sistemul",
   "anonymous": "Anonim",
