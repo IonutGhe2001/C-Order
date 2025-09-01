@@ -29,7 +29,7 @@
   --warning: 38 92% 50%;
   --danger: 0 84% 55%;
   --brand: 0 72% 60%;
-  --brand-foreground: 0 0% 10%;
+  --brand-foreground: 0 0% 100%;
   --brand-muted: 0 72% 30%;
   --ring: var(--brand);
 }
