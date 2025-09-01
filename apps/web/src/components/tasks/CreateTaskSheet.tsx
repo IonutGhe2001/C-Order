@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ import { listUsers, createTask } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
+import Stepper from "@/components/ui/Stepper";
 
 const statuses = [
   "OPEN",
@@ -62,9 +63,8 @@ export default function CreateTaskSheet({
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
   const setOpen = onOpenChange ?? setInternalOpen;
-  const [step, setStep] = useState(1);
   const { t } = useTranslation();
-  let ti = 1;
+  const resetStepRef = useRef<() => void>(() => {});
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -108,7 +108,7 @@ export default function CreateTaskSheet({
       toast({ title: t("messages.taskCreated"), variant: "success" });
       trackEvent("task_created", { taskId: data?.id });
       setOpen(false);
-      setStep(1);
+      resetStepRef.current();
       form.reset();
     },
     onError: () => toast({ title: t("messages.taskCreateFailed"), variant: "error" }),
@@ -220,228 +220,256 @@ export default function CreateTaskSheet({
         <SheetHeader>
           <SheetTitle>{t('titles.createTask')}</SheetTitle>
         </SheetHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
-          {step === 1 && (
-            <div className="flex-1 overflow-y-auto space-y-4">
-              <div>
-                <label className="text-sm font-medium">{t('labels.title')}</label>
-                <Input
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder={t('placeholders.taskTitleExample')}
-                  {...form.register("title")}
-                />
-                {form.formState.errors.title && (
-                  <p className="text-sm text-danger">
-                  {form.formState.errors.title.message}
-                </p>
+        <Stepper
+          steps={[t('steps.details'), t('steps.assignment'), t('steps.attachments')]}
+        >
+          {({ step, next, back, isLast, setStep }) => {
+            resetStepRef.current = () => setStep(0);
+            let ti = 1;
+            return (
+              <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
+                {step === 0 && (
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.title')}</label>
+                      <Input
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder={t('placeholders.taskTitleExample')}
+                        {...form.register("title")}
+                      />
+                      {form.formState.errors.title && (
+                        <p className="text-sm text-brand text-danger">
+                          {form.formState.errors.title.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.description')}</label>
+                      <Textarea
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder={t('placeholders.taskDescriptionExample')}
+                        {...form.register("description")}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.status')}</label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {statuses.map((s) => (
+                          <Button
+                            type="button"
+                            key={s}
+                            tabIndex={ti++}
+                            variant={
+                              form.watch("status") === s ? "default" : "outline"
+                            }
+                            onClick={() => form.setValue("status", s)}
+                          >
+                            {t(statusLabels[s])}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.priority')}</label>
+                      <select
+                        className="mt-1 w-full border p-2 rounded-md"
+                        tabIndex={ti++}
+                        {...form.register("priority")}
+                      >
+                        <option value="LOW">{t('priority.LOW')}</option>
+                        <option value="MEDIUM">{t('priority.MEDIUM')}</option>
+                        <option value="HIGH">{t('priority.HIGH')}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.supplier')}</label>
+                      <Input
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder={t('placeholders.supplierExample')}
+                        value={form.watch('supplier') || ''}
+                        onChange={(e) => form.setValue('supplier', e.target.value)}
+                      />
+                    </div>
+                  </div>
                 )}
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.description')}</label>
-                <Textarea
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder={t('placeholders.taskDescriptionExample')}
-                  {...form.register("description")}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.status')}</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {statuses.map((s) => (
-                    <Button
-                      type="button"
-                      key={s}
-                      tabIndex={ti++}
-                      variant={form.watch("status") === s ? "default" : "outline"}
-                      onClick={() => form.setValue("status", s)}
-                    >
-                      {t(statusLabels[s])}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.priority')}</label>
-                <select
-                  className="mt-1 w-full border p-2 rounded-md"
-                  tabIndex={ti++}
-                  {...form.register("priority")}
-                >
-                  <option value="LOW">{t('priority.LOW')}</option>
-                  <option value="MEDIUM">{t('priority.MEDIUM')}</option>
-                  <option value="HIGH">{t('priority.HIGH')}</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.assignees')}</label>
-                {usersQuery.isLoading ? (
-                  <Skeleton className="h-10 w-full" />
-                ) : usersQuery.isError ? (
-                  <p className="text-sm text-danger">{t('messages.loadError')}</p>
-                ) : (
-                  <AssigneeCombobox tabIndex={ti++} />
+              {step === 1 && (
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.assignees')}</label>
+                      {usersQuery.isLoading ? (
+                        <Skeleton className="h-10 w-full" />
+                      ) : usersQuery.isError ? (
+                        <p className="text-sm text-danger">{t('messages.loadError')}</p>
+                      ) : (
+                        <AssigneeCombobox tabIndex={ti++} />
+                      )}
+                      {form.formState.errors.assignees && (
+                        <p className="text-sm text-brand text-danger">
+                          {form.formState.errors.assignees.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.dueDate')}</label>
+                      <Input
+                        type="date"
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder="2024-12-31"
+                        {...registerDate("dueDate")}
+                      />
+                      {form.formState.errors.dueDate && (
+                        <p className="text-sm text-brand text-danger">
+                          {form.formState.errors.dueDate.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.orderDate')}</label>
+                      <Input
+                        type="date"
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder="2024-01-01"
+                        {...registerDate("orderDate")}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
+                      <Input
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder={t('placeholders.orderNumberExample')}
+                        {...form.register("orderNumber")}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.authority')}</label>
+                      <Input
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder={t('placeholders.authorityExample')}
+                        {...form.register("authority")}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.orderType')}</label>
+                      <select
+                        className="mt-1 w-full border p-2 rounded-md"
+                        tabIndex={ti++}
+                        {...form.register('orderType')}
+                      >
+                        <option value="">{t('placeholders.select')}</option>
+                        {orderTypeOptions.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.orderReceivedDate')}</label>
+                      <Input
+                        type="date"
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder="2024-01-10"
+                        {...registerDate("orderReceivedDate")}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.productsReceivedDate')}</label>
+                      <Input
+                        type="date"
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder="2024-02-01"
+                        {...registerDate("productsReceivedDate")}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        tabIndex={ti++}
+                        checked={form.watch("earlyDelivery")}
+                        onChange={(e) =>
+                          form.setValue("earlyDelivery", e.target.checked)
+                        }
+                      />
+                      <span className="text-sm font-medium">{t('labels.earlyDelivery')}</span>
+                    </div>
+                    {form.watch("earlyDelivery") && (
+                      <Input
+                        type="date"
+                        className="mt-1"
+                        tabIndex={ti++}
+                        placeholder="2024-01-15"
+                        {...registerDate("deliveryDate")}
+                      />
+                    )}
+                  </div>
                 )}
-                {form.formState.errors.assignees && (
-                <p className="text-sm text-danger">
-                  {form.formState.errors.assignees.message}
-                </p>
-              )}
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.supplier')}</label>
-                <Input
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder={t('placeholders.supplierExample')}
-                  value={form.watch('supplier') || ''}
-                  onChange={(e) => form.setValue('supplier', e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <div className="flex-1 overflow-y-auto space-y-4">
-              <div>
-                <label className="text-sm font-medium">{t('labels.dueDate')}</label>
-                <Input
-                  type="date"
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder="2024-12-31"
-                  {...registerDate("dueDate")}
-                />
-                {form.formState.errors.dueDate && (
-                  <p className="text-sm text-danger">
-                    {form.formState.errors.dueDate.message}
-                  </p>
+                {step === 2 && (
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">{t('labels.attachments')}</label>
+                      <DropzoneField tabIndex={ti++} />
+                    </div>
+                  </div>
                 )}
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.orderDate')}</label>
-                <Input
-                  type="date"
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder="2024-01-01"
-                  {...registerDate("orderDate")}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
-                <Input
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder={t('placeholders.orderNumberExample')}
-                  {...form.register("orderNumber")}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.authority')}</label>
-                <Input
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder={t('placeholders.authorityExample')}
-                  {...form.register("authority")}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.orderType')}</label>
-                <select
-                  className="mt-1 w-full border p-2 rounded-md"
-                  tabIndex={ti++}
-                  {...form.register('orderType')}
-                >
-                  <option value="">{t('placeholders.select')}</option>
-                  {orderTypeOptions.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.orderReceivedDate')}</label>
-                <Input
-                  type="date"
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder="2024-01-10"
-                  {...registerDate("orderReceivedDate")}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">{t('labels.productsReceivedDate')}</label>
-                <Input
-                  type="date"
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder="2024-02-01"
-                  {...registerDate("productsReceivedDate")}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  tabIndex={ti++}
-                  checked={form.watch("earlyDelivery")}
-                  onChange={(e) => form.setValue("earlyDelivery", e.target.checked)}
-                />
-                <span className="text-sm font-medium">{t('labels.earlyDelivery')}</span>
-              </div>
-              {form.watch("earlyDelivery") && (
-                <Input
-                  type="date"
-                  className="mt-1"
-                  tabIndex={ti++}
-                  placeholder="2024-01-15"
-                  {...registerDate("deliveryDate")}
-                />
-              )}
-              <div>
-                <label className="text-sm font-medium">{t('labels.attachments')}</label>
-                <DropzoneField tabIndex={ti++} />
-              </div>
-            </div>
-          )}
-          <SheetFooter className="pt-4">
-            {step === 1 ? (
-              <>
-                <SheetClose asChild>
-                  <Button type="button" variant="outline" tabIndex={ti++}>
-                    {t('buttons.cancel')}
-                  </Button>
-                </SheetClose>
-                <Button type="button" tabIndex={ti++} onClick={() => setStep(2)}>
-                  {t('buttons.continue')}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  tabIndex={ti++}
-                  onClick={() => setStep(1)}
-                >
-                  {t('buttons.back')}
-                </Button>
-                <Button
-                  type="submit"
-                  tabIndex={ti++}
-                  disabled={createMutation.isPending}
-                >
-                  {createMutation.isPending ? (
-                    <Skeleton className="h-4 w-20" />
+              <SheetFooter className="pt-4">
+                  {step === 0 ? (
+                    <>
+                      <SheetClose asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          tabIndex={ti++}
+                        >
+                          {t('buttons.cancel')}
+                        </Button>
+                      </SheetClose>
+                      <Button type="button" tabIndex={ti++} onClick={next}>
+                        {t('buttons.continue')}
+                      </Button>
+                    </>
                   ) : (
-                    t('buttons.save')
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        tabIndex={ti++}
+                        onClick={back}
+                      >
+                        {t('buttons.back')}
+                      </Button>
+                      {isLast ? (
+                        <Button
+                          type="submit"
+                          tabIndex={ti++}
+                          disabled={createMutation.isPending}
+                        >
+                          {createMutation.isPending ? (
+                            <Skeleton className="h-4 w-20" />
+                          ) : (
+                            t('buttons.save')
+                          )}
+                        </Button>
+                      ) : (
+                        <Button type="button" tabIndex={ti++} onClick={next}>
+                          {t('buttons.continue')}
+                        </Button>
+                      )}
+                    </>
                   )}
-                </Button>
-              </>
-            )}
-          </SheetFooter>
-        </form>
+                </SheetFooter>
+              </form>
+            );
+          }}
+        </Stepper>
       </SheetContent>
     </Sheet>
   );
