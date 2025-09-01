@@ -1,21 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import KpiCard from '../components/dashboard/KpiCard';
+import KpiSkeleton from '../components/dashboard/KpiSkeleton';
+import EmptyState from '../components/EmptyState';
+import { Button } from '../components/ui/button';
+import { Icon } from '../lib/lucide-icon';
 import { getTaskSummary } from '../lib/api';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['tasks', 'summary'],
-    queryFn: getTaskSummary,
+  const [range, setRange] = useState<'7d' | '30d' | '90d'>('7d');
+  const { data = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ['tasks', 'summary', range],
+    queryFn: () => getTaskSummary(range),
+    staleTime: 120000,
   });
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const { t } = useTranslation();
 
   const shouldReduceMotion = useReducedMotion();
+  const content = (
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <select
+          aria-label="Date range"
+          value={range}
+          onChange={(e) => setRange(e.target.value as '7d' | '30d' | '90d')}
+          className="border rounded-md p-2 bg-transparent"
+        >
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+          <option value="90d">Last 90 days</option>
+        </select>
+        <Button variant="secondary" onClick={() => refetch()}>
+          Refresh
+        </Button>
+      </div>
+      {isError && (
+        <div
+          role="alert"
+          className="mb-4 flex items-start gap-2 rounded-md bg-danger p-4 text-brand-fg"
+        >
+          <Icon name="alert-triangle" className="h-4 w-4" />
+          <span className="flex-1">{t('messages.loadError')}</span>
+          <Button variant="secondary" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+      {data.length === 0 && !isLoading && !isError ? (
+        <EmptyState
+          onReset={() => {
+            setRange('7d');
+            refetch();
+          }}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
+            : data.map((kpi) => (
+                <KpiCard
+                  key={kpi.title}
+                  title={kpi.title}
+                  value={kpi.value}
+                  trend={kpi.trend}
+                />
+              ))}
+        </div>
+      )}
+    </>
+  );
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
@@ -23,14 +81,7 @@ export default function Dashboard() {
       {shouldReduceMotion ? (
         <main id="main-content" className="pt-14 md:ml-60 ml-0 p-6">
           <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
-          {isLoading && <div>{t('messages.loading')}</div>}
-          {isError && <div>{t('messages.loadError')}</div>}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.isArray(data) &&
-              data.map((kpi) => (
-                <KpiCard key={kpi.title} title={kpi.title} value={kpi.value} trend={kpi.trend} />
-              ))}
-          </div>
+          {content}
         </main>
       ) : (
         <motion.main
@@ -41,14 +92,7 @@ export default function Dashboard() {
           className="pt-14 md:ml-60 ml-0 p-6"
         >
           <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
-          {isLoading && <div>{t('messages.loading')}</div>}
-          {isError && <div>{t('messages.loadError')}</div>}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.isArray(data) &&
-              data.map((kpi) => (
-                <KpiCard key={kpi.title} title={kpi.title} value={kpi.value} trend={kpi.trend} />
-              ))}
-          </div>
+          {content}
         </motion.main>
       )}
     </>
