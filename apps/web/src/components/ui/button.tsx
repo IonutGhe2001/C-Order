@@ -16,7 +16,7 @@ const buttonVariants = cva(
         secondary: 'bg-brand-muted text-brand hover:bg-brand',
         link: 'text-brand underline-offset-4 hover:underline',
         destructive:
-          'bg-danger text-[color:var(--brand-foreground)] hover:bg-danger/90',
+          'bg-danger text-brand-fg hover:bg-danger/90',
         ghost: 'bg-transparent text-brand hover:bg-brand-muted',
         outline:
           'border border-brand bg-transparent text-brand hover:bg-brand-muted',
