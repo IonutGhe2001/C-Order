@@ -36,7 +36,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
         {t('labels.skipToContent')}
       </a>
       <TooltipProvider>
-        <header className="sticky top-0 left-0 right-0 h-14 bg-brand dark:bg-brand-muted text-brand-fg shadow flex items-center px-4 z-10 relative">
+        <header className="sticky top-0 left-0 right-0 h-14 bg-brand dark:bg-brand-muted text-gray-800 shadow flex items-center px-4 z-10 relative">
           <div className="flex items-center space-x-4 flex-shrink-0 z-10">
             <Tooltip>
               <TooltipTrigger asChild>

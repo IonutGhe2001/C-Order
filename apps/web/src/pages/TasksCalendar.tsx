@@ -34,7 +34,7 @@ function ViewSwitcher() {
           key={l.to}
           to={l.to}
           className={({ isActive }) =>
-            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted'}`
+            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted text-gray-800'}`
           }
         >
           {l.label}
@@ -43,6 +43,7 @@ function ViewSwitcher() {
     </div>
   );
 }
+
 
 export default function TasksCalendar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

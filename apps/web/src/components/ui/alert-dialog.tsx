@@ -25,7 +25,7 @@ const AlertDialogContent = React.forwardRef<
       <motion.div
         ref={ref}
         className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg dark:bg-brand-muted',
+          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg text-gray-800 dark:bg-brand-muted',
           className
         )}
         role="alertdialog"
@@ -56,7 +56,7 @@ const AlertDialogTitle = React.forwardRef<React.ElementRef<typeof AlertDialogPri
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
 
 const AlertDialogDescription = React.forwardRef<React.ElementRef<typeof AlertDialogPrimitive.Description>, React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>>(({ className, ...props }, ref) => (
-  <AlertDialogPrimitive.Description ref={ref} className={cn('text-sm text-brand-fg', className)} {...props} />
+  <AlertDialogPrimitive.Description ref={ref} className={cn('text-sm text-gray-800', className)} {...props} />
 ));
 AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName;
 

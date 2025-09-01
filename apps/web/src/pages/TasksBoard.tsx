@@ -35,7 +35,7 @@ function ViewSwitcher() {
           key={l.to}
           to={l.to}
           className={({ isActive }) =>
-            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted'}`
+            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted text-gray-800'}`
           }
         >
           {l.label}
@@ -44,6 +44,7 @@ function ViewSwitcher() {
     </div>
   );
 }
+
 
 function DraggableTask({ task }: { task: any }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -70,7 +71,7 @@ function StatusColumn({
   const { setNodeRef } = useDroppable({ id: status });
   const { t } = useTranslation();
   return (
-    <div ref={setNodeRef} className="bg-brand-muted rounded p-2 min-h-[200px]">
+    <div ref={setNodeRef} className="bg-brand-muted text-gray-800 rounded p-2 min-h-[200px]">
       <h2 className="font-medium text-sm mb-2">{t(labels[status] || `statuses.${status}`)}</h2>
       {Object.entries(groups).map(([orderType, list]) => (
         <div key={orderType} className="mb-4">

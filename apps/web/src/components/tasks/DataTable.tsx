@@ -59,6 +59,7 @@ function Filter({ column }: { column: any }) {
   );
 }
 
+
 export default function TasksDataTable({
   quickFilter = '',
   onSelectionChange,
@@ -570,14 +571,14 @@ export default function TasksDataTable({
       ) : (
         <div ref={tableContainerRef} className="overflow-auto">
           <table className="min-w-full border">
-            <thead className="sticky top-0 bg-brand-muted z-10">
+            <thead className="sticky top-0 bg-brand-muted text-gray-800 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
                       colSpan={header.colSpan}
-                      className={`p-2 border-b text-left ${
+                      className={`p-2 border-b text-left text-gray-800 ${
                         header.column.id === 'menu' ? 'sticky right-0 bg-brand-muted' : 'bg-brand-muted'
                       }`}
                       draggable
@@ -650,7 +651,7 @@ export default function TasksDataTable({
                         }}
                         data-index={virtualRow.index}
                         tabIndex={0}
-                        className={`border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
+                        className={`border-t hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
                         onClick={() => {
                           logRowClick();
                           navigate(`/tasks/${row.original.id}`);
@@ -684,7 +685,7 @@ export default function TasksDataTable({
                     }}
                     data-index={index}
                     tabIndex={0}
-                    className={`border-t hover:bg-brand-muted cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
+                    className={`border-t hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
                     onClick={() => {
                       logRowClick();
                       navigate(`/tasks/${row.original.id}`);

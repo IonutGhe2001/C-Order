@@ -22,7 +22,7 @@ function Chip({ id, name }: { id: string; name: string }) {
     transition: reduceMotion ? undefined : transition,
   };
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="px-2 py-1 bg-brand-muted rounded cursor-move text-sm">
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="px-2 py-1 bg-brand-muted text-gray-800 rounded cursor-move text-sm">
       {name}
     </div>
   );

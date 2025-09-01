@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
-const primaryClasses = 'bg-brand text-brand-fg hover:bg-brand-muted'
+const primaryClasses = 'bg-brand text-brand-fg hover:bg-brand/90'
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background',

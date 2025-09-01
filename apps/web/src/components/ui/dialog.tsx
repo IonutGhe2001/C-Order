@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
         ref={ref}
         role="dialog"
         className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg dark:bg-brand-muted',
+          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg text-gray-800 dark:bg-brand-muted',
         )}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-brand-fg dark:text-brand-fg', className)}
+    className={cn('text-sm text-gray-800', className)}
     {...props}
   />
 ));

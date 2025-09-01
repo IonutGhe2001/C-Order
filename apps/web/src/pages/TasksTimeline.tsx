@@ -21,7 +21,7 @@ function ViewSwitcher() {
           key={l.to}
           to={l.to}
           className={({ isActive }) =>
-            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted'}`
+            `px-3 py-1 rounded ${isActive ? 'bg-brand text-brand-fg' : 'bg-brand-muted text-gray-800'}`
           }
         >
           {l.label}
@@ -30,6 +30,7 @@ function ViewSwitcher() {
     </div>
   );
 }
+
 
 export default function TasksTimeline() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,7 +76,7 @@ export default function TasksTimeline() {
             return (
               <div key={t.id}>
                 <div className="text-sm mb-1">{t.title}</div>
-                <div className="relative h-4 bg-brand-muted rounded">
+                <div className="relative h-4 bg-brand-muted text-gray-800 rounded">
                   <div
                     className="absolute h-4 bg-brand rounded"
                     style={{ left: `${left}%`, width: `${width}%` }}
