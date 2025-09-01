@@ -149,14 +149,14 @@ export default function CreateTaskSheet({
       }
     };
     return (
-      <div className="border p-2 rounded-md">
+      <div className="border p-2 rounded-md flex flex-col gap-2">
         <Input
           tabIndex={tabIndex}
           placeholder={t("placeholders.assigneeSearchExample")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="max-h-40 overflow-y-auto mt-2 space-y-1">
+        <div className="max-h-40 overflow-y-auto space-y-1">
           {filtered.map((u: any) => (
             <label key={u.id} className="flex items-center space-x-2">
               <input
@@ -190,7 +190,7 @@ export default function CreateTaskSheet({
       <div
         {...getRootProps()}
         tabIndex={tabIndex}
-        className="p-4 border-2 border-dashed rounded-md text-center cursor-pointer"
+        className="p-4 border-2 border-dashed rounded-md text-center cursor-pointer space-y-2"
       >
         <input {...getInputProps()} />
         {isDragActive ? (
@@ -199,7 +199,7 @@ export default function CreateTaskSheet({
           <p>{t('placeholders.dragOrClick')}</p>
         )}
         {files && files.length > 0 && (
-          <ul className="mt-2 text-sm text-left">
+          <ul className="text-sm text-left">
             {files.map((f) => (
               <li key={f.name}>{f.name}</li>
             ))}
@@ -230,10 +230,9 @@ export default function CreateTaskSheet({
               <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
                 {step === 0 && (
                   <div className="flex-1 overflow-y-auto space-y-4">
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.title')}</label>
                       <Input
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder={t('placeholders.taskTitleExample')}
                         {...form.register("title")}
@@ -244,18 +243,17 @@ export default function CreateTaskSheet({
                         </p>
                       )}
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.description')}</label>
                       <Textarea
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder={t('placeholders.taskDescriptionExample')}
                         {...form.register("description")}
                       />
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium">{t('labels.status')}</label>
-                      <div className="flex flex-wrap gap-2 mt-1">
+                      <div className="flex flex-wrap gap-2">
                         {statuses.map((s) => (
                           <Button
                             type="button"
@@ -271,10 +269,10 @@ export default function CreateTaskSheet({
                         ))}
                       </div>
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.priority')}</label>
                       <select
-                        className="mt-1 w-full border p-2 rounded-md"
+                        className="w-full border p-2 rounded-md"
                         tabIndex={ti++}
                         {...form.register("priority")}
                       >
@@ -283,10 +281,9 @@ export default function CreateTaskSheet({
                         <option value="HIGH">{t('priority.HIGH')}</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.supplier')}</label>
                       <Input
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder={t('placeholders.supplierExample')}
                         value={form.watch('supplier') || ''}
@@ -297,7 +294,7 @@ export default function CreateTaskSheet({
                 )}
               {step === 1 && (
                   <div className="flex-1 overflow-y-auto space-y-4">
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.assignees')}</label>
                       {usersQuery.isLoading ? (
                         <Skeleton className="h-10 w-full" />
@@ -312,11 +309,10 @@ export default function CreateTaskSheet({
                         </p>
                       )}
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.dueDate')}</label>
                       <Input
                         type="date"
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder="2024-12-31"
                         {...registerDate("dueDate")}
@@ -327,38 +323,35 @@ export default function CreateTaskSheet({
                         </p>
                       )}
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.orderDate')}</label>
                       <Input
                         type="date"
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder="2024-01-01"
                         {...registerDate("orderDate")}
                       />
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
                       <Input
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder={t('placeholders.orderNumberExample')}
                         {...form.register("orderNumber")}
                       />
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.authority')}</label>
                       <Input
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder={t('placeholders.authorityExample')}
                         {...form.register("authority")}
                       />
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.orderType')}</label>
                       <select
-                        className="mt-1 w-full border p-2 rounded-md"
+                        className="w-full border p-2 rounded-md"
                         tabIndex={ti++}
                         {...form.register('orderType')}
                       >
@@ -370,21 +363,19 @@ export default function CreateTaskSheet({
                         ))}
                       </select>
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.orderReceivedDate')}</label>
                       <Input
                         type="date"
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder="2024-01-10"
                         {...registerDate("orderReceivedDate")}
                       />
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.productsReceivedDate')}</label>
                       <Input
                         type="date"
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder="2024-02-01"
                         {...registerDate("productsReceivedDate")}
@@ -404,7 +395,6 @@ export default function CreateTaskSheet({
                     {form.watch("earlyDelivery") && (
                       <Input
                         type="date"
-                        className="mt-1"
                         tabIndex={ti++}
                         placeholder="2024-01-15"
                         {...registerDate("deliveryDate")}

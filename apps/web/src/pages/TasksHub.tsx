@@ -36,7 +36,10 @@ export default function TasksHub() {
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <main id="main-content" className="p-4 md:ml-60 mt-14">
+      <main
+        id="main-content"
+        className="mt-14 px-4 sm:px-6 lg:px-8 lg:ml-60 flex flex-col gap-4"
+      >
         <TasksToolbar
           quickFilter={[quickFilter, setQuickFilter]}
           selected={selected}
@@ -45,9 +48,16 @@ export default function TasksHub() {
           onCreate={() => setCreateOpen(true)}
         />
         <Suspense fallback={<PageSkeleton />}>
-          <TasksDataTable quickFilter={quickFilter} onSelectionChange={setSelected} />
+          <TasksDataTable
+            quickFilter={quickFilter}
+            onSelectionChange={setSelected}
+          />
         </Suspense>
-        <CreateTaskSheet open={createOpen} onOpenChange={setCreateOpen} showTrigger={false} />
+        <CreateTaskSheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          showTrigger={false}
+        />
       </main>
     </>
   );

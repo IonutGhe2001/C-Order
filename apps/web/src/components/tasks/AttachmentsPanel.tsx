@@ -14,13 +14,18 @@ function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file
   }, [attachment]);
   if (isText) {
     return (
-      <div>
+      <div className="flex flex-col gap-2">
         <textarea className="w-full h-32 border" value={content} onChange={e => setContent(e.target.value)} />
-        <Button size="sm" className="mt-2" onClick={() => {
-          const blob = new Blob([content], { type: attachment.mimeType });
-          const file = new File([blob], attachment.filename, { type: attachment.mimeType });
-          onSave(file);
-        }}>{t('buttons.save')}</Button>
+        <Button
+          size="sm"
+          onClick={() => {
+            const blob = new Blob([content], { type: attachment.mimeType });
+            const file = new File([blob], attachment.filename, { type: attachment.mimeType });
+            onSave(file);
+          }}
+        >
+          {t('buttons.save')}
+        </Button>
       </div>
     );
   }
@@ -46,10 +51,10 @@ interface Props {
 export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Props) {
   const { t } = useTranslation();
   return (
-    <div>
-      {!hideTitle && <h2 className="font-medium mb-2">{t('labels.files')}</h2>}
+    <div className="space-y-2">
+      {!hideTitle && <h2 className="font-medium">{t('labels.files')}</h2>}
       {attachments?.length ? (
-        <ul className="space-y-4 mb-2">
+        <ul className="space-y-4">
           {attachments.map((a: any) => (
             <li key={a.id}>
               <AttachmentView attachment={a} onSave={(file: File) => onSave(a.id, file)} />
@@ -57,7 +62,7 @@ export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Pro
           ))}
         </ul>
       ) : (
-        <div className="text-sm text-brand-fg flex items-center mb-2">
+        <div className="text-sm text-brand-fg flex items-center">
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.filesEmpty')}
         </div>
       )}

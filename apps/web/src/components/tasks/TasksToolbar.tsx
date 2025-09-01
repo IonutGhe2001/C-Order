@@ -37,7 +37,7 @@ export default function TasksToolbar({
   const { t } = useTranslation();
 
   return (
-    <div className="flex justify-between mb-4 items-center">
+    <div className="flex items-center justify-between">
       <h1 className="text-xl font-semibold">{t("nav.tasks")}</h1>
       <div className="flex items-center gap-2">
         {isLoading ? (

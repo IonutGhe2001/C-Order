@@ -15,8 +15,8 @@ interface Props {
 export default function ActivityAuditPanel({ audit, loading, error, onRetry, hideTitle }: Props) {
   const { t } = useTranslation();
   return (
-    <div>
-      {!hideTitle && <h2 className="font-medium mb-2">{t('labels.auditLog')}</h2>}
+    <div className="space-y-2">
+      {!hideTitle && <h2 className="font-medium">{t('labels.auditLog')}</h2>}
       {loading ? (
         <Skeleton className="h-32" />
       ) : error ? (

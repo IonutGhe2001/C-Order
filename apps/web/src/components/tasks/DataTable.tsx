@@ -585,21 +585,19 @@ export default function TasksDataTable({
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => handleDrop(e, header.column)}
                     >
-                      {header.isPlaceholder ? null : (
-                        <div
-                          className="flex items-center gap-2 cursor-pointer select-none"
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {header.column.getIsSorted() === 'asc' && '▲'}
-                          {header.column.getIsSorted() === 'desc' && '▼'}
-                        </div>
-                      )}
-                      {header.column.getCanFilter() && (
-                        <div className="mt-1">
-                          <Filter column={header.column} />
-                        </div>
-                      )}
+                      <div className="flex flex-col gap-1">
+                        {header.isPlaceholder ? null : (
+                          <div
+                            className="flex items-center gap-2 cursor-pointer select-none"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.column.getIsSorted() === 'asc' && '▲'}
+                            {header.column.getIsSorted() === 'desc' && '▼'}
+                          </div>
+                        )}
+                        {header.column.getCanFilter() && <Filter column={header.column} />}
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -709,7 +707,7 @@ export default function TasksDataTable({
           </table>
         </div>
       )}
-      <div className="flex items-center justify-end gap-2 mt-2">
+      <div className="flex items-center justify-end gap-2">
         <Button
           variant="outline"
           size="sm"

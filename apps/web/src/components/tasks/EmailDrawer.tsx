@@ -37,7 +37,7 @@ export default function EmailDrawer({ open, to, subject, body, onChange, onSend,
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
       <div className="bg-white p-4 space-y-2 w-full max-w-lg">
-        <h2 className="text-lg font-medium mb-2">{t('titles.sendEmail')}</h2>
+        <h2 className="text-lg font-medium">{t('titles.sendEmail')}</h2>
         <Input
           placeholder={t('placeholders.recipients')}
           value={to}
@@ -48,7 +48,6 @@ export default function EmailDrawer({ open, to, subject, body, onChange, onSend,
         {errors.to && <p className="text-sm text-danger">{errors.to}</p>}
         <Input
           placeholder={t('placeholders.subject')}
-          className="mt-2"
           value={subject}
           onChange={e => onChange({ subject: e.target.value })}
           tabIndex={2}
@@ -56,7 +55,7 @@ export default function EmailDrawer({ open, to, subject, body, onChange, onSend,
         />
         {errors.subject && <p className="text-sm text-danger">{errors.subject}</p>}
         <Textarea
-          className="mt-2 h-40"
+          className="h-40"
           value={body}
           onChange={e => onChange({ body: e.target.value })}
           placeholder={t('placeholders.emailBodyExample')}
@@ -64,7 +63,7 @@ export default function EmailDrawer({ open, to, subject, body, onChange, onSend,
           disabled={loading}
         />
         {errors.body && <p className="text-sm text-danger">{errors.body}</p>}
-        <div className="flex justify-end space-x-2 mt-2">
+        <div className="flex justify-end space-x-2">
           <Button variant="outline" onClick={onClose} tabIndex={4} disabled={loading}>
             {t('buttons.cancel')}
           </Button>

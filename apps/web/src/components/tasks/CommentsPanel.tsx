@@ -37,16 +37,16 @@ export default function CommentsPanel({ comments, onAdd, hideTitle, inputId }: P
   };
 
   return (
-    <div>
-      {!hideTitle && <h2 className="font-medium mb-2">{t('labels.comments')}</h2>}
+    <div className="space-y-2">
+      {!hideTitle && <h2 className="font-medium">{t('labels.comments')}</h2>}
       {comments?.length ? (
-        <ul className="space-y-2 text-sm mb-2 max-h-64 overflow-auto">
+        <ul className="space-y-2 text-sm max-h-64 overflow-auto">
           {comments.map(c => (
             <li key={c.id}><b>{c.author?.name ?? t('anonymous')}</b>: {c.body}</li>
           ))}
         </ul>
       ) : (
-        <div className="text-sm text-brand-fg flex items-center mb-2">
+        <div className="text-sm text-brand-fg flex items-center">
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.noComments')}
         </div>
       )}
