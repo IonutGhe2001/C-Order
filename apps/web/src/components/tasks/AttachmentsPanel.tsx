@@ -1,48 +1,9 @@
 import { Button } from '../ui/button';
 import { Icon } from '../../lib/lucide-icon';
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteAttachment } from '../../lib/api';
-
-function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
-  const [content, setContent] = useState('');
-  const { t } = useTranslation();
-  const isText = attachment.mimeType?.startsWith('text/');
-  useEffect(() => {
-    if (isText) {
-      fetch(attachment.url).then(r => r.text()).then(setContent);
-    }
-  }, [attachment]);
-  if (isText) {
-    return (
-      <div className="flex flex-col gap-2">
-        <textarea className="w-full h-32 border" value={content} onChange={e => setContent(e.target.value)} />
-        <Button
-          size="sm"
-          onClick={() => {
-            const blob = new Blob([content], { type: attachment.mimeType });
-            const file = new File([blob], attachment.filename, { type: attachment.mimeType });
-            onSave(file);
-          }}
-        >
-          {t('buttons.save')}
-        </Button>
-      </div>
-    );
-  }
-  if (attachment.mimeType?.startsWith('image/') || attachment.mimeType === 'application/pdf') {
-    return <iframe src={attachment.url} title={attachment.filename} className="w-full h-64 border" />;
-  }
-  return (
-    <a
-      className="text-brand hover:underline focus-visible:ring-brand"
-      href={attachment.url}
-    >
-      {attachment.filename}
-    </a>
-  );
-}
+import AttachmentView from './AttachmentView';
 
 interface Props {
   attachments: any[];

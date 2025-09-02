@@ -56,51 +56,6 @@ const orderTypeOptions = [
   { value: 'Contract', label: 'Contract' },
 ];
 
-function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
-  const [content, setContent] = useState('');
-  const isText = attachment.mimeType?.startsWith('text/');
-  const { t } = useTranslation();
-  useEffect(() => {
-    if (isText) {
-      fetch(attachment.url)
-        .then((r) => r.text())
-        .then(setContent);
-    }
-  }, [attachment]);
-  if (isText) {
-    return (
-      <div>
-        <textarea
-          className="w-full h-32 border"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <Button
-          size="sm"
-          className="mt-2"
-          onClick={() => {
-            const blob = new Blob([content], { type: attachment.mimeType });
-            const file = new File([blob], attachment.filename, { type: attachment.mimeType });
-            onSave(file);
-          }}
-        >
-          {t('buttons.save')}
-        </Button>
-      </div>
-    );
-  }
-  if (attachment.mimeType?.startsWith('image/') || attachment.mimeType === 'application/pdf') {
-    return <iframe src={attachment.url} title={attachment.filename} className="w-full h-64 border" />;
-  }
-  return (
-    <a
-      className="text-brand hover:underline focus-visible:ring-brand"
-      href={attachment.url}
-    >
-      {attachment.filename}
-    </a>
-  );
-}
 
 export default function TaskDetail() {
   const { id } = useParams();
