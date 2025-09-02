@@ -4,11 +4,16 @@ import type { UploadedFile as UploadedFileType } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 import { AuditLogService } from './audit-log.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { OnlyOfficeService } from '../onlyoffice/onlyoffice.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TasksController {
-  constructor(private tasks: TasksService, private auditLog: AuditLogService) {}
+  constructor(
+    private tasks: TasksService,
+    private auditLog: AuditLogService,
+    private oo: OnlyOfficeService,
+  ) {}
 
   @Get()
   async list(@Query() q: any) { return { items: await this.tasks.list(q) }; }
@@ -109,6 +114,17 @@ export class TasksController {
   @Delete(':id/attachments/:attId')
   deleteAttachment(@Param('id') id: string, @Param('attId') attId: string) {
     return this.tasks.deleteAttachment(id, attId);
+  }
+
+  @Get(':id/attachments/:attId/onlyoffice-config')
+  getOOConfig(
+    @Param('id') taskId: string,
+    @Param('attId') attId: string,
+    @Req() req: any,
+  ) {
+    return this.tasks.getAttachment(attId).then((att) => {
+      return this.oo.buildConfig(att, { id: req.user.id, name: req.user.name });
+    });
   }
 
   @Post(':id/send-email')

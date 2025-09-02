@@ -220,6 +220,10 @@ export class TasksService {
     }
     return this.prisma.attachment.update({ where: { id: attId }, data });
   }
+
+  getAttachment(attId: string) {
+    return this.prisma.attachment.findUniqueOrThrow({ where: { id: attId } });
+  }
   
   async deleteAttachment(taskId: string, attId: string) {
     const attachment = await this.prisma.attachment.findFirst({ where: { id: attId, taskId } });
