@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { getSupplier } from '../lib/api';
+import { getSupplier, getFileUrl } from '../lib/api';
 import { Skeleton } from '../components/ui/skeleton';
 import { Button } from '../components/ui/button';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,12 @@ export default function SupplierDetail() {
   });
 
   const attachments = (data?.tasks || []).flatMap((task: any) =>
-    (task.attachments || []).map((a: any) => ({ ...a, taskId: task.id, taskTitle: task.title }))
+    (task.attachments || []).map((a: any) => ({
+      ...a,
+      url: getFileUrl(a.url),
+      taskId: task.id,
+      taskTitle: task.title,
+    }))
   );
 
   if (isLoading) {

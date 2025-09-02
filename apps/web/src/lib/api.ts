@@ -1,5 +1,13 @@
 export const base = 'http://localhost:3001/api';
 
+// Root URL of the API without the `/api` prefix
+export const apiRoot = base.replace(/\/api$/, '');
+
+// Convert a relative file path returned by the API into a fully-qualified URL
+export function getFileUrl(url: string) {
+  return url.startsWith('http') ? url : `${apiRoot}${url}`;
+}
+
 export async function fetchWithAuth(
   url: string,
   options: RequestInit = {},

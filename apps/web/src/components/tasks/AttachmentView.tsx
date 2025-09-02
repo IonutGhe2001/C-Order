@@ -5,6 +5,7 @@ import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 import { Document, Page, pdfjs } from 'react-pdf';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 import Editor from '@monaco-editor/react';
+import { getFileUrl } from '../../lib/api';
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -18,6 +19,9 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   const [content, setContent] = useState('');
   const [numPages, setNumPages] = useState(0);
   const [page, setPage] = useState(1);
+
+  const url = getFileUrl(attachment.url);
+  const editUrl = attachment.editUrl ? getFileUrl(attachment.editUrl) : undefined;
 
   const isText = attachment.mimeType?.startsWith('text/') || attachment.mimeType === 'application/json';
   const isPdf = attachment.mimeType === 'application/pdf';
@@ -33,9 +37,9 @@ export default function AttachmentView({ attachment, onSave }: Props) {
 
   useEffect(() => {
     if (isText) {
-      fetch(attachment.url).then((r) => r.text()).then(setContent);
+      fetch(url).then((r) => r.text()).then(setContent);
     }
-  }, [attachment]);
+  }, [attachment, url]);
 
   if (isText) {
     return (
@@ -64,7 +68,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
     return (
       <div className="space-y-2">
         <Document
-          file={attachment.url}
+          file={url}
           onLoadSuccess={({ numPages }: { numPages: number }) => setNumPages(numPages)}
         >
           <Page pageNumber={page} />
@@ -84,14 +88,14 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   }
 
   if (isOffice) {
-    if (attachment.editUrl) {
+    if (editUrl) {
       return (
         <div className="flex flex-col gap-2">
-          <iframe src={attachment.editUrl} title={attachment.filename} className="w-full h-64 border" />
+          <iframe src={editUrl} title={attachment.filename} className="w-full h-64 border" />
           <Button
             size="sm"
             onClick={async () => {
-              const resp = await fetch(attachment.url);
+              const resp = await fetch(url);
               const blob = await resp.blob();
               const file = new File([blob], attachment.filename, { type: attachment.mimeType });
               onSave(file);
@@ -104,7 +108,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
     }
     return (
       <DocViewer
-        documents={[{ uri: attachment.url, fileType: attachment.mimeType }]}
+        documents={[{ uri: url, fileType: attachment.mimeType }]}
         pluginRenderers={DocViewerRenderers}
         style={{ height: 400 }}
       />
@@ -112,11 +116,11 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   }
 
   if (attachment.mimeType?.startsWith('image/')) {
-    return <img src={attachment.url} alt={attachment.filename} className="max-h-64" />;
+    return <img src={url} alt={attachment.filename} className="max-h-64" />;
   }
 
   return (
-    <a className="text-brand hover:underline focus-visible:ring-brand" href={attachment.url}>
+    <a className="text-brand hover:underline focus-visible:ring-brand" href={url}>
       {attachment.filename}
     </a>
   );
