@@ -1,24 +1,27 @@
+import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Icon } from '../../lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteAttachment } from '../../lib/api';
+import AttachmentView from './AttachmentView';
+import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 
 interface Props {
   attachments: any[];
   onSave: (attId: string, file: File) => void;
-  /** Called when the user wants to edit an attachment. */
-  onEdit?: (attachment: any) => void;
   hideTitle?: boolean;
 }
 
-export default function AttachmentsPanel({ attachments, onSave, onEdit, hideTitle }: Props) {
+export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Props) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const deleteMut = useMutation({
     mutationFn: ({ taskId, attId }: { taskId: string; attId: string }) => deleteAttachment(taskId, attId),
     onSuccess: (_data, { taskId }) => qc.invalidateQueries({ queryKey: ['task', taskId] }),
   });
+
+  const [selectedAttachment, setSelectedAttachment] = useState<any | null>(null);
   return (
     <div className="space-y-2">
       {!hideTitle && <h2 className="font-medium">{t('labels.files')}</h2>}
@@ -29,7 +32,7 @@ export default function AttachmentsPanel({ attachments, onSave, onEdit, hideTitl
               <Button
                 variant="link"
                 className="p-0 h-auto font-normal"
-                onClick={() => onEdit?.(a)}
+                onClick={() => setSelectedAttachment(a)}
               >
                 {a.filename}
               </Button>
@@ -53,6 +56,21 @@ export default function AttachmentsPanel({ attachments, onSave, onEdit, hideTitl
         const f = e.target.files?.[0];
         if (f) onSave('new', f);
       }} />
+
+      <Dialog open={!!selectedAttachment} onOpenChange={(o) => { if (!o) setSelectedAttachment(null); }}>
+        <DialogContent className="max-w-[90vw]">
+          <DialogTitle>{selectedAttachment?.filename}</DialogTitle>
+          {selectedAttachment && (
+            <AttachmentView
+              attachment={selectedAttachment}
+              onSave={(file) => {
+                onSave(selectedAttachment.id, file);
+                setSelectedAttachment(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

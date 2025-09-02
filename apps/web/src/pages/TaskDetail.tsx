@@ -15,7 +15,6 @@ import RichEditor from '../components/tasks/RichEditor';
 import AssigneeChips from '../components/tasks/AssigneeChips';
 import OrderDeliveryPanel from '../components/tasks/OrderDeliveryPanel';
 import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
-import AttachmentView from '../components/tasks/AttachmentView';
 import CommentsPanel from '../components/tasks/CommentsPanel';
 import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
 import EmailDrawer from '../components/tasks/EmailDrawer';
@@ -33,7 +32,6 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import { SaveIndicator } from '../components/ui/save-indicator';
-import { Dialog, DialogContent, DialogTitle } from '../components/ui/dialog';
 
 const statuses = [
   'OPEN',
@@ -139,7 +137,6 @@ export default function TaskDetail() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const commentsRef = useRef<HTMLDetailsElement>(null);
-  const [editingAttachment, setEditingAttachment] = useState<any | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: any = shouldReduceMotion ? 'div' : motion.div;
 
@@ -409,7 +406,6 @@ export default function TaskDetail() {
                   hideTitle
                   attachments={task.attachments || []}
                   onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-                  onEdit={(att) => setEditingAttachment(att)}
                 />
               </div>
             </details>
@@ -447,21 +443,6 @@ export default function TaskDetail() {
       </Button>
     </div>
     </main>
-
-    <Dialog open={!!editingAttachment} onOpenChange={(o) => { if (!o) setEditingAttachment(null); }}>
-      <DialogContent className="max-w-[90vw]">
-        <DialogTitle>{editingAttachment?.filename}</DialogTitle>
-        {editingAttachment && (
-          <AttachmentView
-            attachment={editingAttachment}
-            onSave={(file) => {
-              attachmentMut.mutate({ attId: editingAttachment.id, file });
-              setEditingAttachment(null);
-            }}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
     
       <EmailDrawer
       open={emailOpen}
