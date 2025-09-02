@@ -91,7 +91,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
     if (editUrl) {
       return (
         <div className="flex flex-col gap-2">
-          <iframe src={editUrl} title={attachment.filename} className="w-full h-64 border" />
+          <iframe src={editUrl} title={attachment.filename} className="w-full h-[80vh] border" />
           <Button
             size="sm"
             onClick={async () => {
@@ -110,7 +110,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
       <DocViewer
         documents={[{ uri: url, fileType: attachment.mimeType }]}
         pluginRenderers={DocViewerRenderers}
-        style={{ height: 400 }}
+        style={{ height: '80vh' }}
       />
     );
   }
