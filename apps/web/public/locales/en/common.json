@@ -36,6 +36,7 @@
     "supplier": "Supplier",
     "title": "Title",
     "status": "Status",
+    "createdAt": "Created at",
     "auditLog": "Audit log",
     "description": "Description",
     "authority": "Authority",

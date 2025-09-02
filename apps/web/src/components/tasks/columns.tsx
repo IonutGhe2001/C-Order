@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { getStatusColor } from '@/lib/status-colors';
-import { formatDate } from '@/lib/i18n';
+import { formatDate, formatDateTime } from '@/lib/i18n';
 
 export interface Task {
   id: string;
@@ -10,6 +10,7 @@ export interface Task {
   priority: string;
   assignees?: { id: string; name: string }[];
   dueDate?: string | null;
+  createdAt: string;
 }
 
 export const statusOptions = [
@@ -52,6 +53,13 @@ export const createTaskColumns = (t: (key: string) => string): ColumnDef<Task>[]
     enableSorting: true,
     enableColumnFilter: true,
     cell: ({ getValue }) => t(`priority.${getValue()}`),
+  },
+  {
+    accessorKey: 'createdAt',
+    header: t('labels.createdAt'),
+    enableSorting: true,
+    enableColumnFilter: true,
+    cell: ({ getValue }) => formatDateTime(new Date(getValue() as string)),
   },
   {
     accessorKey: 'dueDate',

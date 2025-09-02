@@ -36,6 +36,7 @@
     "supplier": "Furnizor",
     "title": "Titlu",
     "status": "Status",
+    "createdAt": "Creat la",
     "auditLog": "Jurnal audit",
     "description": "Descriere",
     "authority": "Autoritate",
