@@ -43,7 +43,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
 
   if (isText) {
     return (
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 max-h-[80vh] overflow-y-auto">
         <Editor
           height="200px"
           defaultLanguage="plaintext"
@@ -66,7 +66,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
 
   if (isPdf) {
     return (
-      <div className="space-y-2 flex flex-col items-center">
+      <div className="space-y-2 flex flex-col items-center max-h-[80vh] overflow-y-auto">
         <Document
           file={url}
           onLoadSuccess={({ numPages }: { numPages: number }) => setNumPages(numPages)}
@@ -90,8 +90,12 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   if (isOffice) {
     if (editUrl) {
       return (
-        <div className="flex flex-col items-center gap-2">
-          <iframe src={editUrl} title={attachment.filename} className="w-full h-[80vh] border" />
+        <div className="flex flex-col items-center gap-2 max-h-[80vh] overflow-y-auto">
+          <iframe
+            src={editUrl}
+            title={attachment.filename}
+            className="w-full h-[70vh] border"
+          />
           <Button
             size="sm"
             onClick={async () => {
@@ -107,11 +111,11 @@ export default function AttachmentView({ attachment, onSave }: Props) {
       );
     }
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center max-h-[80vh] overflow-y-auto">
         <DocViewer
           documents={[{ uri: url, fileType: attachment.mimeType }]}
           pluginRenderers={DocViewerRenderers}
-          style={{ height: '80vh' }}
+          style={{ height: '70vh' }}
         />
       </div>
     );
