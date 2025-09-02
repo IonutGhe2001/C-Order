@@ -1,4 +1,4 @@
-// <reference types="vite/client" />
+/// <reference types="vite/client" />
 import { useEffect, useRef, useState } from 'react';
 import { apiRoot } from '../../lib/api';
 
