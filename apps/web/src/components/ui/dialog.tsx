@@ -29,26 +29,33 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content asChild {...props}>
-      <motion.div
-        ref={ref}
-        role="dialog"
-        className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg text-foreground max-h-[90vh] overflow-y-auto',
-          className,
-        )}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15 }}
+>(({ className, children, ...props }, ref) => {
+  const ariaDescribedBy = props['aria-describedby'];
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        asChild
+        {...props}
+        aria-describedby={ariaDescribedBy ?? undefined}
       >
-        {children}
-      </motion.div>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
+        <motion.div
+          ref={ref}
+          role="dialog"
+          className={cn(
+            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg text-foreground max-h-[90vh] overflow-y-auto',
+            className,
+          )}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15 }}
+        >
+          {children}
+        </motion.div>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
+});
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogTitle = React.forwardRef<
