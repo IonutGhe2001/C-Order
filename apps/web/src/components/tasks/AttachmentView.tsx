@@ -43,7 +43,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
           height="200px"
           defaultLanguage="plaintext"
           value={content}
-          onChange={(val) => setContent(val ?? '')}
+          onChange={(val: string | undefined) => setContent(val ?? '')}
         />
         <Button
           size="sm"
@@ -62,7 +62,10 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   if (isPdf) {
     return (
       <div className="space-y-2">
-        <Document file={attachment.url} onLoadSuccess={({ numPages }) => setNumPages(numPages)}>
+        <Document
+          file={attachment.url}
+          onLoadSuccess={({ numPages }: { numPages: number }) => setNumPages(numPages)}
+        >
           <Page pageNumber={page} />
         </Document>
         {numPages > 1 && (
