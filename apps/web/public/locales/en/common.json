@@ -86,7 +86,9 @@
     "toggleSidebar": "Toggle sidebar",
     "refresh": "Refresh",
     "newTask": "New task",
-    "newSupplier": "New supplier"
+    "newSupplier": "New supplier",
+    "previous": "Previous",
+    "next": "Next"
   },
   "placeholders": {
     "search": "Search...",

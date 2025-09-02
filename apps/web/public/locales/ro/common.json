@@ -86,7 +86,9 @@
     "toggleSidebar": "Comută bara laterală",
     "refresh": "Reîmprospătează",
     "newTask": "Task nou",
-    "newSupplier": "Furnizor nou"
+    "newSupplier": "Furnizor nou",
+    "previous": "Anterior",
+    "next": "Următor"
   },
   "placeholders": {
     "search": "Caută...",
