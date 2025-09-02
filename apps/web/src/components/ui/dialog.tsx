@@ -32,27 +32,26 @@ const DialogContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const ariaDescribedBy = props['aria-describedby'];
   return (
-    <DialogPortal>
+    <DialogPortal container={typeof document !== 'undefined' ? document.body : undefined}>
       <DialogOverlay />
-      <DialogPrimitive.Content
-        asChild
-        {...props}
-        aria-describedby={ariaDescribedBy ?? undefined}
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15 }}
       >
-        <motion.div
+        <DialogPrimitive.Content
           ref={ref}
-          role="dialog"
+          aria-describedby={ariaDescribedBy ?? undefined}
           className={cn(
-            'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg text-foreground max-h-[90vh] overflow-y-auto',
+            'w-full max-w-lg border bg-background p-6 shadow-lg text-foreground max-h-[90vh] overflow-y-auto',
             className,
           )}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
+          {...props}
         >
           {children}
-        </motion.div>
-      </DialogPrimitive.Content>
+        </DialogPrimitive.Content>
+      </motion.div>
     </DialogPortal>
   );
 });
