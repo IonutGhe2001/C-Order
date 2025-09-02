@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { getSupplier, getFileUrl } from '../lib/api';
+import { getSupplier, getFileUrl, updateAttachment } from '../lib/api';
 import { Skeleton } from '../components/ui/skeleton';
 import { Button } from '../components/ui/button';
+import AttachmentView from '../components/tasks/AttachmentView';
+import { Dialog, DialogContent, DialogTitle } from '../components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 
 export default function SupplierDetail() {
   const { id } = useParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState<any | null>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const qc = useQueryClient();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['supplier', id],
     queryFn: () => getSupplier(id!),
+  });
+
+  const attachmentMut = useMutation({
+    mutationFn: ({ attId, taskId, file }: { attId: string; taskId: string; file: File }) =>
+      updateAttachment(taskId, attId, file),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['supplier', id] }),
   });
 
   const attachments = (data?.tasks || []).flatMap((task: any) =>
@@ -91,21 +101,40 @@ export default function SupplierDetail() {
         <div>
           <h2 className="text-xl font-medium mb-2">{t('labels.attachments')}</h2>
           {attachments.length ? (
-            <ul className="list-disc pl-5 space-y-1">
-              {attachments.map((att: any) => (
-                <li key={att.id}>
-                  <a
-                    href={att.url}
-                    className="text-brand hover:underline focus-visible:ring-brand"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {att.filename}
-                  </a>{' '}
-                  <span className="text-sm text-foreground">({att.taskTitle})</span>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="list-disc pl-5 space-y-1">
+                {attachments.map((att: any) => (
+                  <li key={att.id} className="flex items-center gap-2">
+                    <Button
+                      variant="link"
+                      className="p-0 h-auto font-normal"
+                      onClick={() => setSelectedAttachment(att)}
+                    >
+                      {att.filename}
+                    </Button>
+                    <span className="text-sm text-foreground">({att.taskTitle})</span>
+                  </li>
+                ))}
+              </ul>
+              <Dialog open={!!selectedAttachment} onOpenChange={(o) => { if (!o) setSelectedAttachment(null); }}>
+                <DialogContent className="max-w-[90vw]">
+                  <DialogTitle>{selectedAttachment?.filename}</DialogTitle>
+                  {selectedAttachment && (
+                    <AttachmentView
+                      attachment={selectedAttachment}
+                      onSave={(file) => {
+                        attachmentMut.mutate({
+                          attId: selectedAttachment.id,
+                          taskId: selectedAttachment.taskId,
+                          file,
+                        });
+                        setSelectedAttachment(null);
+                      }}
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+            </>
           ) : (
             <p className="text-sm text-foreground">{t('messages.noAttachments')}</p>
           )}
