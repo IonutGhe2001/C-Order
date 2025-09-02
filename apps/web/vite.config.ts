@@ -4,6 +4,14 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    exclude: [
+      '@cyntler/react-doc-viewer',
+      'react-pdf',
+      '@monaco-editor/react',
+      'framer-motion',
+    ],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
