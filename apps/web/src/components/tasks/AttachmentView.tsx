@@ -3,12 +3,10 @@ import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
 import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 import { Document, Page, pdfjs } from 'react-pdf';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 import Editor from '@monaco-editor/react';
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  /* @vite-ignore */ 'pdfjs-dist/build/pdf.worker.js',
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 interface Props {
   attachment: any;
