@@ -4,8 +4,11 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "prestart": "pnpm run prisma:generate",
     "start": "nest start",
+    "prestart:dev": "pnpm run prisma:generate",
     "start:dev": "nest start --watch",
+    "predev": "pnpm run prisma:generate",
     "dev": "nest start --watch",
     "build": "nest build",
     "prisma:generate": "prisma generate"
