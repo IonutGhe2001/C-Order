@@ -449,7 +449,7 @@ export default function TaskDetail() {
     </main>
 
     <Dialog open={!!editingAttachment} onOpenChange={(o) => { if (!o) setEditingAttachment(null); }}>
-      <DialogContent>
+      <DialogContent className="max-w-[90vw]">
         <DialogTitle>{editingAttachment?.filename}</DialogTitle>
         {editingAttachment && (
           <AttachmentView

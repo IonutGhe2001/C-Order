@@ -43,7 +43,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
 
   if (isText) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col items-center gap-2">
         <Editor
           height="200px"
           defaultLanguage="plaintext"
@@ -66,7 +66,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
 
   if (isPdf) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-2 flex flex-col items-center">
         <Document
           file={url}
           onLoadSuccess={({ numPages }: { numPages: number }) => setNumPages(numPages)}
@@ -90,7 +90,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   if (isOffice) {
     if (editUrl) {
       return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col items-center gap-2">
           <iframe src={editUrl} title={attachment.filename} className="w-full h-[80vh] border" />
           <Button
             size="sm"
@@ -107,20 +107,25 @@ export default function AttachmentView({ attachment, onSave }: Props) {
       );
     }
     return (
-      <DocViewer
-        documents={[{ uri: url, fileType: attachment.mimeType }]}
-        pluginRenderers={DocViewerRenderers}
-        style={{ height: '80vh' }}
-      />
+      <div className="flex justify-center">
+        <DocViewer
+          documents={[{ uri: url, fileType: attachment.mimeType }]}
+          pluginRenderers={DocViewerRenderers}
+          style={{ height: '80vh' }}
+        />
+      </div>
     );
   }
 
   if (attachment.mimeType?.startsWith('image/')) {
-    return <img src={url} alt={attachment.filename} className="max-h-64" />;
+    return <img src={url} alt={attachment.filename} className="max-h-64 mx-auto" />;
   }
 
   return (
-    <a className="text-brand hover:underline focus-visible:ring-brand" href={url}>
+    <a
+      className="block text-center text-brand hover:underline focus-visible:ring-brand"
+      href={url}
+    >
       {attachment.filename}
     </a>
   );
