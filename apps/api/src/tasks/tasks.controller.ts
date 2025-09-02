@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, Patch, BadRequestException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Query, UseGuards, Req, Patch, BadRequestException, UploadedFile, UseInterceptors, Delete } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import type { UploadedFile as UploadedFileType } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
@@ -104,6 +104,11 @@ export class TasksController {
   ) {
     if (!file) throw new BadRequestException('file is required');
     return this.tasks.updateAttachment(id, attId, file);
+  }
+
+  @Delete(':id/attachments/:attId')
+  deleteAttachment(@Param('id') id: string, @Param('attId') attId: string) {
+    return this.tasks.deleteAttachment(id, attId);
   }
 
   @Post(':id/send-email')

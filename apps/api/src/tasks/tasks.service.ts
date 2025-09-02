@@ -220,4 +220,13 @@ export class TasksService {
     }
     return this.prisma.attachment.update({ where: { id: attId }, data });
   }
+  
+  async deleteAttachment(taskId: string, attId: string) {
+    const attachment = await this.prisma.attachment.findFirst({ where: { id: attId, taskId } });
+    if (!attachment) throw new BadRequestException('Attachment not found');
+    const filepath = join(process.cwd(), attachment.url.startsWith('/') ? attachment.url.slice(1) : attachment.url);
+    await fs.unlink(filepath).catch(() => undefined);
+    await this.prisma.attachment.delete({ where: { id: attId } });
+    return { deleted: true };
+  }
 }

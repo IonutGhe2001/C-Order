@@ -117,6 +117,14 @@ export async function updateAttachment(
   return r.json();
 }
 
+export async function deleteAttachment(taskId: string, attId: string) {
+  const r = await fetchWithAuth(`${base}/tasks/${taskId}/attachments/${attId}`, {
+    method: 'DELETE',
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
 export async function deleteTask(id: string) {
   const r = await fetchWithAuth(`${base}/tasks/${id}`, {
     method: 'DELETE',

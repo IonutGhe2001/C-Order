@@ -2,6 +2,8 @@ import { Button } from '../ui/button';
 import { Icon } from '../../lib/lucide-icon';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deleteAttachment } from '../../lib/api';
 
 function AttachmentView({ attachment, onSave }: { attachment: any; onSave: (file: File) => void }) {
   const [content, setContent] = useState('');
@@ -50,17 +52,30 @@ interface Props {
 
 export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Props) {
   const { t } = useTranslation();
+  const qc = useQueryClient();
+  const deleteMut = useMutation({
+    mutationFn: ({ taskId, attId }: { taskId: string; attId: string }) => deleteAttachment(taskId, attId),
+    onSuccess: (_data, { taskId }) => qc.invalidateQueries({ queryKey: ['task', taskId] }),
+  });
   return (
     <div className="space-y-2">
       {!hideTitle && <h2 className="font-medium">{t('labels.files')}</h2>}
       {attachments?.length ? (
         <ul className="space-y-4">
-          {attachments.map((a: any) => (
-            <li key={a.id}>
-              <AttachmentView attachment={a} onSave={(file: File) => onSave(a.id, file)} />
-            </li>
-          ))}
-        </ul>
+            {attachments.map((a: any) => (
+              <li key={a.id} className="flex items-start justify-between">
+                <AttachmentView attachment={a} onSave={(file: File) => onSave(a.id, file)} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('buttons.delete')}
+                  onClick={() => deleteMut.mutate({ taskId: a.taskId, attId: a.id })}
+                >
+                  <Icon name="trash" className="h-4 w-4" />
+                </Button>
+              </li>
+            ))}
+          </ul>
       ) : (
         <div className="text-sm text-foreground flex items-center">
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.filesEmpty')}
