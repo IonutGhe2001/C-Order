@@ -5,7 +5,10 @@ import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 import { Document, Page, pdfjs } from 'react-pdf';
 import Editor from '@monaco-editor/react';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  /* @vite-ignore */ 'pdfjs-dist/build/pdf.worker.js',
+  import.meta.url,
+).toString();
 
 interface Props {
   attachment: any;
