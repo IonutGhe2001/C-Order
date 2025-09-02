@@ -5,7 +5,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ['warning'],
+    include: ['warning', 'prop-types'],
     exclude: [
       '@cyntler/react-doc-viewer',
       'react-pdf',
