@@ -20,6 +20,14 @@ import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
+import { SidePanel } from '../components/ui/side-panel';
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '../components/ui/sheet';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -270,6 +278,81 @@ export default function TaskDetail() {
     );
   }
 
+  const AuxiliaryFields = () => (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium">{t('labels.assignees')}</label>
+        {usersQuery.isLoading ? (
+          <Skeleton className="h-10 w-full mt-1" />
+        ) : usersQuery.isError ? (
+          <div className="mt-1 text-red-600 text-sm">{t('messages.usersLoadFailed')}</div>
+        ) : (
+          <>
+            <AssigneeChips
+              users={usersQuery.data?.items || []}
+              value={assignees}
+              onChange={(vals) => {
+                setAssignees(vals);
+                save({ assignees: vals });
+              }}
+            />
+            <SaveIndicator mutation={update} />
+          </>
+        )}
+      </div>
+      <div>
+        <label className="block text-sm font-medium">{t('labels.supplier')}</label>
+        <Input
+          className="mt-1 w-full"
+          value={supplier}
+          onChange={(e) => {
+            setSupplier(e.target.value);
+            save({ supplier: e.target.value || null });
+          }}
+        />
+        <SaveIndicator mutation={update} />
+      </div>
+      <div>
+        <OrderDeliveryPanel
+          orderDate={orderDate}
+          orderReceivedDate={orderReceivedDate}
+          orderNumber={orderNumber}
+          authority={authority}
+          orderType={orderType}
+          productsReceivedDate={productsReceivedDate}
+          earlyDelivery={earlyDelivery}
+          deliveryDate={deliveryDate}
+          orderTypes={orderTypeOptions}
+          onChange={(d) => {
+            if (d.orderDate !== undefined) setOrderDate(d.orderDate);
+            if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);
+            if (d.orderNumber !== undefined) setOrderNumber(d.orderNumber);
+            if (d.authority !== undefined) setAuthority(d.authority);
+            if (d.orderType !== undefined) setOrderType(d.orderType);
+            if (d.productsReceivedDate !== undefined) setProductsReceivedDate(d.productsReceivedDate);
+            if (d.earlyDelivery !== undefined) setEarlyDelivery(d.earlyDelivery);
+            if (d.deliveryDate !== undefined) setDeliveryDate(d.deliveryDate);
+            const payload: any = {};
+            if (d.orderDate !== undefined) payload.orderDate = d.orderDate ? new Date(d.orderDate).toISOString() : null;
+            if (d.orderReceivedDate !== undefined)
+              payload.orderReceivedDate = d.orderReceivedDate ? new Date(d.orderReceivedDate).toISOString() : null;
+            if (d.orderNumber !== undefined) payload.orderNumber = d.orderNumber || null;
+            if (d.authority !== undefined) payload.authority = d.authority || null;
+            if (d.orderType !== undefined) payload.orderType = d.orderType || null;
+            if (d.productsReceivedDate !== undefined)
+              payload.productsReceivedDate = d.productsReceivedDate
+                ? new Date(d.productsReceivedDate).toISOString()
+                : null;
+            if (d.deliveryDate !== undefined)
+              payload.deliveryDate = d.deliveryDate ? new Date(d.deliveryDate).toISOString() : null;
+            if (Object.keys(payload).length) save(payload);
+          }}
+        />
+        <SaveIndicator mutation={update} />
+      </div>
+    </div>
+  );
+
   return (
     <>
     <div className="sticky top-0 z-10 bg-background border-b p-2 flex justify-end gap-2">
@@ -383,143 +466,97 @@ export default function TaskDetail() {
         </div>
 
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium">{t('labels.assignees')}</label>
-          {usersQuery.isLoading ? (
-              <Skeleton className="h-10 w-full mt-1" />
-            ) : usersQuery.isError ? (
-              <div className="mt-1 text-red-600 text-sm">{t('messages.usersLoadFailed')}</div>
-            ) : (
-              <>
-                <AssigneeChips
-                  users={usersQuery.data?.items || []}
-                  value={assignees}
-                  onChange={(vals) => {
-                    setAssignees(vals);
-                    save({ assignees: vals });
-                  }}
-                />
-                <SaveIndicator mutation={update} />
-              </>
-            )}
-          </div>
-        <div>
-          <label className="block text-sm font-medium">{t('labels.supplier')}</label>
-          <Input
-            className="mt-1 w-full"
-            value={supplier}
-            onChange={(e) => {
-              setSupplier(e.target.value);
-              save({ supplier: e.target.value || null });
-            }}
-          />
-          <SaveIndicator mutation={update} />
+      <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="secondary" className="w-full">{t('labels.general')}</Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>{t('labels.general')}</SheetTitle>
+              </SheetHeader>
+              <AuxiliaryFields />
+            </SheetContent>
+          </Sheet>
         </div>
-        <div>
-            <OrderDeliveryPanel
-              orderDate={orderDate}
-              orderReceivedDate={orderReceivedDate}
-              orderNumber={orderNumber}
-              authority={authority}
-              orderType={orderType}
-              productsReceivedDate={productsReceivedDate}
-              earlyDelivery={earlyDelivery}
-              deliveryDate={deliveryDate}
-              orderTypes={orderTypeOptions}
-              onChange={(d) => {
-                if (d.orderDate !== undefined) setOrderDate(d.orderDate);
-                if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);
-                if (d.orderNumber !== undefined) setOrderNumber(d.orderNumber);
-                if (d.authority !== undefined) setAuthority(d.authority);
-                if (d.orderType !== undefined) setOrderType(d.orderType);
-                if (d.productsReceivedDate !== undefined) setProductsReceivedDate(d.productsReceivedDate);
-                if (d.earlyDelivery !== undefined) setEarlyDelivery(d.earlyDelivery);
-                if (d.deliveryDate !== undefined) setDeliveryDate(d.deliveryDate);
-                const payload: any = {};
-                if (d.orderDate !== undefined) payload.orderDate = d.orderDate ? new Date(d.orderDate).toISOString() : null;
-                if (d.orderReceivedDate !== undefined) payload.orderReceivedDate = d.orderReceivedDate ? new Date(d.orderReceivedDate).toISOString() : null;
-                if (d.orderNumber !== undefined) payload.orderNumber = d.orderNumber || null;
-                if (d.authority !== undefined) payload.authority = d.authority || null;
-                if (d.orderType !== undefined) payload.orderType = d.orderType || null;
-                if (d.productsReceivedDate !== undefined) payload.productsReceivedDate = d.productsReceivedDate ? new Date(d.productsReceivedDate).toISOString() : null;
-                if (d.deliveryDate !== undefined) payload.deliveryDate = d.deliveryDate ? new Date(d.deliveryDate).toISOString() : null;
-                if (Object.keys(payload).length) save(payload);
-              }}
-            />
-          <SaveIndicator mutation={update} />
+
+        <div className="grid gap-4 md:grid-cols-[1fr_280px]">
+          <div className="space-y-4">
+            <div>
+              <h2 className="font-medium mb-2">{t('labels.description')}</h2>
+              <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
+              <SaveIndicator mutation={update} />
+            </div>
+            <Tabs value={activeTab} onValueChange={(val: string) => setActiveTab(val as 'files' | 'comments' | 'audit')} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="files" className="flex items-center gap-2">
+                  <Icon name="paperclip" className="h-4 w-4" aria-hidden="true" />
+                  {t('labels.files')}
+                </TabsTrigger>
+                <TabsTrigger value="comments" className="flex items-center gap-2">
+                  <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
+                  {t('labels.comments')}
+                </TabsTrigger>
+                <TabsTrigger value="audit" className="flex items-center gap-2">
+                  <Icon name="history" className="h-4 w-4" aria-hidden="true" />
+                  {t('labels.auditLog')}
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="files" className="border rounded p-2 mt-2">
+                <MotionDiv
+                  {...(!shouldReduceMotion && {
+                    initial: { opacity: 0, y: 4 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: { duration: 0.2 },
+                  })}
+                >
+                  <AttachmentsPanel
+                    hideTitle
+                    attachments={task.attachments || []}
+                    onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+                  />
+                </MotionDiv>
+              </TabsContent>
+              <TabsContent value="comments" className="border rounded p-2 mt-2">
+                <MotionDiv
+                  {...(!shouldReduceMotion && {
+                    initial: { opacity: 0, y: 4 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: { duration: 0.2 },
+                  })}
+                >
+                  <CommentsPanel
+                    hideTitle
+                    inputId="add-comment-input"
+                    comments={task.comments || []}
+                    onAdd={(body) => commentMut.mutate(body)}
+                  />
+                </MotionDiv>
+              </TabsContent>
+              <TabsContent value="audit" className="border rounded p-2 mt-2">
+                <MotionDiv
+                  {...(!shouldReduceMotion && {
+                    initial: { opacity: 0, y: 4 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: { duration: 0.2 },
+                  })}
+                >
+                  <ActivityAuditPanel
+                    hideTitle
+                    audit={audit?.items || []}
+                    loading={auditLoading}
+                    error={!!auditError}
+                    onRetry={() => refetchAudit()}
+                  />
+                </MotionDiv>
+              </TabsContent>
+            </Tabs>
           </div>
+        <div className="hidden md:block">
+            <SidePanel>
+              <AuxiliaryFields />
+            </SidePanel>
           </div>
-        <div className="space-y-4">
-          <div>
-            <h2 className="font-medium mb-2">{t('labels.description')}</h2>
-            <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
-            <SaveIndicator mutation={update} />
-          </div>
-          <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'files' | 'comments' | 'audit')} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="files" className="flex items-center gap-2">
-                <Icon name="paperclip" className="h-4 w-4" aria-hidden="true" />
-                {t('labels.files')}
-              </TabsTrigger>
-              <TabsTrigger value="comments" className="flex items-center gap-2">
-                <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
-                {t('labels.comments')}
-              </TabsTrigger>
-              <TabsTrigger value="audit" className="flex items-center gap-2">
-                <Icon name="history" className="h-4 w-4" aria-hidden="true" />
-                {t('labels.auditLog')}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="files" className="border rounded p-2 mt-2">
-              <MotionDiv
-                {...(!shouldReduceMotion && {
-                  initial: { opacity: 0, y: 4 },
-                  animate: { opacity: 1, y: 0 },
-                  transition: { duration: 0.2 },
-                })}
-              >
-                <AttachmentsPanel
-                  hideTitle
-                  attachments={task.attachments || []}
-                  onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-                />
-              </MotionDiv>
-            </TabsContent>
-            <TabsContent value="comments" className="border rounded p-2 mt-2">
-              <MotionDiv
-                {...(!shouldReduceMotion && {
-                  initial: { opacity: 0, y: 4 },
-                  animate: { opacity: 1, y: 0 },
-                  transition: { duration: 0.2 },
-                })}
-              >
-                <CommentsPanel
-                  hideTitle
-                  inputId="add-comment-input"
-                  comments={task.comments || []}
-                  onAdd={(body) => commentMut.mutate(body)}
-                />
-              </MotionDiv>
-            </TabsContent>
-            <TabsContent value="audit" className="border rounded p-2 mt-2">
-              <MotionDiv
-                {...(!shouldReduceMotion && {
-                  initial: { opacity: 0, y: 4 },
-                  animate: { opacity: 1, y: 0 },
-                  transition: { duration: 0.2 },
-                })}
-              >
-                <ActivityAuditPanel
-                  hideTitle
-                  audit={audit?.items || []}
-                  loading={auditLoading}
-                  error={!!auditError}
-                  onRetry={() => refetchAudit()}
-                />
-              </MotionDiv>
-            </TabsContent>
-          </Tabs>
         </div>
       </MotionDiv>
     <div className="md:hidden sticky bottom-4 flex justify-end p-4">
