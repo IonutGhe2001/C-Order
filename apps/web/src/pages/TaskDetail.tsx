@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
-import { useState, useEffect, useRef, type ElementType } from 'react';
+import { useState, useEffect, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -32,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import { SaveIndicator } from '../components/ui/save-indicator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 const statuses = [
   'OPEN',
@@ -168,7 +169,7 @@ export default function TaskDetail() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
-  const commentsRef = useRef<HTMLDetailsElement>(null);
+  const [activeTab, setActiveTab] = useState<'files' | 'comments' | 'audit'>('files');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
 
@@ -449,39 +450,66 @@ export default function TaskDetail() {
           <SaveIndicator mutation={update} />
           </div>
           </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <h2 className="font-medium mb-2">{t('labels.description')}</h2>
-              <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
-              <SaveIndicator mutation={update} />
-            </div>
-            <details className="border rounded">
-              <summary className="cursor-pointer font-medium px-2 py-1">{t('labels.files')}</summary>
-              <div className="p-2">
+        <div className="space-y-4">
+          <div>
+            <h2 className="font-medium mb-2">{t('labels.description')}</h2>
+            <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
+            <SaveIndicator mutation={update} />
+          </div>
+          <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'files' | 'comments' | 'audit')} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="files" className="flex items-center gap-2">
+                <Icon name="paperclip" className="h-4 w-4" aria-hidden="true" />
+                {t('labels.files')}
+              </TabsTrigger>
+              <TabsTrigger value="comments" className="flex items-center gap-2">
+                <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
+                {t('labels.comments')}
+              </TabsTrigger>
+              <TabsTrigger value="audit" className="flex items-center gap-2">
+                <Icon name="history" className="h-4 w-4" aria-hidden="true" />
+                {t('labels.auditLog')}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="files" className="border rounded p-2 mt-2">
+              <MotionDiv
+                {...(!shouldReduceMotion && {
+                  initial: { opacity: 0, y: 4 },
+                  animate: { opacity: 1, y: 0 },
+                  transition: { duration: 0.2 },
+                })}
+              >
                 <AttachmentsPanel
                   hideTitle
                   attachments={task.attachments || []}
                   onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
                 />
-              </div>
-            </details>
-        </div>
-        <div className="space-y-4">
-          <details ref={commentsRef} className="border rounded">
-              <summary className="cursor-pointer font-medium px-2 py-1">{t('labels.comments')}</summary>
-              <div className="p-2">
+              </MotionDiv>
+            </TabsContent>
+            <TabsContent value="comments" className="border rounded p-2 mt-2">
+              <MotionDiv
+                {...(!shouldReduceMotion && {
+                  initial: { opacity: 0, y: 4 },
+                  animate: { opacity: 1, y: 0 },
+                  transition: { duration: 0.2 },
+                })}
+              >
                 <CommentsPanel
                   hideTitle
                   inputId="add-comment-input"
                   comments={task.comments || []}
                   onAdd={(body) => commentMut.mutate(body)}
                 />
-              </div>
-            </details>
-            <details className="border rounded">
-              <summary className="cursor-pointer font-medium px-2 py-1">{t('labels.auditLog')}</summary>
-              <div className="p-2">
+              </MotionDiv>
+            </TabsContent>
+            <TabsContent value="audit" className="border rounded p-2 mt-2">
+              <MotionDiv
+                {...(!shouldReduceMotion && {
+                  initial: { opacity: 0, y: 4 },
+                  animate: { opacity: 1, y: 0 },
+                  transition: { duration: 0.2 },
+                })}
+              >
                 <ActivityAuditPanel
                   hideTitle
                   audit={audit?.items || []}
@@ -489,13 +517,13 @@ export default function TaskDetail() {
                   error={!!auditError}
                   onRetry={() => refetchAudit()}
                 />
-              </div>
-            </details>
+              </MotionDiv>
+            </TabsContent>
+          </Tabs>
         </div>
-      </div>
-    </MotionDiv>
+      </MotionDiv>
     <div className="md:hidden sticky bottom-4 flex justify-end p-4">
-      <Button onClick={() => { commentsRef.current && (commentsRef.current.open = true); document.getElementById('add-comment-input')?.focus(); }}>
+      <Button onClick={() => { setActiveTab('comments'); document.getElementById('add-comment-input')?.focus(); }}>
         {t('buttons.add')}
       </Button>
     </div>
