@@ -225,6 +225,9 @@ importers:
       pdfjs-dist:
         specifier: ^3.11.174
         version: 3.11.174
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -255,6 +258,9 @@ importers:
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
+      warning:
+        specifier: ^4.0.3
+        version: 4.0.3
       zod:
         specifier: ^3.22.4
         version: 3.25.76
