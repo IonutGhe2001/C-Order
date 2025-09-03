@@ -296,7 +296,7 @@ export default function TaskDetail() {
               error={!!usersQuery.isError}
               label={t('labels.assignees')}
               errorMessage={t('messages.usersLoadFailed')}
-              onChange={(vals) => {
+              onChange={(vals: string[]) => {
                 setAssignees(vals);
                 save({ assignees: vals });
               }}
