@@ -20,6 +20,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listTasks, listUsers, updateTask, TaskPayload, getTask, deleteTask } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import { Badge } from '@/components/ui/badge';
@@ -234,19 +235,21 @@ export default function TasksDataTable({
     const selectColumn: ColumnDef<Task> = {
       id: 'select',
       header: ({ table }) => (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={table.getIsAllRowsSelected()}
-          onChange={table.getToggleAllRowsSelectedHandler()}
-          onClick={(e) => e.stopPropagation()}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllRowsSelected(Boolean(value))
+          }
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          aria-label="Select all rows"
         />
       ),
       cell: ({ row }) => (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={row.getIsSelected()}
-          onChange={row.getToggleSelectedHandler()}
-          onClick={(e) => e.stopPropagation()}
+          onCheckedChange={(value: boolean) => row.toggleSelected(Boolean(value))}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          aria-label="Select row"
         />
       ),
       enableSorting: false,
