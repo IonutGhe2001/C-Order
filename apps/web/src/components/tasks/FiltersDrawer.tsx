@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -8,8 +7,15 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { listUsers, TaskFilters } from "@/lib/api";
 import { statusOptions } from "./columns";
 
@@ -27,29 +33,17 @@ export default function FiltersDrawer({
   onChange,
 }: FiltersDrawerProps) {
   const { t } = useTranslation();
-  const [assigneeQuery, setAssigneeQuery] = useState("");
   const usersQuery = useQuery({
     queryKey: ["users"],
     queryFn: listUsers,
     enabled: open,
   });
   const users = usersQuery.data?.items || [];
-  const filteredUsers = users.filter((u: any) =>
-    u.name.toLowerCase().includes(assigneeQuery.toLowerCase()),
-  );
-  const statusVals = (filters.status as string[]) || [];
-  const assigneeVals = (filters.assignees as string[]) || [];
-
-  const toggleAssignee = (id: string) => {
-    if (assigneeVals.includes(id)) {
-      onChange({ ...filters, assignees: assigneeVals.filter((a) => a !== id) });
-    } else {
-      onChange({ ...filters, assignees: [...assigneeVals, id] });
-    }
-  };
+  const statusVal = (filters.status as string) || "";
+  const assigneeVal = (filters.assignees as string) || "";
 
   const clear = () => {
-    onChange({ status: [], assignees: [], from: undefined, to: undefined });
+    onChange({ status: undefined, assignees: undefined, from: undefined, to: undefined });
   };
 
   return (
@@ -58,71 +52,75 @@ export default function FiltersDrawer({
         <SheetHeader>
           <SheetTitle>{t("buttons.filters")}</SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div className="flex-1 space-y-4">
           <div>
             <label className="text-sm font-medium">
               {t("labels.status")}
             </label>
-            <select
-              multiple
-              className="mt-1 w-full border rounded p-2 text-sm"
-              value={statusVals}
-              onChange={(e) =>
-                onChange({
-                  ...filters,
-                  status: Array.from(
-                    e.target.selectedOptions,
-                    (o) => o.value,
-                  ),
-                })
-              }
+            <Select
+              value={statusVal}
+              onValueChange={(v) => onChange({ ...filters, status: v || undefined })}
             >
-              {statusOptions.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {t(s.label)}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="mt-1 w-full text-sm">
+                <SelectValue placeholder={t("labels.status")} />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {t(s.label)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="text-sm font-medium">
               {t("labels.assignees")}
             </label>
-            <Input
-              className="mt-1"
-              placeholder={t("placeholders.assigneeSearchExample")}
-              value={assigneeQuery}
-              onChange={(e) => setAssigneeQuery(e.target.value)}
-            />
-            <div className="mt-2 max-h-40 overflow-y-auto space-y-1">
-              {filteredUsers.map((u: any) => (
-                <label key={u.id} className="flex items-center space-x-2 text-sm">
-                  <Checkbox
-                    checked={assigneeVals.includes(u.id)}
-                    onCheckedChange={() => toggleAssignee(u.id)}
-                    id={`assignee-${u.id}`}
-                  />
-                  <span>{u.name}</span>
-                </label>
-              ))}
-            </div>
+            <Select
+              value={assigneeVal}
+              onValueChange={(v) => onChange({ ...filters, assignees: v || undefined })}
+            >
+              <SelectTrigger className="mt-1 w-full text-sm">
+                <SelectValue placeholder={t("labels.assignees")} />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((u: any) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="text-sm font-medium">
               {t("labels.dueDate")}
             </label>
             <div className="flex gap-2 mt-1">
-              <Input
-                type="date"
-                className="text-sm"
-                value={filters.from ?? ""}
-                onChange={(e) => onChange({ ...filters, from: e.target.value })}
+              <DatePicker
+                selected={filters.from ? new Date(filters.from) : null}
+                onChange={(date: Date | null) =>
+                  onChange({
+                    ...filters,
+                    from: date ? date.toISOString().slice(0, 10) : undefined,
+                  })
+                }
+                className="w-full border rounded p-2 text-sm"
+                dateFormat="yyyy-MM-dd"
+                placeholderText="From"
               />
-              <Input
-                type="date"
-                className="text-sm"
-                value={filters.to ?? ""}
-                onChange={(e) => onChange({ ...filters, to: e.target.value })}
+              <DatePicker
+                selected={filters.to ? new Date(filters.to) : null}
+                onChange={(date: Date | null) =>
+                  onChange({
+                    ...filters,
+                    to: date ? date.toISOString().slice(0, 10) : undefined,
+                  })
+                }
+                className="w-full border rounded p-2 text-sm"
+                dateFormat="yyyy-MM-dd"
+                placeholderText="To"
               />
             </div>
           </div>

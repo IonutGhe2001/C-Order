@@ -25,7 +25,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -116,36 +115,6 @@ export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolea
   );
 }
 
-function Filter({ column }: { column: any }) {
-  const columnFilterValue = column.getFilterValue();
-  const { t } = useTranslation();
-  if (column.id === 'status') {
-    return (
-      <select
-        className="border rounded p-1 w-full"
-        value={(columnFilterValue ?? '') as string}
-        onChange={(e) => column.setFilterValue(e.target.value || undefined)}
-      >
-        <option value="">{t('labels.all')}</option>
-        {statusOptions.map((s) => (
-          <option key={s.value} value={s.value}>
-            {t(s.label)}
-          </option>
-        ))}
-      </select>
-    );
-  }
-  return (
-    <Input
-      className="w-full"
-      value={(columnFilterValue ?? '') as string}
-      onChange={(e) => column.setFilterValue(e.target.value)}
-      placeholder={t('placeholders.filter')}
-    />
-  );
-}
-
-
 export default function TasksDataTable({
   quickFilter = '',
   filters = {},
@@ -179,12 +148,8 @@ export default function TasksDataTable({
     right: ['menu'],
   });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [columnSearch, setColumnSearch] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
-  const [density, setDensity] = useState<'default' | 'compact'>(() =>
-    document.body.dataset.density === 'compact' ? 'compact' : 'default',
-  );
 
   useEffect(() => {
     const savedVisibility = localStorage.getItem('tasksTableColumnVisibility');
@@ -223,16 +188,6 @@ export default function TasksDataTable({
     return () => mq.removeEventListener('change', handle);
   }, []);
 
-
-  const toggleDensity = () => {
-    const next = density === 'compact' ? 'default' : 'compact';
-    setDensity(next);
-    if (next === 'compact') {
-      document.body.dataset.density = 'compact';
-    } else {
-      delete document.body.dataset.density;
-    }
-  };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTask(id),
@@ -559,7 +514,7 @@ export default function TasksDataTable({
   return (
     <div className="space-y-2">
       <div className="sticky top-0 z-20 bg-background">
-        {selectedRows.length > 0 ? (
+        {selectedRows.length > 0 && (
           <div className="flex flex-wrap items-end gap-2 p-2 border-b">
             <span className="text-sm">
               {t('messages.selectedCount', { count: selectedRows.length })}
@@ -607,69 +562,6 @@ export default function TasksDataTable({
               Export CSV
             </Button>
           </div>
-        ) : (
-          <div className="flex items-center gap-2 p-2 border-b">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
-                  {t('labels.columns')}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-2">
-                <Input
-                  placeholder={t('placeholders.search')}
-                  value={columnSearch}
-                  onChange={(e) => setColumnSearch(e.target.value)}
-                  className="mb-2 w-full"
-                />
-                {table
-                  .getAllLeafColumns()
-                  .filter((column) =>
-                    column.id.toLowerCase().includes(columnSearch.toLowerCase()),
-                  )
-                  .map((column) => (
-                    <div
-                      key={column.id}
-                      className="flex items-center justify-between py-1"
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, column)}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => handleDrop(e, column)}
-                    >
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={column.getIsVisible()}
-                          onChange={column.getToggleVisibilityHandler()}
-                        />
-                        {column.id}
-                      </label>
-                      {column.getCanPin() && (
-                        <div className="space-x-1">
-                          <Button size="sm" variant="ghost" onClick={() => column.pin('left')}>
-                            L
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => column.pin('right')}>
-                            R
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => column.pin(false)}>
-                            U
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </PopoverContent>
-            </Popover>
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={toggleDensity}
-              aria-label="Toggle density"
-            >
-              <Icon name="list" className="h-4 w-4" />
-            </Button>
-          </div>
         )}
       </div>
 
@@ -703,29 +595,26 @@ export default function TasksDataTable({
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => handleDrop(e, header.column)}
                     >
-                      <div className="flex flex-col gap-1">
-                        {header.isPlaceholder ? null : (
-                          <div
-                            className="flex items-center gap-2 cursor-pointer select-none"
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {header.column.getIsSorted() === 'asc' && (
-                              <Icon
-                                name="arrow-up"
-                                className="ml-1 inline h-3 w-3"
-                              />
-                            )}
-                            {header.column.getIsSorted() === 'desc' && (
-                              <Icon
-                                name="arrow-down"
-                                className="ml-1 inline h-3 w-3"
-                              />
-                            )}
-                          </div>
-                        )}
-                        {header.column.getCanFilter() && <Filter column={header.column} />}
-                      </div>
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className="flex items-center gap-2 cursor-pointer select-none"
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {header.column.getIsSorted() === 'asc' && (
+                            <Icon
+                              name="arrow-up"
+                              className="ml-1 inline h-3 w-3"
+                            />
+                          )}
+                          {header.column.getIsSorted() === 'desc' && (
+                            <Icon
+                              name="arrow-down"
+                              className="ml-1 inline h-3 w-3"
+                            />
+                          )}
+                        </div>
+                      )}
                     </th>
                   ))}
                 </tr>

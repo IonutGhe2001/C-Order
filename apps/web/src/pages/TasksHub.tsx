@@ -19,8 +19,8 @@ export default function TasksHub() {
   const [createOpen, setCreateOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
-    status: [],
-    assignees: [],
+    status: undefined,
+    assignees: undefined,
     from: undefined,
     to: undefined,
   });
