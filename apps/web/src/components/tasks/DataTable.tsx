@@ -630,8 +630,18 @@ export default function TasksDataTable({
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {header.column.getIsSorted() === 'asc' && '▲'}
-                            {header.column.getIsSorted() === 'desc' && '▼'}
+                            {header.column.getIsSorted() === 'asc' && (
+                              <Icon
+                                name="arrow-up"
+                                className="ml-1 inline h-3 w-3"
+                              />
+                            )}
+                            {header.column.getIsSorted() === 'desc' && (
+                              <Icon
+                                name="arrow-down"
+                                className="ml-1 inline h-3 w-3"
+                              />
+                            )}
                           </div>
                         )}
                         {header.column.getCanFilter() && <Filter column={header.column} />}
