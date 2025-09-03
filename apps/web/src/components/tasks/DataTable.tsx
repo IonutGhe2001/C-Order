@@ -37,6 +37,7 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip';
 import TaskCard from './TaskCard';
+import TaskCardSkeleton from './TaskCardSkeleton';
 import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
@@ -48,11 +49,7 @@ export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolea
     return (
       <div className="grid gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="border rounded-md p-4 space-y-2">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-1/3" />
-          </div>
+          <TaskCardSkeleton key={i} />
         ))}
       </div>
     );
@@ -61,29 +58,53 @@ export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolea
     <table className="min-w-full border">
       <thead className="bg-brand-muted">
         <tr>
+          <th className="p-2 w-8">
+            <Skeleton className="h-4 w-4" />
+          </th>
           <th className="p-2">
             <Skeleton className="h-4 w-40" />
           </th>
           <th className="p-2">
-            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-24" />
           </th>
           <th className="p-2">
             <Skeleton className="h-4 w-20" />
           </th>
-          <th className="p-2" />
+          <th className="p-2">
+            <Skeleton className="h-4 w-24" />
+          </th>
+          <th className="p-2">
+            <Skeleton className="h-4 w-24" />
+          </th>
+          <th className="p-2">
+            <Skeleton className="h-4 w-32" />
+          </th>
+          <th className="p-2 w-8" />
         </tr>
       </thead>
       <tbody>
-        {Array.from({ length: 3 }).map((_, i) => (
+        {Array.from({ length: 5 }).map((_, i) => (
           <tr key={i} className="border-t">
+            <td className="p-2">
+              <Skeleton className="h-4 w-4" />
+            </td>
             <td className="p-2">
               <Skeleton className="h-4 w-40" />
             </td>
             <td className="p-2">
-              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-24" />
             </td>
             <td className="p-2">
               <Skeleton className="h-4 w-20" />
+            </td>
+            <td className="p-2">
+              <Skeleton className="h-4 w-24" />
+            </td>
+            <td className="p-2">
+              <Skeleton className="h-4 w-24" />
+            </td>
+            <td className="p-2">
+              <Skeleton className="h-4 w-32" />
             </td>
             <td className="p-2" />
           </tr>
