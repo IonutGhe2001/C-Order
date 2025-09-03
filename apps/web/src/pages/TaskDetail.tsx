@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
-import { useState, useEffect, type ElementType } from 'react';
+import { useState, useEffect, useRef, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -197,6 +197,42 @@ export default function TaskDetail() {
   const [activeTab, setActiveTab] = useState<'comments' | 'audit'>('comments');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
+  const [newComments, setNewComments] = useState(false);
+  const [newAudit, setNewAudit] = useState(false);
+  const commentsCount = task?.comments?.length || 0;
+  const auditCount = audit?.items?.length || 0;
+  const commentsSeenRef = useRef(commentsCount);
+  const auditSeenRef = useRef(auditCount);
+  const loadedComments = useRef(false);
+  const loadedAudit = useRef(false);
+
+  useEffect(() => {
+    if (!loadedComments.current) {
+      commentsSeenRef.current = commentsCount;
+      loadedComments.current = true;
+      return;
+    }
+    if (activeTab === 'comments') {
+      commentsSeenRef.current = commentsCount;
+      setNewComments(false);
+    } else if (commentsCount > commentsSeenRef.current) {
+      setNewComments(true);
+    }
+  }, [commentsCount, activeTab]);
+
+  useEffect(() => {
+    if (!loadedAudit.current) {
+      auditSeenRef.current = auditCount;
+      loadedAudit.current = true;
+      return;
+    }
+    if (activeTab === 'audit') {
+      auditSeenRef.current = auditCount;
+      setNewAudit(false);
+    } else if (auditCount > auditSeenRef.current) {
+      setNewAudit(true);
+    }
+  }, [auditCount, activeTab]);
 
   useEffect(() => {
     if (task) {
@@ -530,10 +566,18 @@ export default function TaskDetail() {
             <TabsTrigger value="comments" className="flex items-center gap-2">
               <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
               {t('labels.comments')}
+              <span className="inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs">
+                {commentsCount}
+              </span>
+              {newComments && <span className="h-2 w-2 rounded-full bg-brand" />}
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <Icon name="history" className="h-4 w-4" aria-hidden="true" />
               {t('labels.auditLog')}
+              <span className="inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs">
+                {auditCount}
+              </span>
+              {newAudit && <span className="h-2 w-2 rounded-full bg-brand" />}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="comments" className="border rounded p-2 mt-2">
