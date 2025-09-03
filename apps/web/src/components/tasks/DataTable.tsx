@@ -24,6 +24,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import TaskCard from './TaskCard';
 import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
@@ -140,7 +147,6 @@ export default function TasksDataTable({
   const [columnSearch, setColumnSearch] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [density, setDensity] = useState<'default' | 'compact'>(() =>
     document.body.dataset.density === 'compact' ? 'compact' : 'default',
   );
@@ -181,11 +187,6 @@ export default function TasksDataTable({
     return () => mq.removeEventListener('change', handle);
   }, []);
 
-  useEffect(() => {
-    const close = () => setOpenMenu(null);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, []);
 
   const toggleDensity = () => {
     const next = density === 'compact' ? 'default' : 'compact';
@@ -230,55 +231,45 @@ export default function TasksDataTable({
       id: 'menu',
       header: () => '...',
       cell: ({ row }) => (
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="text-brand hover:text-brand/80"
-            onClick={() =>
-              setOpenMenu(openMenu === row.original.id ? null : row.original.id)
-            }
-            aria-label="More options"
-          >
-            <Icon name="more-horizontal" className="h-4 w-4" />
-          </Button>
-          {openMenu === row.original.id && (
-            <div
-              className="absolute right-0 mt-1 bg-background border rounded shadow flex flex-col"
-              onClick={(e) => e.stopPropagation()}
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="text-brand hover:text-brand/80"
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                  aria-label="More options"
+                >
+                  <Icon name="more-horizontal" className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>More options</TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <DropdownMenuItem
+              onSelect={() => navigate(`/tasks/${row.original.id}`)}
+              className="gap-2"
             >
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  navigate(`/tasks/${row.original.id}`);
-                  setOpenMenu(null);
-                }}
-                aria-label="View task"
-              >
-                <Icon name="eye" className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  deleteMutation.mutate(row.original.id);
-                  setOpenMenu(null);
-                }}
-                aria-label="Delete task"
-              >
-                <Icon name="trash" className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
+              <Icon name="eye" className="h-4 w-4" /> View task
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => deleteMutation.mutate(row.original.id)}
+              className="gap-2"
+            >
+              <Icon name="trash" className="h-4 w-4" /> Delete task
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
       enableSorting: false,
       enableColumnFilter: false,
       size: 40,
     };
     return [selectColumn, ...createTaskColumns(t), actionColumn];
-  }, [navigate, t, openMenu, deleteMutation]);
+  }, [navigate, t, deleteMutation]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];
