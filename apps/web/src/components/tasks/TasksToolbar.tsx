@@ -23,6 +23,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Table, VisibilityState } from "@tanstack/react-table";
+import ColumnsMenu from "./ColumnsMenu";
 
 type QuickFilter = "" | "overdue" | "today" | "noAssignee";
 
@@ -35,6 +37,8 @@ interface TasksToolbarProps {
   onOpenFilters: () => void;
   search: string;
   onSearchChange: (value: string) => void;
+  table?: Table<any>;
+  columnVisibility: VisibilityState;
 }
 
 export function TasksToolbarSkeleton() {
@@ -60,6 +64,8 @@ export default function TasksToolbar({
   onOpenFilters,
   search,
   onSearchChange,
+  table,
+  columnVisibility,
 }: TasksToolbarProps) {
   const [filter, setFilter] = quickFilter;
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
@@ -153,6 +159,9 @@ export default function TasksToolbar({
             </SelectItem>
           </SelectContent>
         </Select>
+        {table && (
+          <ColumnsMenu table={table} visibility={columnVisibility} />
+        )}
         <Button size="sm" variant="outline" onClick={onOpenFilters}>
           <Filter className="mr-2 h-4 w-4" />
           {t("buttons.filters")}

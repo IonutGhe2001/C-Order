@@ -13,6 +13,7 @@ import {
   getSortedRowModel,
   flexRender,
   useReactTable,
+  Table,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
@@ -150,11 +151,15 @@ export default function TasksDataTable({
   filters = {},
   search = '',
   onSelectionChange,
+  onTableChange,
+  onColumnVisibilityChange,
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
   filters?: TaskFilters;
   search?: string;
   onSelectionChange?: (ids: string[]) => void;
+  onTableChange?: (table: Table<Task>) => void;
+  onColumnVisibilityChange?: (state: VisibilityState) => void;
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -202,7 +207,8 @@ export default function TasksDataTable({
 
   useEffect(() => {
     localStorage.setItem('tasksTableColumnVisibility', JSON.stringify(columnVisibility));
-  }, [columnVisibility]);
+  onColumnVisibilityChange?.(columnVisibility);
+  }, [columnVisibility, onColumnVisibilityChange]);
 
   useEffect(() => {
     localStorage.setItem('tasksTableColumnOrder', JSON.stringify(columnOrder));
@@ -357,6 +363,10 @@ export default function TasksDataTable({
     getRowId: (row) => row.id,
     debugTable: false,
   });
+
+  useEffect(() => {
+    onTableChange?.(table);
+  }, [table, onTableChange]);
 
   useEffect(() => {
     if (onSelectionChange) {

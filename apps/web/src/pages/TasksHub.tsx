@@ -1,5 +1,6 @@
 import React, { useState, Suspense, lazy } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Table, VisibilityState } from "@tanstack/react-table";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
@@ -23,6 +24,8 @@ export default function TasksHub() {
     from: undefined,
     to: undefined,
   });
+  const [table, setTable] = useState<Table<any>>();
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const qc = useQueryClient();
 
   const deleteMut = useMutation({
@@ -59,12 +62,16 @@ export default function TasksHub() {
             onOpenFilters={() => setFiltersOpen(true)}
             search={search}
             onSearchChange={setSearch}
+            table={table}
+            columnVisibility={columnVisibility}
           />
           <TasksDataTable
             quickFilter={quickFilter}
             filters={filters}
             search={search}
             onSelectionChange={setSelected}
+            onTableChange={setTable}
+            onColumnVisibilityChange={setColumnVisibility}
           />
         </Suspense>
         <CreateTaskSheet
