@@ -6,6 +6,7 @@ import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Skeleton } from '../components/ui/skeleton';
+import FAB from '../components/ui/fab';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon, type IconName } from '../lib/lucide-icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -558,11 +559,19 @@ export default function TaskDetail() {
             </SidePanel>
           </div>
         </div>
-      </MotionDiv>
+    </MotionDiv>
     <div className="md:hidden sticky bottom-4 flex justify-end p-4">
-      <Button onClick={() => { setActiveTab('comments'); document.getElementById('add-comment-input')?.focus(); }}>
-        {t('buttons.add')}
-      </Button>
+      <FAB
+        onComment={() => {
+          setActiveTab('comments')
+          document.getElementById('add-comment-input')?.focus()
+        }}
+        onAttachment={() => {
+          setActiveTab('files')
+          setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
+        }}
+        onEmail={() => setEmailOpen(true)}
+      />
     </div>
     </main>
     
