@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -170,7 +170,7 @@ export default function TaskDetail() {
   const [emailBody, setEmailBody] = useState('');
   const commentsRef = useRef<HTMLDetailsElement>(null);
   const shouldReduceMotion = useReducedMotion();
-  const MotionDiv: any = shouldReduceMotion ? 'div' : motion.div;
+  const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
 
   useEffect(() => {
     if (task) {
@@ -348,10 +348,10 @@ export default function TaskDetail() {
             <div className="flex items-center">
               <Select
                 value={priority || ''}
-                onValueChange={(val) => {
-                  setPriority(val);
-                  save({ priority: val || undefined });
-                }}
+                  onValueChange={(val: string) => {
+                    setPriority(val);
+                    save({ priority: val || undefined });
+                  }}
               >
                 <SelectTrigger className={cn('w-[10rem]', priority ? priorityColorClasses[priority] : undefined)}>
                   <SelectValue placeholder={t('labels.priority')} />
