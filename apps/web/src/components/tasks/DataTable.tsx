@@ -148,10 +148,12 @@ function Filter({ column }: { column: any }) {
 export default function TasksDataTable({
   quickFilter = '',
   filters = {},
+  search = '',
   onSelectionChange,
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
   filters?: TaskFilters;
+  search?: string;
   onSelectionChange?: (ids: string[]) => void;
 }) {
   const navigate = useNavigate();
@@ -172,7 +174,6 @@ export default function TasksDataTable({
     right: ['menu'],
   });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [globalFilter, setGlobalFilter] = useState('');
   const [columnSearch, setColumnSearch] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
@@ -338,7 +339,7 @@ export default function TasksDataTable({
       columnOrder,
       columnPinning,
       rowSelection,
-      globalFilter,
+      globalFilter: search,
       pagination,
     },
     onSortingChange: setSorting,
@@ -347,7 +348,6 @@ export default function TasksDataTable({
     onColumnOrderChange: setColumnOrder,
     onColumnPinningChange: setColumnPinning,
     onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
     enableMultiSort: true,
     getCoreRowModel: getCoreRowModel(),
@@ -599,12 +599,6 @@ export default function TasksDataTable({
           </div>
         ) : (
           <div className="flex items-center gap-2 p-2 border-b">
-            <Input
-              placeholder={t('placeholders.search')}
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="w-48"
-            />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm">

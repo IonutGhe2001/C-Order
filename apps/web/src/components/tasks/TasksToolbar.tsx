@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useIsFetching } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -32,6 +33,8 @@ interface TasksToolbarProps {
   onDelete: (ids: string[]) => void;
   onCreate: () => void;
   onOpenFilters: () => void;
+  search: string;
+  onSearchChange: (value: string) => void;
 }
 
 export function TasksToolbarSkeleton() {
@@ -39,6 +42,7 @@ export function TasksToolbarSkeleton() {
     <div className="flex items-center justify-between">
       <Skeleton className="h-8 w-32" />
       <div className="flex items-center gap-2">
+        <Skeleton className="h-8 w-48" />
         <Skeleton className="h-8 w-32" />
         <Skeleton className="h-8 w-20" />
         <Skeleton className="h-8 w-28" />
@@ -54,10 +58,22 @@ export default function TasksToolbar({
   onDelete,
   onCreate,
   onOpenFilters,
+  search,
+  onSearchChange,
 }: TasksToolbarProps) {
   const [filter, setFilter] = quickFilter;
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
   const { t } = useTranslation();
+  const [searchTerm, setSearchTerm] = React.useState(search);
+
+  React.useEffect(() => {
+    setSearchTerm(search);
+  }, [search]);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => onSearchChange(searchTerm), 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm, onSearchChange]);
 
   if (isLoading) {
     return <TasksToolbarSkeleton />;
@@ -113,6 +129,12 @@ export default function TasksToolbar({
             </AlertDialog>
           </>
         )}
+        <Input
+          placeholder="Search tasks…"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="h-8 w-48"
+        />
         <Select
           value={filter || "all"}
           onValueChange={(v) =>

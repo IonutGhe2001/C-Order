@@ -14,6 +14,7 @@ export default function TasksHub() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<"" | "overdue" | "today" | "noAssignee">("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
@@ -56,10 +57,13 @@ export default function TasksHub() {
             onDelete={(ids) => deleteMut.mutate(ids)}
             onCreate={() => setCreateOpen(true)}
             onOpenFilters={() => setFiltersOpen(true)}
+            search={search}
+            onSearchChange={setSearch}
           />
           <TasksDataTable
             quickFilter={quickFilter}
             filters={filters}
+            search={search}
             onSelectionChange={setSelected}
           />
         </Suspense>
