@@ -15,7 +15,6 @@ import { Popover, PopoverTrigger, PopoverContent } from '../components/ui/popove
 import { cn } from '@/lib/utils';
 import Breadcrumb from '../components/Breadcrumb';
 import RichEditor from '../components/tasks/RichEditor';
-import Stepper from '../components/ui/Stepper';
 import AssigneeSection from '../components/tasks/AssigneeSection';
 import SupplierSection from '../components/tasks/SupplierSection';
 import OrderDetailsSection from '../components/tasks/OrderDetailsSection';
@@ -332,71 +331,51 @@ export default function TaskDetail() {
   }
 
   const AuxiliaryFields = () => (
-    <Stepper
-      steps={[t('labels.assignees'), t('labels.supplier'), t('labels.orderDetails')]}
-    >
-      {({ step, next, back, isLast }) => (
-        <div className="space-y-4">
-          {step === 0 && (
-            <AssigneeSection
-              users={usersQuery.data?.items || []}
-              value={assignees}
-              loading={usersQuery.isLoading}
-              error={!!usersQuery.isError}
-              label={t('labels.assignees')}
-              errorMessage={t('messages.usersLoadFailed')}
-              onChange={(vals: string[]) => {
-                setAssignees(vals);
-                save({ assignees: vals });
-              }}
-              mutation={update}
-            />
-            )}
-          {step === 1 && (
-            <SupplierSection
-              value={supplier}
-              label={t('labels.supplier')}
-              onChange={(val) => {
-                setSupplier(val);
-                save({ supplier: val || null });
-              }}
-              mutation={update}
-            />
-          )}
-          {step === 2 && (
-            <OrderDetailsSection
-              orderDate={orderDate}
-              orderReceivedDate={orderReceivedDate}
-              orderNumber={orderNumber}
-              authority={authority}
-              orderType={orderType}
-              productsReceivedDate={productsReceivedDate}
-              earlyDelivery={earlyDelivery}
-              deliveryDate={deliveryDate}
-              orderTypes={orderTypeOptions}
-              setOrderDate={setOrderDate}
-              setOrderReceivedDate={setOrderReceivedDate}
-              setOrderNumber={setOrderNumber}
-              setAuthority={setAuthority}
-              setOrderType={setOrderType}
-              setProductsReceivedDate={setProductsReceivedDate}
-              setEarlyDelivery={setEarlyDelivery}
-              setDeliveryDate={setDeliveryDate}
-              save={save}
-              mutation={update}
-            />
-          )}
-          <div className="flex justify-between pt-2">
-            <Button variant="outline" onClick={back} disabled={step === 0}>
-              {t('buttons.back')}
-            </Button>
-            {!isLast && (
-              <Button onClick={next}>{t('buttons.continue')}</Button>
-            )}
-          </div>
-        </div>
-      )}
-    </Stepper>
+    <div className="space-y-4">
+      <AssigneeSection
+        users={usersQuery.data?.items || []}
+        value={assignees}
+        loading={usersQuery.isLoading}
+        error={!!usersQuery.isError}
+        label={t('labels.assignees')}
+        errorMessage={t('messages.usersLoadFailed')}
+        onChange={(vals: string[]) => {
+          setAssignees(vals);
+          save({ assignees: vals });
+        }}
+        mutation={update}
+      />
+      <SupplierSection
+        value={supplier}
+        label={t('labels.supplier')}
+        onChange={(val) => {
+          setSupplier(val);
+          save({ supplier: val || null });
+        }}
+        mutation={update}
+      />
+      <OrderDetailsSection
+        orderDate={orderDate}
+        orderReceivedDate={orderReceivedDate}
+        orderNumber={orderNumber}
+        authority={authority}
+        orderType={orderType}
+        productsReceivedDate={productsReceivedDate}
+        earlyDelivery={earlyDelivery}
+        deliveryDate={deliveryDate}
+        orderTypes={orderTypeOptions}
+        setOrderDate={setOrderDate}
+        setOrderReceivedDate={setOrderReceivedDate}
+        setOrderNumber={setOrderNumber}
+        setAuthority={setAuthority}
+        setOrderType={setOrderType}
+        setProductsReceivedDate={setProductsReceivedDate}
+        setEarlyDelivery={setEarlyDelivery}
+        setDeliveryDate={setDeliveryDate}
+        save={save}
+        mutation={update}
+      />
+    </div>
   );
 
   return (
