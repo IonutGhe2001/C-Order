@@ -26,14 +26,7 @@ import TaskNav from '../components/tasks/task-nav';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
-import { SidePanel } from '../components/ui/side-panel';
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '../components/ui/sheet';
+import { ResponsivePanel } from '../components/ui/responsive-panel';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -513,20 +506,6 @@ export default function TaskDetail() {
           </div>
 
         </div>
-        <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="secondary" className="w-full">{t('labels.general')}</Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>{t('labels.general')}</SheetTitle>
-                </SheetHeader>
-                <AuxiliaryFields />
-              </SheetContent>
-            </Sheet>
-          </div>
-
         <div className="grid gap-4 md:grid-cols-[1fr_280px]">
             <div className="space-y-4">
               <div>
@@ -535,11 +514,13 @@ export default function TaskDetail() {
                 <SaveIndicator mutation={update} />
               </div>
             </div>
-          <div className="hidden md:block">
-              <SidePanel>
-                <AuxiliaryFields />
-              </SidePanel>
-            </div>
+          <ResponsivePanel
+            className="order-first md:order-none"
+            title={t('labels.general')}
+            trigger={<Button variant="secondary" className="w-full">{t('labels.general')}</Button>}
+          >
+            <AuxiliaryFields />
+          </ResponsivePanel>
           </div>
         </section>
 
