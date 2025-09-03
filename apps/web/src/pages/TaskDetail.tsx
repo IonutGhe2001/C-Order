@@ -6,7 +6,7 @@ import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Skeleton } from '../components/ui/skeleton';
-import FAB from '../components/ui/fab';
+import BottomActionBar from '../components/ui/bottom-action-bar';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon, type IconName } from '../lib/lucide-icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -631,20 +631,32 @@ export default function TaskDetail() {
         </MotionDiv>
       </section>
     </MotionDiv>
-    <div className="md:hidden sticky bottom-4 flex justify-end p-4">
-      <FAB
-        onComment={() => {
-          setActiveTab('comments')
-          document.getElementById('activity')?.scrollIntoView({ behavior: 'smooth' })
-          setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100)
-        }}
-        onAttachment={() => {
-          document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' })
-          setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
-        }}
-        onEmail={() => setEmailOpen(true)}
+    <BottomActionBar
+        actions={[
+          {
+            icon: 'message-circle',
+            label: 'Comentariu',
+            onClick: () => {
+              setActiveTab('comments')
+              document.getElementById('activity')?.scrollIntoView({ behavior: 'smooth' })
+              setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100)
+            },
+          },
+          {
+            icon: 'paperclip',
+            label: 'Atașament',
+            onClick: () => {
+              document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' })
+              setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
+            },
+          },
+          {
+            icon: 'mail',
+            label: 'Email',
+            onClick: () => setEmailOpen(true),
+          },
+        ]}
       />
-    </div>
     </main>
     
       <EmailDrawer
