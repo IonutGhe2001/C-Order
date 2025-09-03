@@ -10,6 +10,8 @@ import FAB from '../components/ui/fab';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon, type IconName } from '../lib/lucide-icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Badge, type BadgeProps } from '../components/ui/badge';
+import { Popover, PopoverTrigger, PopoverContent } from '../components/ui/popover';
 import { cn } from '@/lib/utils';
 import Breadcrumb from '../components/Breadcrumb';
 import RichEditor from '../components/tasks/RichEditor';
@@ -95,6 +97,22 @@ const priorityColorClasses: Record<string, string> = {
   HIGH: 'text-danger',
 };
 
+const statusBadgeVariants: Record<string, BadgeProps['variant']> = {
+  OPEN: 'info',
+  IN_PROGRESS: 'warning',
+  BLOCKED: 'danger',
+  DONE: 'success',
+  LIVRAT_PARTIAL: 'warning',
+  FINALIZAT: 'success',
+  CANCELLED: 'danger',
+};
+
+const priorityBadgeVariants: Record<string, BadgeProps['variant']> = {
+  LOW: 'success',
+  MEDIUM: 'warning',
+  HIGH: 'danger',
+};
+
 const orderTypeOptions = [
   { value: 'Achizitie Directa', label: 'Achizitie Directa' },
   { value: 'Acord Cadru', label: 'Acord Cadru' },
@@ -165,6 +183,8 @@ export default function TaskDetail() {
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState('');
   const [priority, setPriority] = useState('');
+  const [statusPopoverOpen, setStatusPopoverOpen] = useState(false);
+  const [priorityPopoverOpen, setPriorityPopoverOpen] = useState(false);
   const [dueDate, setDueDate] = useState('');
   const [desc, setDesc] = useState('');
   const [assignees, setAssignees] = useState<string[]>([]);
@@ -412,44 +432,73 @@ export default function TaskDetail() {
                 <SaveIndicator mutation={update} />
               </div>
               <div className="flex items-center gap-2">
-                <Select value={status} onValueChange={changeStatus}>
-                  <SelectTrigger className={cn('w-[12rem]', statusColorClasses[status])}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map(s => (
-                      <SelectItem key={s} value={s}>
-                        <div className="flex items-center gap-2">
-                          <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
-                          <span>{t(labels[s])}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Badge
+                      variant={statusBadgeVariants[status]}
+                      className="cursor-pointer flex items-center gap-1"
+                    >
+                      <Icon name={statusIcons[status]} className="h-4 w-4" />
+                      <span>{t(labels[status])}</span>
+                    </Badge>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0">
+                    <ul className="flex flex-col">
+                      {statuses.map(s => (
+                        <li key={s}>
+                          <button
+                            className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
+                            onClick={() => {
+                              changeStatus(s);
+                              setStatusPopoverOpen(false);
+                            }}
+                          >
+                            <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
+                            <span>{t(labels[s])}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="flex items-center">
-                <Select
-                  value={priority || ''}
-                  onValueChange={(val: string) => {
-                    setPriority(val);
-                    save({ priority: val || undefined });
-                  }}
-                >
-                  <SelectTrigger className={cn('w-[10rem]', priority ? priorityColorClasses[priority] : undefined)}>
-                    <SelectValue placeholder={t('labels.priority')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {priorities.map(p => (
-                      <SelectItem key={p} value={p}>
-                        <div className="flex items-center gap-2">
-                          <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
-                          <span>{t(priorityLabels[p])}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={priorityPopoverOpen} onOpenChange={setPriorityPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Badge
+                      variant={priority ? priorityBadgeVariants[priority] : 'info'}
+                      className="cursor-pointer flex items-center gap-1"
+                    >
+                      {priority ? (
+                        <>
+                          <Icon name={priorityIcons[priority]} className="h-4 w-4" />
+                          <span>{t(priorityLabels[priority])}</span>
+                        </>
+                      ) : (
+                        <span>{t('labels.priority')}</span>
+                      )}
+                    </Badge>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0">
+                    <ul className="flex flex-col">
+                      {priorities.map(p => (
+                        <li key={p}>
+                          <button
+                            className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
+                            onClick={() => {
+                              setPriority(p);
+                              save({ priority: p || undefined });
+                              setPriorityPopoverOpen(false);
+                            }}
+                          >
+                            <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
+                            <span>{t(priorityLabels[p])}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </PopoverContent>
+                </Popover>
                 <SaveIndicator mutation={update} />
               </div>
               <div className="flex items-center">
