@@ -5,11 +5,11 @@ import { useState, useEffect, useRef } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Icon } from '../lib/lucide-icon';
-import { getStatusColor } from '../lib/status-colors';
+import { Icon, type IconName } from '../lib/lucide-icon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { cn } from '@/lib/utils';
 import Breadcrumb from '../components/Breadcrumb';
 import RichEditor from '../components/tasks/RichEditor';
 import AssigneeChips from '../components/tasks/AssigneeChips';
@@ -48,6 +48,38 @@ const priorityLabels: Record<string, string> = {
   LOW: 'priority.LOW',
   MEDIUM: 'priority.MEDIUM',
   HIGH: 'priority.HIGH',
+};
+
+const statusColorClasses: Record<string, string> = {
+  OPEN: 'text-info',
+  IN_PROGRESS: 'text-warning',
+  BLOCKED: 'text-danger',
+  DONE: 'text-success',
+  LIVRAT_PARTIAL: 'text-warning',
+  FINALIZAT: 'text-success',
+  CANCELLED: 'text-danger',
+};
+
+const statusIcons: Record<string, IconName> = {
+  OPEN: 'circle',
+  IN_PROGRESS: 'loader-2',
+  BLOCKED: 'ban',
+  DONE: 'check-circle',
+  LIVRAT_PARTIAL: 'circle-dot',
+  FINALIZAT: 'check-circle',
+  CANCELLED: 'x-circle',
+};
+
+const priorityIcons: Record<string, IconName> = {
+  LOW: 'arrow-down',
+  MEDIUM: 'arrow-right',
+  HIGH: 'arrow-up',
+};
+
+const priorityColorClasses: Record<string, string> = {
+  LOW: 'text-success',
+  MEDIUM: 'text-warning',
+  HIGH: 'text-danger',
 };
 
 const orderTypeOptions = [
@@ -297,20 +329,45 @@ export default function TaskDetail() {
               <SaveIndicator mutation={update} />
             </div>
             <div className="flex items-center gap-2">
-              <select value={status} onChange={e => changeStatus(e.target.value)} className="border p-1 rounded">
-                {statuses.map(s => (
-                  <option key={s} value={s}>{t(labels[s])}</option>
-                ))}
-              </select>
-              <Badge variant={getStatusColor(status)}>{t(labels[status])}</Badge>
+              <Select value={status} onValueChange={changeStatus}>
+                <SelectTrigger className={cn('w-[12rem]', statusColorClasses[status])}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statuses.map(s => (
+                    <SelectItem key={s} value={s}>
+                      <div className="flex items-center gap-2">
+                        <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
+                        <span>{t(labels[s])}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center">
-              <select value={priority} onChange={e => { setPriority(e.target.value); save({ priority: e.target.value || undefined }); }} className="border p-1 rounded">
-                <option value="">{t('labels.priority')}</option>
-                {priorities.map(p => (
-                  <option key={p} value={p}>{t(priorityLabels[p])}</option>
-                ))}
-              </select>
+              <Select
+                value={priority || ''}
+                onValueChange={(val) => {
+                  setPriority(val);
+                  save({ priority: val || undefined });
+                }}
+              >
+                <SelectTrigger className={cn('w-[10rem]', priority ? priorityColorClasses[priority] : undefined)}>
+                  <SelectValue placeholder={t('labels.priority')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('labels.priority')}</SelectItem>
+                  {priorities.map(p => (
+                    <SelectItem key={p} value={p}>
+                      <div className="flex items-center gap-2">
+                        <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
+                        <span>{t(priorityLabels[p])}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <SaveIndicator mutation={update} />
             </div>
             <div className="flex items-center">
