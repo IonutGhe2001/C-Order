@@ -45,7 +45,10 @@ export interface TaskPayload {
 
 export interface TaskFilters {
   q?: string;
-  status?: string;
+  status?: string | string[];
+  assignees?: string | string[];
+  from?: string;
+  to?: string;
   orderDate?: string;
   authority?: string;
 }
@@ -67,7 +70,13 @@ export async function login(email: string, password: string) {
 
 export async function listTasks(params: TaskFilters = {}) {
   const qs = new URLSearchParams(
-    Object.entries(params).filter(([, v]) => v != null && v !== '') as any,
+    Object.entries(params)
+      .filter(([, v]) =>
+        Array.isArray(v) ? v.length > 0 : v != null && v !== '',
+      )
+      .flatMap(([k, v]) =>
+        Array.isArray(v) ? [[k, v.join(',')]] : [[k, v as string]],
+      ) as any,
   ).toString();
   const r = await fetchWithAuth(`${base}/tasks?${qs}`);
   if (r.status === 401) throw new Error('Unauthorized');

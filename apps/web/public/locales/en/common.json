@@ -89,7 +89,8 @@
     "newSupplier": "New supplier",
     "previous": "Previous",
     "next": "Next",
-    "filters": "Filters"
+    "filters": "Filters",
+    "clearFilters": "Clear filters"
   },
   "placeholders": {
     "search": "Search...",

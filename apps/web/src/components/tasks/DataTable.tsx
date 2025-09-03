@@ -17,7 +17,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listTasks, listUsers, updateTask, TaskPayload, getTask, deleteTask } from '@/lib/api';
+import { listTasks, listUsers, updateTask, TaskPayload, getTask, deleteTask, TaskFilters } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -147,9 +147,11 @@ function Filter({ column }: { column: any }) {
 
 export default function TasksDataTable({
   quickFilter = '',
+  filters = {},
   onSelectionChange,
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
+  filters?: TaskFilters;
   onSelectionChange?: (ids: string[]) => void;
 }) {
   const navigate = useNavigate();
@@ -158,8 +160,8 @@ export default function TasksDataTable({
   const { t } = useTranslation();
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => listTasks(),
+    queryKey: ['tasks', filters],
+    queryFn: () => listTasks(filters),
   });
 
   const [sorting, setSorting] = useState<SortingState>([]);

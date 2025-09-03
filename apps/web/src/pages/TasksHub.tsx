@@ -6,7 +6,7 @@ import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksToolbar from "../components/tasks/TasksToolbar";
 import FiltersDrawer from "../components/tasks/FiltersDrawer";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
-import { deleteTask, archiveTask } from "../lib/api";
+import { deleteTask, archiveTask, TaskFilters } from "../lib/api";
 
 const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 
@@ -16,6 +16,12 @@ export default function TasksHub() {
   const [selected, setSelected] = useState<string[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<TaskFilters>({
+    status: [],
+    assignees: [],
+    from: undefined,
+    to: undefined,
+  });
   const qc = useQueryClient();
 
   const deleteMut = useMutation({
@@ -53,6 +59,7 @@ export default function TasksHub() {
           />
           <TasksDataTable
             quickFilter={quickFilter}
+            filters={filters}
             onSelectionChange={setSelected}
           />
         </Suspense>
@@ -61,7 +68,12 @@ export default function TasksHub() {
           onOpenChange={setCreateOpen}
           showTrigger={false}
         />
-        <FiltersDrawer open={filtersOpen} onOpenChange={setFiltersOpen} />
+        <FiltersDrawer
+          open={filtersOpen}
+          onOpenChange={setFiltersOpen}
+          filters={filters}
+          onChange={setFilters}
+        />
       </main>
     </>
   );

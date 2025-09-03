@@ -89,7 +89,8 @@
     "newSupplier": "Furnizor nou",
     "previous": "Anterior",
     "next": "Următor",
-    "filters": "Filtre"
+    "filters": "Filtre",
+    "clearFilters": "Șterge filtrele"
   },
   "placeholders": {
     "search": "Caută...",
