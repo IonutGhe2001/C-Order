@@ -1,9 +1,11 @@
+import { base } from './api';
+
 let userId: string | null = null;
 const startTime = performance.now();
 
 function sendLog(type: string, data: Record<string, any>) {
   const payload = { type, userId, timestamp: Date.now(), ...data };
-  fetch('/api/logs', {
+  fetch(`${base}/logs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

@@ -179,7 +179,8 @@ export async function listUsers() {
 }
 
 export async function listSuppliers(q: string = '') {
-  const r = await fetchWithAuth(`${base}/suppliers?q=${encodeURIComponent(q)}`);
+  const url = q ? `${base}/suppliers?q=${encodeURIComponent(q)}` : `${base}/suppliers`;
+  const r = await fetchWithAuth(url);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }

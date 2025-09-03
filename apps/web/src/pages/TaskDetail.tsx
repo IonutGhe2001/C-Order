@@ -445,7 +445,6 @@ export default function TaskDetail() {
                     <SelectValue placeholder={t('labels.priority')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{t('labels.priority')}</SelectItem>
                     {priorities.map(p => (
                       <SelectItem key={p} value={p}>
                         <div className="flex items-center gap-2">

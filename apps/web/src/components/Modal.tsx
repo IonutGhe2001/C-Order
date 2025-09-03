@@ -28,7 +28,9 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent>
         <div className="flex items-center justify-between mb-4">
-          {title && <DialogTitle>{title}</DialogTitle>}
+          <DialogTitle className={title ? undefined : 'sr-only'}>
+            {title ?? 'Modal'}
+          </DialogTitle>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Command } from 'cmdk';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { listTasks, listUsers, listSuppliers, getTask } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 
@@ -53,6 +53,7 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 overflow-hidden">
+        <DialogTitle className="sr-only">{t('titles.commandPalette')}</DialogTitle>
         <Command label={t('titles.commandPalette')} loop>
           <Command.Input
             autoFocus
