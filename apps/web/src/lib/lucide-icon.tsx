@@ -9,10 +9,13 @@ interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'ref'> {
 }
 
 export function Icon({ name, ...props }: IconProps) {
-  const Lucide = useMemo(() => lazy(dynamicIconImports[name]), [name]);
+  const importFn = dynamicIconImports[name]
+  const Lucide = useMemo(() => (importFn ? lazy(importFn) : null), [importFn])
+
+  if (!Lucide) return null
   return (
     <Suspense fallback={null}>
       <Lucide {...props} />
     </Suspense>
-  );
+  )
 }
