@@ -42,6 +42,7 @@
     "authority": "Authority",
     "productsReceivedDate": "Products received date",
     "earlyDelivery": "Early delivery",
+    "orderDetails": "Order details",
     "comments": "Comments",
     "all": "All",
     "columns": "Columns",

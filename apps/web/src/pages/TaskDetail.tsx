@@ -13,8 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { cn } from '@/lib/utils';
 import Breadcrumb from '../components/Breadcrumb';
 import RichEditor from '../components/tasks/RichEditor';
-import AssigneeChips from '../components/tasks/AssigneeChips';
-import OrderDeliveryPanel from '../components/tasks/OrderDeliveryPanel';
+import Stepper from '../components/ui/Stepper';
+import AssigneeSection from '../components/tasks/AssigneeSection';
+import SupplierSection from '../components/tasks/SupplierSection';
+import OrderDetailsSection from '../components/tasks/OrderDetailsSection';
 import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
 import CommentsPanel from '../components/tasks/CommentsPanel';
 import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
@@ -281,78 +283,71 @@ export default function TaskDetail() {
   }
 
   const AuxiliaryFields = () => (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium">{t('labels.assignees')}</label>
-        {usersQuery.isLoading ? (
-          <Skeleton className="h-10 w-full mt-1" />
-        ) : usersQuery.isError ? (
-          <div className="mt-1 text-red-600 text-sm">{t('messages.usersLoadFailed')}</div>
-        ) : (
-          <>
-            <AssigneeChips
+    <Stepper
+      steps={[t('labels.assignees'), t('labels.supplier'), t('labels.orderDetails')]}
+    >
+      {({ step, next, back, isLast }) => (
+        <div className="space-y-4">
+          {step === 0 && (
+            <AssigneeSection
               users={usersQuery.data?.items || []}
               value={assignees}
+              loading={usersQuery.isLoading}
+              error={!!usersQuery.isError}
+              label={t('labels.assignees')}
+              errorMessage={t('messages.usersLoadFailed')}
               onChange={(vals) => {
                 setAssignees(vals);
                 save({ assignees: vals });
               }}
+              mutation={update}
             />
-            <SaveIndicator mutation={update} />
-          </>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium">{t('labels.supplier')}</label>
-        <Input
-          className="mt-1 w-full"
-          value={supplier}
-          onChange={(e) => {
-            setSupplier(e.target.value);
-            save({ supplier: e.target.value || null });
-          }}
-        />
-        <SaveIndicator mutation={update} />
-      </div>
-      <div>
-        <OrderDeliveryPanel
-          orderDate={orderDate}
-          orderReceivedDate={orderReceivedDate}
-          orderNumber={orderNumber}
-          authority={authority}
-          orderType={orderType}
-          productsReceivedDate={productsReceivedDate}
-          earlyDelivery={earlyDelivery}
-          deliveryDate={deliveryDate}
-          orderTypes={orderTypeOptions}
-          onChange={(d) => {
-            if (d.orderDate !== undefined) setOrderDate(d.orderDate);
-            if (d.orderReceivedDate !== undefined) setOrderReceivedDate(d.orderReceivedDate);
-            if (d.orderNumber !== undefined) setOrderNumber(d.orderNumber);
-            if (d.authority !== undefined) setAuthority(d.authority);
-            if (d.orderType !== undefined) setOrderType(d.orderType);
-            if (d.productsReceivedDate !== undefined) setProductsReceivedDate(d.productsReceivedDate);
-            if (d.earlyDelivery !== undefined) setEarlyDelivery(d.earlyDelivery);
-            if (d.deliveryDate !== undefined) setDeliveryDate(d.deliveryDate);
-            const payload: any = {};
-            if (d.orderDate !== undefined) payload.orderDate = d.orderDate ? new Date(d.orderDate).toISOString() : null;
-            if (d.orderReceivedDate !== undefined)
-              payload.orderReceivedDate = d.orderReceivedDate ? new Date(d.orderReceivedDate).toISOString() : null;
-            if (d.orderNumber !== undefined) payload.orderNumber = d.orderNumber || null;
-            if (d.authority !== undefined) payload.authority = d.authority || null;
-            if (d.orderType !== undefined) payload.orderType = d.orderType || null;
-            if (d.productsReceivedDate !== undefined)
-              payload.productsReceivedDate = d.productsReceivedDate
-                ? new Date(d.productsReceivedDate).toISOString()
-                : null;
-            if (d.deliveryDate !== undefined)
-              payload.deliveryDate = d.deliveryDate ? new Date(d.deliveryDate).toISOString() : null;
-            if (Object.keys(payload).length) save(payload);
-          }}
-        />
-        <SaveIndicator mutation={update} />
-      </div>
-    </div>
+            )}
+          {step === 1 && (
+            <SupplierSection
+              value={supplier}
+              label={t('labels.supplier')}
+              onChange={(val) => {
+                setSupplier(val);
+                save({ supplier: val || null });
+              }}
+              mutation={update}
+            />
+          )}
+          {step === 2 && (
+            <OrderDetailsSection
+              orderDate={orderDate}
+              orderReceivedDate={orderReceivedDate}
+              orderNumber={orderNumber}
+              authority={authority}
+              orderType={orderType}
+              productsReceivedDate={productsReceivedDate}
+              earlyDelivery={earlyDelivery}
+              deliveryDate={deliveryDate}
+              orderTypes={orderTypeOptions}
+              setOrderDate={setOrderDate}
+              setOrderReceivedDate={setOrderReceivedDate}
+              setOrderNumber={setOrderNumber}
+              setAuthority={setAuthority}
+              setOrderType={setOrderType}
+              setProductsReceivedDate={setProductsReceivedDate}
+              setEarlyDelivery={setEarlyDelivery}
+              setDeliveryDate={setDeliveryDate}
+              save={save}
+              mutation={update}
+            />
+          )}
+          <div className="flex justify-between pt-2">
+            <Button variant="outline" onClick={back} disabled={step === 0}>
+              {t('buttons.back')}
+            </Button>
+            {!isLast && (
+              <Button onClick={next}>{t('buttons.continue')}</Button>
+            )}
+          </div>
+        </div>
+      )}
+    </Stepper>
   );
 
   return (
