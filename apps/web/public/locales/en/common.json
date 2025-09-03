@@ -88,7 +88,8 @@
     "newTask": "New task",
     "newSupplier": "New supplier",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "filters": "Filters"
   },
   "placeholders": {
     "search": "Search...",

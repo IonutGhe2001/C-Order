@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksToolbar from "../components/tasks/TasksToolbar";
+import FiltersDrawer from "../components/tasks/FiltersDrawer";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import { deleteTask, archiveTask } from "../lib/api";
 
@@ -14,6 +15,7 @@ export default function TasksHub() {
   const [quickFilter, setQuickFilter] = useState<"" | "overdue" | "today" | "noAssignee">("");
   const [selected, setSelected] = useState<string[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const qc = useQueryClient();
 
   const deleteMut = useMutation({
@@ -47,6 +49,7 @@ export default function TasksHub() {
             onArchive={(ids) => archiveMut.mutate(ids)}
             onDelete={(ids) => deleteMut.mutate(ids)}
             onCreate={() => setCreateOpen(true)}
+            onOpenFilters={() => setFiltersOpen(true)}
           />
           <TasksDataTable
             quickFilter={quickFilter}
@@ -58,6 +61,7 @@ export default function TasksHub() {
           onOpenChange={setCreateOpen}
           showTrigger={false}
         />
+        <FiltersDrawer open={filtersOpen} onOpenChange={setFiltersOpen} />
       </main>
     </>
   );

@@ -4,6 +4,14 @@ import { useIsFetching } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Filter } from "lucide-react";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,6 +31,7 @@ interface TasksToolbarProps {
   onArchive: (ids: string[]) => void;
   onDelete: (ids: string[]) => void;
   onCreate: () => void;
+  onOpenFilters: () => void;
 }
 
 export function TasksToolbarSkeleton() {
@@ -30,10 +39,9 @@ export function TasksToolbarSkeleton() {
     <div className="flex items-center justify-between">
       <Skeleton className="h-8 w-32" />
       <div className="flex items-center gap-2">
-        <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-8 w-32" />
         <Skeleton className="h-8 w-20" />
         <Skeleton className="h-8 w-28" />
-        <Skeleton className="h-8 w-8 rounded-full" />
       </div>
     </div>
   );
@@ -45,6 +53,7 @@ export default function TasksToolbar({
   onArchive,
   onDelete,
   onCreate,
+  onOpenFilters,
 }: TasksToolbarProps) {
   const [filter, setFilter] = quickFilter;
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
@@ -104,28 +113,27 @@ export default function TasksToolbar({
             </AlertDialog>
           </>
         )}
-        <Button
-          size="sm"
-          variant={filter === "overdue" ? "default" : "outline"}
-          onClick={() => setFilter((f) => (f === "overdue" ? "" : "overdue"))}
-        >
-          {t("filters.overdue")}
-        </Button>
-        <Button
-          size="sm"
-          variant={filter === "today" ? "default" : "outline"}
-          onClick={() => setFilter((f) => (f === "today" ? "" : "today"))}
-        >
-          {t("filters.today")}
-        </Button>
-        <Button
-          size="sm"
-          variant={filter === "noAssignee" ? "default" : "outline"}
-          onClick={() =>
-            setFilter((f) => (f === "noAssignee" ? "" : "noAssignee"))
+        <Select
+          value={filter || "all"}
+          onValueChange={(v) =>
+            setFilter(v === "all" ? "" : (v as QuickFilter))
           }
         >
-          {t("filters.noAssignee")}
+          <SelectTrigger className="h-8 w-[140px] text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("labels.all")}</SelectItem>
+            <SelectItem value="overdue">{t("filters.overdue")}</SelectItem>
+            <SelectItem value="today">{t("filters.today")}</SelectItem>
+            <SelectItem value="noAssignee">
+              {t("filters.noAssignee")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <Button size="sm" variant="outline" onClick={onOpenFilters}>
+          <Filter className="mr-2 h-4 w-4" />
+          {t("buttons.filters")}
         </Button>
         <Button size="sm" onClick={onCreate}>
           {t("buttons.addTask")}
