@@ -18,6 +18,7 @@ import OrderDeliveryPanel from '../components/tasks/OrderDeliveryPanel';
 import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
 import CommentsPanel from '../components/tasks/CommentsPanel';
 import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
+import TaskNav from '../components/tasks/task-nav';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
@@ -178,7 +179,7 @@ export default function TaskDetail() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
-  const [activeTab, setActiveTab] = useState<'files' | 'comments' | 'audit'>('files');
+  const [activeTab, setActiveTab] = useState<'comments' | 'audit'>('comments');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
 
@@ -402,172 +403,175 @@ export default function TaskDetail() {
       className="p-6 space-y-4"
     >
       <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task.title }]} />
-      <div className="flex items-start justify-between flex-wrap gap-2">
-        <div className="flex items-center flex-wrap gap-2 flex-1">
-            <div className="flex items-center">
-              <Input
-                className="text-2xl font-semibold border-b focus:outline-none flex-1"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                onBlur={saveTitle}
-              />
-              <SaveIndicator mutation={update} />
-            </div>
-            <div className="flex items-center gap-2">
-              <Select value={status} onValueChange={changeStatus}>
-                <SelectTrigger className={cn('w-[12rem]', statusColorClasses[status])}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {statuses.map(s => (
-                    <SelectItem key={s} value={s}>
-                      <div className="flex items-center gap-2">
-                        <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
-                        <span>{t(labels[s])}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center">
-              <Select
-                value={priority || ''}
+      <TaskNav />
+      <section id="overview" className="space-y-4">
+        <div className="flex items-start justify-between flex-wrap gap-2">
+          <div className="flex items-center flex-wrap gap-2 flex-1">
+              <div className="flex items-center">
+                <Input
+                  className="text-2xl font-semibold border-b focus:outline-none flex-1"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  onBlur={saveTitle}
+                />
+                <SaveIndicator mutation={update} />
+              </div>
+              <div className="flex items-center gap-2">
+                <Select value={status} onValueChange={changeStatus}>
+                  <SelectTrigger className={cn('w-[12rem]', statusColorClasses[status])}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map(s => (
+                      <SelectItem key={s} value={s}>
+                        <div className="flex items-center gap-2">
+                          <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
+                          <span>{t(labels[s])}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center">
+                <Select
+                  value={priority || ''}
                   onValueChange={(val: string) => {
                     setPriority(val);
                     save({ priority: val || undefined });
                   }}
-              >
-                <SelectTrigger className={cn('w-[10rem]', priority ? priorityColorClasses[priority] : undefined)}>
-                  <SelectValue placeholder={t('labels.priority')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">{t('labels.priority')}</SelectItem>
-                  {priorities.map(p => (
-                    <SelectItem key={p} value={p}>
-                      <div className="flex items-center gap-2">
-                        <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
-                        <span>{t(priorityLabels[p])}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <SaveIndicator mutation={update} />
-            </div>
-            <div className="flex items-center">
-              <Input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
-              />
-              <SaveIndicator mutation={update} />
-            </div>
-        </div>
+                >
+                  <SelectTrigger className={cn('w-[10rem]', priority ? priorityColorClasses[priority] : undefined)}>
+                    <SelectValue placeholder={t('labels.priority')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">{t('labels.priority')}</SelectItem>
+                    {priorities.map(p => (
+                      <SelectItem key={p} value={p}>
+                        <div className="flex items-center gap-2">
+                          <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
+                          <span>{t(priorityLabels[p])}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <SaveIndicator mutation={update} />
+              </div>
+              <div className="flex items-center">
+                <Input
+                  type="date"
+                  value={dueDate}
+                  onChange={e => setDueDate(e.target.value)}
+                  onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
+                />
+                <SaveIndicator mutation={update} />
+              </div>
+          </div>
 
-      </div>
-      <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="secondary" className="w-full">{t('labels.general')}</Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>{t('labels.general')}</SheetTitle>
-              </SheetHeader>
-              <AuxiliaryFields />
-            </SheetContent>
-          </Sheet>
         </div>
+        <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="secondary" className="w-full">{t('labels.general')}</Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>{t('labels.general')}</SheetTitle>
+                </SheetHeader>
+                <AuxiliaryFields />
+              </SheetContent>
+            </Sheet>
+          </div>
 
         <div className="grid gap-4 md:grid-cols-[1fr_280px]">
-          <div className="space-y-4">
-            <div>
-              <h2 className="font-medium mb-2">{t('labels.description')}</h2>
-              <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
-              <SaveIndicator mutation={update} />
+            <div className="space-y-4">
+              <div>
+                <h2 className="font-medium mb-2">{t('labels.description')}</h2>
+                <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
+                <SaveIndicator mutation={update} />
+              </div>
             </div>
-            <Tabs value={activeTab} onValueChange={(val: string) => setActiveTab(val as 'files' | 'comments' | 'audit')} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="files" className="flex items-center gap-2">
-                  <Icon name="paperclip" className="h-4 w-4" aria-hidden="true" />
-                  {t('labels.files')}
-                </TabsTrigger>
-                <TabsTrigger value="comments" className="flex items-center gap-2">
-                  <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
-                  {t('labels.comments')}
-                </TabsTrigger>
-                <TabsTrigger value="audit" className="flex items-center gap-2">
-                  <Icon name="history" className="h-4 w-4" aria-hidden="true" />
-                  {t('labels.auditLog')}
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="files" className="border rounded p-2 mt-2">
-                <MotionDiv
-                  {...(!shouldReduceMotion && {
-                    initial: { opacity: 0, y: 4 },
-                    animate: { opacity: 1, y: 0 },
-                    transition: { duration: 0.2 },
-                  })}
-                >
-                  <AttachmentsPanel
-                    hideTitle
-                    attachments={task.attachments || []}
-                    onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-                  />
-                </MotionDiv>
-              </TabsContent>
-              <TabsContent value="comments" className="border rounded p-2 mt-2">
-                <MotionDiv
-                  {...(!shouldReduceMotion && {
-                    initial: { opacity: 0, y: 4 },
-                    animate: { opacity: 1, y: 0 },
-                    transition: { duration: 0.2 },
-                  })}
-                >
-                  <CommentsPanel
-                    hideTitle
-                    inputId="add-comment-input"
-                    comments={task.comments || []}
-                    onAdd={(body) => commentMut.mutate(body)}
-                  />
-                </MotionDiv>
-              </TabsContent>
-              <TabsContent value="audit" className="border rounded p-2 mt-2">
-                <MotionDiv
-                  {...(!shouldReduceMotion && {
-                    initial: { opacity: 0, y: 4 },
-                    animate: { opacity: 1, y: 0 },
-                    transition: { duration: 0.2 },
-                  })}
-                >
-                  <ActivityAuditPanel
-                    hideTitle
-                    audit={audit?.items || []}
-                    loading={auditLoading}
-                    error={!!auditError}
-                    onRetry={() => refetchAudit()}
-                  />
-                </MotionDiv>
-              </TabsContent>
-            </Tabs>
+          <div className="hidden md:block">
+              <SidePanel>
+                <AuxiliaryFields />
+              </SidePanel>
+            </div>
           </div>
-        <div className="hidden md:block">
-            <SidePanel>
-              <AuxiliaryFields />
-            </SidePanel>
-          </div>
-        </div>
+        </section>
+
+      <section id="activity" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={(val: string) => setActiveTab(val as 'comments' | 'audit')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="comments" className="flex items-center gap-2">
+              <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
+              {t('labels.comments')}
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <Icon name="history" className="h-4 w-4" aria-hidden="true" />
+              {t('labels.auditLog')}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="comments" className="border rounded p-2 mt-2">
+            <MotionDiv
+              {...(!shouldReduceMotion && {
+                initial: { opacity: 0, y: 4 },
+                animate: { opacity: 1, y: 0 },
+                transition: { duration: 0.2 },
+              })}
+            >
+              <CommentsPanel
+                hideTitle
+                inputId="add-comment-input"
+                comments={task.comments || []}
+                onAdd={(body) => commentMut.mutate(body)}
+              />
+            </MotionDiv>
+          </TabsContent>
+          <TabsContent value="audit" className="border rounded p-2 mt-2">
+            <MotionDiv
+              {...(!shouldReduceMotion && {
+                initial: { opacity: 0, y: 4 },
+                animate: { opacity: 1, y: 0 },
+                transition: { duration: 0.2 },
+              })}
+            >
+              <ActivityAuditPanel
+                hideTitle
+                audit={audit?.items || []}
+                loading={auditLoading}
+                error={!!auditError}
+                onRetry={() => refetchAudit()}
+              />
+            </MotionDiv>
+          </TabsContent>
+        </Tabs>
+      </section>
+
+      <section id="attachments" className="space-y-4">
+        <MotionDiv
+          {...(!shouldReduceMotion && {
+            initial: { opacity: 0, y: 4 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.2 },
+          })}
+        >
+          <AttachmentsPanel
+            attachments={task.attachments || []}
+            onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+          />
+        </MotionDiv>
+      </section>
     </MotionDiv>
     <div className="md:hidden sticky bottom-4 flex justify-end p-4">
       <FAB
         onComment={() => {
           setActiveTab('comments')
-          document.getElementById('add-comment-input')?.focus()
+          document.getElementById('activity')?.scrollIntoView({ behavior: 'smooth' })
+          setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100)
         }}
         onAttachment={() => {
-          setActiveTab('files')
+          document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' })
           setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
         }}
         onEmail={() => setEmailOpen(true)}
