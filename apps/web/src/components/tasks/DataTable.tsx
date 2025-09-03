@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import TaskCard from './TaskCard';
 import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
@@ -136,13 +137,40 @@ export default function TasksDataTable({
   });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState('');
-  const [showColumns, setShowColumns] = useState(false);
+  const [columnSearch, setColumnSearch] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [density, setDensity] = useState<'default' | 'compact'>(() =>
     document.body.dataset.density === 'compact' ? 'compact' : 'default',
   );
+
+  useEffect(() => {
+    const savedVisibility = localStorage.getItem('tasksTableColumnVisibility');
+    const savedOrder = localStorage.getItem('tasksTableColumnOrder');
+    if (savedVisibility) {
+      try {
+        setColumnVisibility(JSON.parse(savedVisibility));
+      } catch {
+        /* ignore */
+      }
+    }
+    if (savedOrder) {
+      try {
+        setColumnOrder(JSON.parse(savedOrder));
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('tasksTableColumnVisibility', JSON.stringify(columnVisibility));
+  }, [columnVisibility]);
+
+  useEffect(() => {
+    localStorage.setItem('tasksTableColumnOrder', JSON.stringify(columnOrder));
+  }, [columnOrder]);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
@@ -450,11 +478,11 @@ export default function TasksDataTable({
     URL.revokeObjectURL(url);
   };
 
-  const handleDragStart = (e: React.DragEvent<HTMLTableCellElement>, column: any) => {
+  const handleDragStart = (e: React.DragEvent<HTMLElement>, column: any) => {
     e.dataTransfer.setData('text/plain', column.id);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLTableCellElement>, target: any) => {
+  const handleDrop = (e: React.DragEvent<HTMLElement>, target: any) => {
     const draggedId = e.dataTransfer.getData('text/plain');
     if (!draggedId) return;
     const newOrder = [...table.getState().columnOrder];
@@ -553,14 +581,33 @@ export default function TasksDataTable({
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="w-48"
             />
-            <div className="relative">
-              <Button variant="outline" size="sm" onClick={() => setShowColumns((s) => !s)}>
-                {t('labels.columns')}
-              </Button>
-              {showColumns && (
-                <div className="absolute z-10 bg-background border rounded shadow p-2 mt-1">
-                  {table.getAllLeafColumns().map((column) => (
-                    <div key={column.id} className="flex items-center justify-between py-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  {t('labels.columns')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-2">
+                <Input
+                  placeholder={t('placeholders.search')}
+                  value={columnSearch}
+                  onChange={(e) => setColumnSearch(e.target.value)}
+                  className="mb-2 w-full"
+                />
+                {table
+                  .getAllLeafColumns()
+                  .filter((column) =>
+                    column.id.toLowerCase().includes(columnSearch.toLowerCase()),
+                  )
+                  .map((column) => (
+                    <div
+                      key={column.id}
+                      className="flex items-center justify-between py-1"
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, column)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => handleDrop(e, column)}
+                    >
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -571,16 +618,21 @@ export default function TasksDataTable({
                       </label>
                       {column.getCanPin() && (
                         <div className="space-x-1">
-                          <Button size="sm" variant="ghost" onClick={() => column.pin('left')}>L</Button>
-                          <Button size="sm" variant="ghost" onClick={() => column.pin('right')}>R</Button>
-                          <Button size="sm" variant="ghost" onClick={() => column.pin(false)}>U</Button>
+                          <Button size="sm" variant="ghost" onClick={() => column.pin('left')}>
+                            L
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => column.pin('right')}>
+                            R
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => column.pin(false)}>
+                            U
+                          </Button>
                         </div>
                       )}
                     </div>
                   ))}
-                </div>
-              )}
-            </div>
+                </PopoverContent>
+            </Popover>
             <Button
               size="icon"
               variant="outline"
