@@ -30,7 +30,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 import TaskCard from './TaskCard';
 import { Task, createTaskColumns, statusOptions } from './columns';
 import { Icon } from '@/lib/lucide-icon';
@@ -232,22 +237,24 @@ export default function TasksDataTable({
       header: () => '...',
       cell: ({ row }) => (
         <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-brand hover:text-brand/80"
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                  aria-label="More options"
-                >
-                  <Icon name="more-horizontal" className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>More options</TooltipContent>
-          </Tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-brand hover:text-brand/80"
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    aria-label="More options"
+                  >
+                    <Icon name="more-horizontal" className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>More options</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <DropdownMenuContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
             <DropdownMenuItem
               onSelect={() => navigate(`/tasks/${row.original.id}`)}
