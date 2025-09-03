@@ -4,8 +4,8 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksToolbar from "../components/tasks/TasksToolbar";
+import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import { deleteTask, archiveTask } from "../lib/api";
-import PageSkeleton from '../components/PageSkeleton';
 
 const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 
@@ -40,14 +40,14 @@ export default function TasksHub() {
         id="main-content"
         className="mt-14 px-4 sm:px-6 lg:px-8 lg:ml-60 flex flex-col gap-4"
       >
-        <TasksToolbar
-          quickFilter={[quickFilter, setQuickFilter]}
-          selected={selected}
-          onArchive={(ids) => archiveMut.mutate(ids)}
-          onDelete={(ids) => deleteMut.mutate(ids)}
-          onCreate={() => setCreateOpen(true)}
-        />
-        <Suspense fallback={<PageSkeleton />}>
+        <Suspense fallback={<TasksHubSkeleton />}>
+          <TasksToolbar
+            quickFilter={[quickFilter, setQuickFilter]}
+            selected={selected}
+            onArchive={(ids) => archiveMut.mutate(ids)}
+            onDelete={(ids) => deleteMut.mutate(ids)}
+            onCreate={() => setCreateOpen(true)}
+          />
           <TasksDataTable
             quickFilter={quickFilter}
             onSelectionChange={setSelected}

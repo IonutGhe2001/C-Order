@@ -30,6 +30,56 @@ import { useTranslation } from 'react-i18next';
 import CreateTaskSheet from './CreateTaskSheet';
 import { useTimeToAction } from '@/lib/use-tta';
 
+export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolean }) {
+  if (isMobile) {
+    return (
+      <div className="grid gap-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="border rounded-md p-4 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-1/3" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <table className="min-w-full border">
+      <thead className="bg-brand-muted">
+        <tr>
+          <th className="p-2">
+            <Skeleton className="h-4 w-40" />
+          </th>
+          <th className="p-2">
+            <Skeleton className="h-4 w-32" />
+          </th>
+          <th className="p-2">
+            <Skeleton className="h-4 w-20" />
+          </th>
+          <th className="p-2" />
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <tr key={i} className="border-t">
+            <td className="p-2">
+              <Skeleton className="h-4 w-40" />
+            </td>
+            <td className="p-2">
+              <Skeleton className="h-4 w-32" />
+            </td>
+            <td className="p-2">
+              <Skeleton className="h-4 w-20" />
+            </td>
+            <td className="p-2" />
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function Filter({ column }: { column: any }) {
   const columnFilterValue = column.getFilterValue();
   const { t } = useTranslation();
@@ -423,20 +473,7 @@ export default function TasksDataTable({
       : 0;
 
   if (isLoading) {
-    return (
-      <table className="min-w-full border">
-        <tbody>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <tr key={i} className="border-t">
-              <td className="p-2"><Skeleton className="h-4 w-40" /></td>
-              <td className="p-2"><Skeleton className="h-4 w-32" /></td>
-              <td className="p-2"><Skeleton className="h-4 w-20" /></td>
-              <td className="p-2" />
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
+    return <TasksDataTableSkeleton isMobile={isMobile} />;
   }
 
   if (isError) {

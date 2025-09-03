@@ -25,6 +25,20 @@ interface TasksToolbarProps {
   onCreate: () => void;
 }
 
+export function TasksToolbarSkeleton() {
+  return (
+    <div className="flex items-center justify-between">
+      <Skeleton className="h-8 w-32" />
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-8 w-28" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function TasksToolbar({
   quickFilter,
   selected,
@@ -36,93 +50,86 @@ export default function TasksToolbar({
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
   const { t } = useTranslation();
 
+  if (isLoading) {
+    return <TasksToolbarSkeleton />;
+  }
+
   return (
     <div className="flex items-center justify-between">
       <h1 className="text-xl font-semibold">{t("nav.tasks")}</h1>
       <div className="flex items-center gap-2">
-        {isLoading ? (
+        {selected.length > 0 && (
           <>
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-8 w-28" />
-            <Skeleton className="h-8 w-8 rounded-full" />
-          </>
-        ) : (
-          <>
-            {selected.length > 0 && (
-              <>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="outline">
-                      {t("buttons.archive")}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{t("dialogs.archiveSelected")}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("messages.confirmAction")}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>{t("buttons.cancel")}</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onArchive(selected)}>
-                        {t("buttons.archive")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="destructive">
-                      {t("buttons.delete")}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{t("dialogs.deleteSelected")}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("messages.confirmAction")}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>{t("buttons.cancel")}</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDelete(selected)}>
-                        {t("buttons.delete")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </>
-            )}
-            <Button
-              size="sm"
-              variant={filter === "overdue" ? "default" : "outline"}
-              onClick={() => setFilter((f) => (f === "overdue" ? "" : "overdue"))}
-            >
-              {t("filters.overdue")}
-            </Button>
-            <Button
-              size="sm"
-              variant={filter === "today" ? "default" : "outline"}
-              onClick={() => setFilter((f) => (f === "today" ? "" : "today"))}
-            >
-              {t("filters.today")}
-            </Button>
-            <Button
-              size="sm"
-              variant={filter === "noAssignee" ? "default" : "outline"}
-              onClick={() =>
-                setFilter((f) => (f === "noAssignee" ? "" : "noAssignee"))
-              }
-            >
-              {t("filters.noAssignee")}
-            </Button>
-            <Button size="sm" onClick={onCreate}>
-              {t("buttons.addTask")}
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  {t("buttons.archive")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("dialogs.archiveSelected")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("messages.confirmAction")}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("buttons.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onArchive(selected)}>
+                    {t("buttons.archive")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="destructive">
+                  {t("buttons.delete")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("dialogs.deleteSelected")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("messages.confirmAction")}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("buttons.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onDelete(selected)}>
+                    {t("buttons.delete")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </>
         )}
+        <Button
+          size="sm"
+          variant={filter === "overdue" ? "default" : "outline"}
+          onClick={() => setFilter((f) => (f === "overdue" ? "" : "overdue"))}
+        >
+          {t("filters.overdue")}
+        </Button>
+        <Button
+          size="sm"
+          variant={filter === "today" ? "default" : "outline"}
+          onClick={() => setFilter((f) => (f === "today" ? "" : "today"))}
+        >
+          {t("filters.today")}
+        </Button>
+        <Button
+          size="sm"
+          variant={filter === "noAssignee" ? "default" : "outline"}
+          onClick={() =>
+            setFilter((f) => (f === "noAssignee" ? "" : "noAssignee"))
+          }
+        >
+          {t("filters.noAssignee")}
+        </Button>
+        <Button size="sm" onClick={onCreate}>
+          {t("buttons.addTask")}
+        </Button>
       </div>
     </div>
   );
