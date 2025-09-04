@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type DragEvent } from 'react';
 import { Button } from '../ui/button';
 import { Icon } from '../../lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteAttachment } from '../../lib/api';
 import AttachmentView from './AttachmentView';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface Props {
   attachments: any[];
@@ -17,13 +18,35 @@ export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Pro
   const { t } = useTranslation();
   const qc = useQueryClient();
   const deleteMut = useMutation({
-    mutationFn: ({ taskId, attId }: { taskId: string; attId: string }) => deleteAttachment(taskId, attId),
+    mutationFn: ({ taskId, attId }: { taskId: string; attId: string }) =>
+      deleteAttachment(taskId, attId),
     onSuccess: (_data, { taskId }) => qc.invalidateQueries({ queryKey: ['task', taskId] }),
   });
 
   const [selectedAttachment, setSelectedAttachment] = useState<any | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => setIsDragOver(false);
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) onSave('new', f);
+  };
+
   return (
-    <div className="space-y-2">
+    <div
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={cn('space-y-2', isDragOver && 'border-2 border-dashed rounded-md p-2')}
+    >
       {!hideTitle && <h2 className="font-medium">{t('labels.files')}</h2>}
       {attachments?.length ? (
         <ul className="space-y-2">
