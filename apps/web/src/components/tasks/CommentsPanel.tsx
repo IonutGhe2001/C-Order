@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Icon } from '../../lib/lucide-icon';
@@ -20,6 +20,12 @@ export default function CommentsPanel({ comments, onAdd, hideTitle, inputId }: P
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#comments' && inputId) {
+      document.getElementById(inputId)?.focus();
+    }
+  }, [inputId]);
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) {
@@ -36,42 +42,51 @@ export default function CommentsPanel({ comments, onAdd, hideTitle, inputId }: P
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      submit(e as unknown as FormEvent);
+    }
+  };
+
   return (
     <div className="space-y-2">
       {!hideTitle && <h2 className="font-medium">{t('labels.comments')}</h2>}
-      {comments?.length ? (
-        <ul className="space-y-2 text-sm max-h-64 overflow-auto">
-          {comments.map(c => (
-            <li key={c.id}><b>{c.author?.name ?? t('anonymous')}</b>: {c.body}</li>
-          ))}
-        </ul>
-      ) : (
-        <div className="text-sm text-foreground flex items-center">
-          <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.noComments')}
-        </div>
-      )}
-      <form onSubmit={submit} className="space-y-2">
-        <div className="flex space-x-2">
-          <Input
-            id={inputId}
-            value={comment}
-            onChange={e => setComment(e.target.value)}
-            className="flex-1 text-sm"
-            placeholder={t('placeholders.addComment')}
-            tabIndex={1}
-            disabled={loading}
-          />
-          <Button
-            type="submit"
-            className="px-2 py-1 text-sm"
-            tabIndex={2}
-            disabled={loading || !comment.trim()}
-          >
-            {loading ? <Skeleton className="h-4 w-10" /> : t('buttons.send')}
-          </Button>
-        </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
-      </form>
+      <div className="flex flex-col md:flex-col-reverse space-y-2">
+        {comments?.length ? (
+          <ul className="space-y-2 text-sm max-h-64 overflow-auto">
+            {comments.map(c => (
+              <li key={c.id}><b>{c.author?.name ?? t('anonymous')}</b>: {c.body}</li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-sm text-foreground flex items-center">
+            <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.noComments')}
+          </div>
+        )}
+        <form onSubmit={submit} className="space-y-2">
+          <div className="flex space-x-2">
+            <Input
+              id={inputId}
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 text-sm"
+              placeholder={t('placeholders.addComment')}
+              tabIndex={1}
+              disabled={loading}
+            />
+            <Button
+              type="submit"
+              className="px-2 py-1 text-sm"
+              tabIndex={2}
+              disabled={loading || !comment.trim()}
+            >
+              {loading ? <Skeleton className="h-4 w-10" /> : t('buttons.send')}
+            </Button>
+          </div>
+          {error && <p className="text-sm text-danger">{error}</p>}
+        </form>
+      </div>
     </div>
   );
 }
