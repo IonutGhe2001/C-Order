@@ -428,13 +428,37 @@ export default function TaskDetail() {
                 mutation={update}
               />
               <SaveIndicator mutation={update} />
-              <div className="space-y-1 text-sm">
-                <h3 className="font-medium">{t('labels.keyDates')}</h3>
-                <ul className="space-y-1">
-                  <li>{t('labels.orderDate')}: {orderDate || '-'}</li>
-                  <li>{t('labels.orderReceivedDate')}: {orderReceivedDate || '-'}</li>
-                  <li>{t('labels.productsReceivedDate')}: {productsReceivedDate || '-'}</li>
-                  <li>{t('labels.deliveryDate')}: {deliveryDate || '-'}</li>
+              <div>
+                <h3 className="text-sm font-medium">{t('labels.keyDates')}</h3>
+                <ul className="text-sm space-y-1">
+                  <li>
+                    {t('labels.createdAt')}: {task.createdAt ? formatDateTime(new Date(task.createdAt)) : '-'}
+                  </li>
+                  <li>
+                    {t('labels.updatedAt')}: {task.updatedAt ? formatDateTime(new Date(task.updatedAt)) : '-'}
+                  </li>
+                  <li>
+                    {t('labels.sla')}: {task.sla ? formatDateTime(new Date(task.sla)) : '-'}
+                  </li>
+                  <li>
+                    {t('labels.dueDate')}: {
+                      dueDate ? (
+                        <span
+                          className={cn(
+                            dueStatus === 'overdue'
+                              ? 'text-danger'
+                              : dueStatus === 'warning'
+                              ? 'text-warning'
+                              : 'text-success',
+                          )}
+                        >
+                          {formatDateTime(new Date(dueDate))}
+                        </span>
+                      ) : (
+                        '-'
+                      )
+                    }
+                  </li>
                 </ul>
               </div>
               <AttachmentsPanel
