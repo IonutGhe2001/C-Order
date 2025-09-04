@@ -436,31 +436,43 @@ export default function TaskDetail() {
 
       <div id="attachments" />
 
-        <BottomActionBar
-          actions={[
-            {
-              icon: 'message-circle',
-              label: 'Comentariu',
-              onClick: () => {
-                document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' });
-                setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100);
-              },
-            },
-          {
-              icon: 'paperclip',
-              label: 'Atașament',
-              onClick: () => {
-                document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' });
-                setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100);
-              },
-            },
-          {
-              icon: 'mail',
-              label: 'Email',
-              onClick: () => setEmailOpen(true),
-            },
-          ]}
-        />
+        <BottomActionBar>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center gap-1"
+              onClick={() => {
+                document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })
+                setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100)
+              }}
+            >
+              <Icon name="message-circle" className="h-5 w-5" />
+              <span className="text-xs">Comentariu</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center gap-1"
+              onClick={() => {
+                document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' })
+                setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
+              }}
+            >
+              <Icon name="paperclip" className="h-5 w-5" />
+              <span className="text-xs">Atașament</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex flex-col items-center gap-1"
+              onClick={() => setEmailOpen(true)}
+            >
+              <Icon name="mail" className="h-5 w-5" />
+              <span className="text-xs">Email</span>
+            </Button>
+          </div>
+        </BottomActionBar>
       </main>
     
       <EmailDrawer
