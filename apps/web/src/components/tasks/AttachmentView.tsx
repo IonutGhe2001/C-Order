@@ -28,11 +28,21 @@ export default function AttachmentView({ taskId, attachment, onSave }: Props) {
     }
   }, [attachment, url, isText]);
 
-  if (isOffice || isPdf) {
+  if (isOffice) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 h-[70vh]">
         <OnlyOfficeEditor taskId={taskId} attId={attachment.id} />
       </div>
+    );
+  }
+
+  if (isPdf) {
+    return (
+      <iframe
+        src={url}
+        title={attachment.filename}
+        className="w-full h-[70vh]"
+      />
     );
   }
 

@@ -12,7 +12,12 @@ export default function OnlyOfficeEditor({ taskId, attId }: { taskId: string; at
 
   useEffect(() => {
     (async () => {
-      const r = await fetch(`${apiRoot}/api/tasks/${taskId}/attachments/${attId}/onlyoffice-config`, { credentials: 'include' });
+      const r = await fetch(
+        `${apiRoot}/api/tasks/${taskId}/attachments/${attId}/onlyoffice-config`,
+        {
+          credentials: 'include',
+        },
+      );
       const cfg = await r.json();
       setConfig(cfg);
     })();
@@ -24,7 +29,7 @@ export default function OnlyOfficeEditor({ taskId, attId }: { taskId: string; at
       new Promise<void>((res) => {
         if ((window as any).DocsAPI) return res();
         const s = document.createElement('script');
-        s.src = `${import.meta.env.VITE_DS_URL || 'http://localhost:8082'}/web-apps/apps/api/documents/api.js`;
+        s.src = `${import.meta.env.VITE_DS_URL}/web-apps/apps/api/documents/api.js`;
         s.onload = () => res();
         document.body.appendChild(s);
       });
@@ -37,5 +42,5 @@ export default function OnlyOfficeEditor({ taskId, attId }: { taskId: string; at
     };
   }, [config]);
 
-  return <div className="w-full h-[70vh]" ref={ref} />;
+  return <div className="w-full h-full" ref={ref} />;
 }
