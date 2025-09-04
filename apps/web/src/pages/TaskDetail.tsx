@@ -403,7 +403,7 @@ export default function TaskDetail() {
             </div>
           </section>
           <aside className="md:col-span-4 space-y-4">
-            <div className="border rounded p-4 space-y-4">
+            <div id="attachments" className="border rounded p-4 space-y-4">
               <AssigneeSection
                 users={usersQuery.data?.items || []}
                 value={assignees}
@@ -454,8 +454,6 @@ export default function TaskDetail() {
           </aside>
         </div>
 
-      <div id="attachments" />
-
         <BottomActionBar>
           <div className="flex gap-2">
             <Button
@@ -464,7 +462,7 @@ export default function TaskDetail() {
               className="flex flex-col items-center gap-1"
               onClick={() => {
                 document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })
-                setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100)
+                setTimeout(() => document.querySelector<HTMLInputElement>('#add-comment-input')?.focus(), 100)
               }}
             >
               <Icon name="message-circle" className="h-5 w-5" />
