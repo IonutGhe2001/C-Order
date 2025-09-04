@@ -9,12 +9,13 @@ import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
 import { cn } from '@/lib/utils';
 
 interface Props {
+  taskId: string;
   attachments: any[];
   onSave: (attId: string, file: File) => void;
   hideTitle?: boolean;
 }
 
-export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Props) {
+export default function AttachmentsPanel({ taskId, attachments, onSave, hideTitle }: Props) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const deleteMut = useMutation({
@@ -85,6 +86,7 @@ export default function AttachmentsPanel({ attachments, onSave, hideTitle }: Pro
           <DialogTitle>{selectedAttachment?.filename}</DialogTitle>
           {selectedAttachment && (
             <AttachmentView
+              taskId={taskId}
               attachment={selectedAttachment}
               onSave={(file) => {
                 onSave(selectedAttachment.id, file);

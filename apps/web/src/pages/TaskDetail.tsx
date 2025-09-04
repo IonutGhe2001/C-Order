@@ -462,6 +462,7 @@ export default function TaskDetail() {
                 </ul>
               </div>
               <AttachmentsPanel
+                taskId={task.id}
                 attachments={task.attachments || []}
                 onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
               />

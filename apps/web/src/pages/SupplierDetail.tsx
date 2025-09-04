@@ -121,6 +121,7 @@ export default function SupplierDetail() {
                   <DialogTitle>{selectedAttachment?.filename}</DialogTitle>
                   {selectedAttachment && (
                     <AttachmentView
+                      taskId={selectedAttachment.taskId}
                       attachment={selectedAttachment}
                       onSave={(file) => {
                         attachmentMut.mutate({

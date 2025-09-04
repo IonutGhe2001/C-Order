@@ -6,11 +6,12 @@ import { getFileUrl } from '../../lib/api';
 import OnlyOfficeEditor from './OnlyOfficeEditor';
 
 interface Props {
+  taskId: string;
   attachment: any;
   onSave: (file: File) => void;
 }
 
-export default function AttachmentView({ attachment, onSave }: Props) {
+export default function AttachmentView({ taskId, attachment, onSave }: Props) {
   const { t } = useTranslation();
   const [content, setContent] = useState('');
 
@@ -36,7 +37,7 @@ export default function AttachmentView({ attachment, onSave }: Props) {
   if (isOffice || isPdf) {
     return (
       <div className="flex flex-col gap-2">
-        <OnlyOfficeEditor taskId={attachment.taskId} attId={attachment.id} />
+        <OnlyOfficeEditor taskId={taskId} attId={attachment.id} />
       </div>
     );
   }
