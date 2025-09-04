@@ -435,7 +435,6 @@ export default function TaskDetail() {
         </div>
 
       <div id="attachments" />
-        <div id="comments-anchor" />
 
         <BottomActionBar
           actions={[

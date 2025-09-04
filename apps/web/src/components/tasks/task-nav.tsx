@@ -14,6 +14,7 @@ export default function TaskNav() {
       { id: 'overview', label: t('labels.overview', { defaultValue: 'Overview' }) },
       { id: 'activity', label: t('labels.activity', { defaultValue: 'Activity' }) },
       { id: 'attachments', label: t('labels.files', { defaultValue: 'Attachments' }) },
+      { id: 'comments', label: t('labels.comments') },
     ],
     [t]
   );
