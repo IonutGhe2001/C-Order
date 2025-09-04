@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
-import { useState, useEffect, type ElementType } from 'react';
+import { useState, useEffect, useMemo, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { Skeleton } from '../components/ui/skeleton';
+import { Input } from '../components/ui/input';
 import BottomActionBar from '../components/ui/bottom-action-bar';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon, type IconName } from '../lib/lucide-icon';
@@ -25,6 +25,8 @@ import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
 import { SaveIndicator } from '../components/ui/save-indicator';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../components/ui/tooltip';
+import { formatDateTime } from '@/lib/i18n';
 
 const statuses = [
   'OPEN',
@@ -164,6 +166,16 @@ export default function TaskDetail() {
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
 
+  const slaDate = task?.sla ? new Date(task.sla) : null;
+
+  const dueStatus = useMemo(() => {
+    if (!dueDate || !slaDate) return 'normal';
+    const due = new Date(dueDate);
+    if (due.getTime() > slaDate.getTime()) return 'overdue';
+    const diff = slaDate.getTime() - due.getTime();
+    return diff <= 24 * 60 * 60 * 1000 ? 'warning' : 'normal';
+  }, [dueDate, slaDate]);
+
   useEffect(() => {
     if (task) {
       setTitle(task.title);
@@ -256,7 +268,7 @@ export default function TaskDetail() {
             <Input
               className="text-2xl font-semibold flex-1 border-none focus-visible:ring-0 p-0"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
               onBlur={() => save({ title })}
             />
             <SaveIndicator mutation={update} />
@@ -326,19 +338,27 @@ export default function TaskDetail() {
                 </ul>
               </PopoverContent>
             </Popover>
-            <SaveIndicator mutation={update} />
-            <Input
-              type="date"
-              value={dueDate}
-              onChange={e => setDueDate(e.target.value)}
-              onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
-              className={cn(
-                dueDate && new Date(dueDate).getTime() < new Date().setHours(0, 0, 0, 0)
-                  ? 'text-danger'
-                  : ''
-              )}
-            />
-            <SaveIndicator mutation={update} />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      'px-2 py-1 rounded text-sm',
+                      dueStatus === 'overdue'
+                        ? 'text-danger bg-danger/10'
+                        : dueStatus === 'warning'
+                        ? 'text-warning bg-warning/10'
+                        : 'text-success bg-success/10'
+                    )}
+                  >
+                    {dueDate || '-'}
+                  </div>
+                </TooltipTrigger>
+                {slaDate && (
+                  <TooltipContent>{formatDateTime(slaDate)}</TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </header>
 
