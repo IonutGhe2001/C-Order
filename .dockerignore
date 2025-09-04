@@ -1,0 +1,17 @@
+# general
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+
+# node
+**/node_modules
+**/.pnpm
+**/.turbo
+**/dist
+**/build
+**/.next
+
+# artefacte locale
+*.env.local
+uploads
