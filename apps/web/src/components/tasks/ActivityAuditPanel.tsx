@@ -3,6 +3,7 @@ import { Button } from '../ui/button';
 import { Icon } from '../../lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
 import { formatDateTime } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 interface Props {
   audit: any[];
@@ -10,9 +11,17 @@ interface Props {
   error: boolean;
   onRetry: () => void;
   hideTitle?: boolean;
+  className?: string;
 }
 
-export default function ActivityAuditPanel({ audit, loading, error, onRetry, hideTitle }: Props) {
+export default function ActivityAuditPanel({
+  audit,
+  loading,
+  error,
+  onRetry,
+  hideTitle,
+  className,
+}: Props) {
   const { t } = useTranslation();
   return (
     <div className="space-y-2">
@@ -27,7 +36,12 @@ export default function ActivityAuditPanel({ audit, loading, error, onRetry, hid
           </Button>
         </div>
       ) : audit?.length ? (
-        <ul className="text-xs space-y-2 max-h-64 overflow-auto relative pl-4 border-l">
+        <ul
+          className={cn(
+            'text-xs space-y-2 max-h-80 overflow-auto relative pl-4 border-l',
+            className,
+          )}
+        >
           {audit.map((a: any) => (
             <li key={a.id} className="flex items-start">
               <Icon name="circle" className="h-2 w-2 text-brand mr-2 mt-1" />
