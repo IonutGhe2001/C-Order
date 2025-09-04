@@ -1,7 +1,7 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail, deleteTask, archiveTask } from '../lib/api';
-import { useState, useEffect, useRef, type ElementType } from 'react';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
+import { useState, useEffect, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,7 +9,6 @@ import { Skeleton } from '../components/ui/skeleton';
 import BottomActionBar from '../components/ui/bottom-action-bar';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon, type IconName } from '../lib/lucide-icon';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge, type BadgeProps } from '../components/ui/badge';
 import { Popover, PopoverTrigger, PopoverContent } from '../components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -25,20 +24,7 @@ import TaskNav from '../components/tasks/task-nav';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
-import { ResponsivePanel } from '../components/ui/responsive-panel';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '../components/ui/alert-dialog';
 import { SaveIndicator } from '../components/ui/save-indicator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 const statuses = [
   'OPEN',
@@ -111,11 +97,9 @@ const orderTypeOptions = [
   { value: 'Contract', label: 'Contract' },
 ];
 
-
 export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const {
     data: task,
@@ -154,22 +138,6 @@ export default function TaskDetail() {
     onSuccess: () => trackEvent('email_sent', { taskId: id }),
   });
 
-  const deleteMut = useMutation({
-    mutationFn: () => deleteTask(id!),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['tasks'] });
-      navigate('/tasks');
-    },
-  });
-
-  const archiveMut = useMutation({
-    mutationFn: () => archiveTask(id!),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['tasks'] });
-      navigate('/tasks');
-    },
-  });
-
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
 
   const [title, setTitle] = useState('');
@@ -193,45 +161,8 @@ export default function TaskDetail() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
-  const [activeTab, setActiveTab] = useState<'comments' | 'audit'>('comments');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
-  const [newComments, setNewComments] = useState(false);
-  const [newAudit, setNewAudit] = useState(false);
-  const commentsCount = task?.comments?.length || 0;
-  const auditCount = audit?.items?.length || 0;
-  const commentsSeenRef = useRef(commentsCount);
-  const auditSeenRef = useRef(auditCount);
-  const loadedComments = useRef(false);
-  const loadedAudit = useRef(false);
-
-  useEffect(() => {
-    if (!loadedComments.current) {
-      commentsSeenRef.current = commentsCount;
-      loadedComments.current = true;
-      return;
-    }
-    if (activeTab === 'comments') {
-      commentsSeenRef.current = commentsCount;
-      setNewComments(false);
-    } else if (commentsCount > commentsSeenRef.current) {
-      setNewComments(true);
-    }
-  }, [commentsCount, activeTab]);
-
-  useEffect(() => {
-    if (!loadedAudit.current) {
-      auditSeenRef.current = auditCount;
-      loadedAudit.current = true;
-      return;
-    }
-    if (activeTab === 'audit') {
-      auditSeenRef.current = auditCount;
-      setNewAudit(false);
-    } else if (auditCount > auditSeenRef.current) {
-      setNewAudit(true);
-    }
-  }, [auditCount, activeTab]);
 
   useEffect(() => {
     if (task) {
@@ -252,39 +183,15 @@ export default function TaskDetail() {
       setEmailSubject(`Task ${task.title}`);
       setEmailBody(task.description || '');
       setSupplier(task.supplier?.name || '');
-      }
-    }, [task]);
+    }
+  }, [task]);
 
-  const saveTitle = () => {
-    if (title !== task?.title) update.mutate({ title });
-  };
-  const saveDesc = () => {
-    if (desc !== task?.description) update.mutate({ description: desc });
-  };
   const changeStatus = (s: string) => {
     setStatus(s);
     update.mutate({ status: s });
   };
   const save = (data: Partial<TaskPayload>) => update.mutate(data);
-  const handleSave = () => {
-    const payload: Partial<TaskPayload> = {
-      title,
-      status,
-      priority,
-      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-      description: desc,
-      assignees,
-      supplier: supplier || null,
-      orderDate: orderDate ? new Date(orderDate).toISOString() : null,
-      orderReceivedDate: orderReceivedDate ? new Date(orderReceivedDate).toISOString() : null,
-      orderNumber: orderNumber || null,
-      authority: authority || null,
-      orderType: orderType || null,
-      productsReceivedDate: productsReceivedDate ? new Date(productsReceivedDate).toISOString() : null,
-      deliveryDate: deliveryDate ? new Date(deliveryDate).toISOString() : null,
-    };
-    update.mutate(payload);
-  };
+
   if (isLoading) {
     return (
       <main id="main-content">
@@ -330,259 +237,192 @@ export default function TaskDetail() {
     );
   }
 
-  const AuxiliaryFields = () => (
-    <div className="space-y-4">
-      <AssigneeSection
-        users={usersQuery.data?.items || []}
-        value={assignees}
-        loading={usersQuery.isLoading}
-        error={!!usersQuery.isError}
-        label={t('labels.assignees')}
-        errorMessage={t('messages.usersLoadFailed')}
-        onChange={(vals: string[]) => {
-          setAssignees(vals);
-          save({ assignees: vals });
-        }}
-        mutation={update}
-      />
-      <SupplierSection
-        value={supplier}
-        label={t('labels.supplier')}
-        onChange={(val) => {
-          setSupplier(val);
-          save({ supplier: val || null });
-        }}
-        mutation={update}
-      />
-      <OrderDetailsSection
-        orderDate={orderDate}
-        orderReceivedDate={orderReceivedDate}
-        orderNumber={orderNumber}
-        authority={authority}
-        orderType={orderType}
-        productsReceivedDate={productsReceivedDate}
-        earlyDelivery={earlyDelivery}
-        deliveryDate={deliveryDate}
-        orderTypes={orderTypeOptions}
-        setOrderDate={setOrderDate}
-        setOrderReceivedDate={setOrderReceivedDate}
-        setOrderNumber={setOrderNumber}
-        setAuthority={setAuthority}
-        setOrderType={setOrderType}
-        setProductsReceivedDate={setProductsReceivedDate}
-        setEarlyDelivery={setEarlyDelivery}
-        setDeliveryDate={setDeliveryDate}
-        save={save}
-        mutation={update}
-      />
-    </div>
-  );
-
   return (
     <>
-    <div className="sticky top-0 z-10 bg-background border-b p-2 flex justify-end gap-2">
-      <Button size="sm" onClick={handleSave}>{t('buttons.save')}</Button>
-      <Button variant="outline" size="sm" onClick={() => setEmailOpen(true)}>
-        <Icon name="mail" className="h-4 w-4 mr-1" /> {t('labels.email')}
-      </Button>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="outline" size="sm">{t('buttons.archive')}</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('dialogs.archiveTask')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('messages.confirmAction')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('buttons.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => archiveMut.mutate()}>{t('buttons.archive')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="destructive" size="sm">{t('buttons.delete')}</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('dialogs.deleteTask')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('messages.confirmAction')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('buttons.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteMut.mutate()}>{t('buttons.delete')}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-    <main id="main-content">
-    <MotionDiv
-      {...(!shouldReduceMotion && {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: 20 },
-      })}
-      className="p-6 space-y-4"
-    >
-      <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task.title }]} />
-      <TaskNav />
-      <section id="overview" className="space-y-4">
-        <div className="flex items-start justify-between flex-wrap gap-2">
-          <div className="flex items-center flex-wrap gap-2 flex-1">
-              <div className="flex items-center">
-                <Input
-                  className="text-2xl font-semibold border-b focus:outline-none flex-1"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  onBlur={saveTitle}
-                />
-                <SaveIndicator mutation={update} />
-              </div>
-              <div className="flex items-center gap-2">
-                <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Badge
-                      variant={statusBadgeVariants[status]}
-                      className="cursor-pointer flex items-center gap-1"
-                    >
-                      <Icon name={statusIcons[status]} className="h-4 w-4" />
-                      <span>{t(labels[status])}</span>
-                    </Badge>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0">
-                    <ul className="flex flex-col">
-                      {statuses.map(s => (
-                        <li key={s}>
-                          <button
-                            className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
-                            onClick={() => {
-                              changeStatus(s);
-                              setStatusPopoverOpen(false);
-                            }}
-                          >
-                            <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
-                            <span>{t(labels[s])}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="flex items-center">
-                <Popover open={priorityPopoverOpen} onOpenChange={setPriorityPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Badge
-                      variant={priority ? priorityBadgeVariants[priority] : 'info'}
-                      className="cursor-pointer flex items-center gap-1"
-                    >
-                      {priority ? (
-                        <>
-                          <Icon name={priorityIcons[priority]} className="h-4 w-4" />
-                          <span>{t(priorityLabels[priority])}</span>
-                        </>
-                      ) : (
-                        <span>{t('labels.priority')}</span>
-                      )}
-                    </Badge>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0">
-                    <ul className="flex flex-col">
-                      {priorities.map(p => (
-                        <li key={p}>
-                          <button
-                            className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
-                            onClick={() => {
-                              setPriority(p);
-                              save({ priority: p || undefined });
-                              setPriorityPopoverOpen(false);
-                            }}
-                          >
-                            <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
-                            <span>{t(priorityLabels[p])}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </PopoverContent>
-                </Popover>
-                <SaveIndicator mutation={update} />
-              </div>
-              <div className="flex items-center">
-                <Input
-                  type="date"
-                  value={dueDate}
-                  onChange={e => setDueDate(e.target.value)}
-                  onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
-                />
-                <SaveIndicator mutation={update} />
-              </div>
-          </div>
-
-        </div>
-        <div className="grid gap-4 md:grid-cols-[1fr_280px]">
-            <div className="space-y-4">
-              <div>
-                <h2 className="font-medium mb-2">{t('labels.description')}</h2>
-                <RichEditor value={desc} onChange={setDesc} onBlur={saveDesc} />
-                <SaveIndicator mutation={update} />
-              </div>
+    <main id="main-content" className="p-6 space-y-4">
+        <header className="sticky top-0 z-10 bg-background border-b p-2 space-y-2">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: `#${task.id}` }]} />
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm">
+                <Icon name="share-2" className="h-4 w-4 mr-1" /> Share
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setEmailOpen(true)}>
+                <Icon name="mail" className="h-4 w-4 mr-1" /> {t('labels.email')}
+              </Button>
             </div>
-          <ResponsivePanel
-            className="order-first md:order-none"
-            title={t('labels.general')}
-            trigger={<Button variant="secondary" className="w-full">{t('labels.general')}</Button>}
-          >
-            <AuxiliaryFields />
-          </ResponsivePanel>
           </div>
-        </section>
+        <div className="flex items-center flex-wrap gap-2">
+            <Input
+              className="text-2xl font-semibold flex-1 border-none focus-visible:ring-0 p-0"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              onBlur={() => save({ title })}
+            />
+            <SaveIndicator mutation={update} />
+            <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Badge
+                  variant={statusBadgeVariants[status]}
+                  className="cursor-pointer flex items-center gap-1"
+                >
+                  <Icon name={statusIcons[status]} className="h-4 w-4" />
+                  <span>{t(labels[status])}</span>
+                </Badge>
+              </PopoverTrigger>
+              <PopoverContent className="p-0">
+                <ul className="flex flex-col">
+                  {statuses.map(s => (
+                    <li key={s}>
+                      <button
+                        className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
+                        onClick={() => {
+                          changeStatus(s);
+                          setStatusPopoverOpen(false);
+                        }}
+                      >
+                        <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
+                        <span>{t(labels[s])}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
+            <SaveIndicator mutation={update} />
+            <Popover open={priorityPopoverOpen} onOpenChange={setPriorityPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Badge
+                  variant={priority ? priorityBadgeVariants[priority] : 'info'}
+                  className="cursor-pointer flex items-center gap-1"
+                >
+                  {priority ? (
+                    <>
+                      <Icon name={priorityIcons[priority]} className="h-4 w-4" />
+                      <span>{t(priorityLabels[priority])}</span>
+                    </>
+                  ) : (
+                    <span>{t('labels.priority')}</span>
+                  )}
+                </Badge>
+              </PopoverTrigger>
+              <PopoverContent className="p-0">
+                <ul className="flex flex-col">
+                  {priorities.map(p => (
+                    <li key={p}>
+                      <button
+                        className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
+                        onClick={() => {
+                          setPriority(p);
+                          save({ priority: p || undefined });
+                          setPriorityPopoverOpen(false);
+                        }}
+                      >
+                        <Icon name={priorityIcons[p]} className={cn('h-4 w-4', priorityColorClasses[p])} />
+                        <span>{t(priorityLabels[p])}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
+            <SaveIndicator mutation={update} />
+            <Input
+              type="date"
+              value={dueDate}
+              onChange={e => setDueDate(e.target.value)}
+              onBlur={() => save({ dueDate: dueDate ? new Date(dueDate).toISOString() : null })}
+              className={cn(
+                dueDate && new Date(dueDate).getTime() < new Date().setHours(0, 0, 0, 0)
+                  ? 'text-danger'
+                  : ''
+              )}
+            />
+            <SaveIndicator mutation={update} />
+          </div>
+        </header>
 
-      <section id="activity" className="space-y-4">
-        <Tabs value={activeTab} onValueChange={(val: string) => setActiveTab(val as 'comments' | 'audit')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="comments" className="flex items-center gap-2">
-              <Icon name="message-square" className="h-4 w-4" aria-hidden="true" />
-              {t('labels.comments')}
-              <span className="inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs">
-                {commentsCount}
-              </span>
-              {newComments && <span className="h-2 w-2 rounded-full bg-brand" />}
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center gap-2">
-              <Icon name="history" className="h-4 w-4" aria-hidden="true" />
-              {t('labels.auditLog')}
-              <span className="inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs">
-                {auditCount}
-              </span>
-              {newAudit && <span className="h-2 w-2 rounded-full bg-brand" />}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="comments" className="border rounded p-2 mt-2">
-            <MotionDiv
-              {...(!shouldReduceMotion && {
-                initial: { opacity: 0, y: 4 },
-                animate: { opacity: 1, y: 0 },
-                transition: { duration: 0.2 },
-              })}
-            >
+      <TaskNav />
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <section id="overview" className="md:col-span-8 space-y-4">
+            <div className="border rounded p-4 space-y-2">
+              <RichEditor value={desc} onChange={setDesc} onBlur={() => save({ description: desc })} />
+              <SaveIndicator mutation={update} />
+            </div>
+            <div className="border rounded p-4">
+              <OrderDetailsSection
+                orderDate={orderDate}
+                orderReceivedDate={orderReceivedDate}
+                orderNumber={orderNumber}
+                authority={authority}
+                orderType={orderType}
+                productsReceivedDate={productsReceivedDate}
+                earlyDelivery={earlyDelivery}
+                deliveryDate={deliveryDate}
+                orderTypes={orderTypeOptions}
+                setOrderDate={setOrderDate}
+                setOrderReceivedDate={setOrderReceivedDate}
+                setOrderNumber={setOrderNumber}
+                setAuthority={setAuthority}
+                setOrderType={setOrderType}
+                setProductsReceivedDate={setProductsReceivedDate}
+                setEarlyDelivery={setEarlyDelivery}
+                setDeliveryDate={setDeliveryDate}
+                save={save}
+                mutation={update}
+              />
+            </div>
+            <div id="comments" className="border rounded p-4">
               <CommentsPanel
                 hideTitle
                 inputId="add-comment-input"
                 comments={task.comments || []}
                 onAdd={(body) => commentMut.mutate(body)}
               />
-            </MotionDiv>
-          </TabsContent>
-          <TabsContent value="audit" className="border rounded p-2 mt-2">
-            <MotionDiv
-              {...(!shouldReduceMotion && {
-                initial: { opacity: 0, y: 4 },
-                animate: { opacity: 1, y: 0 },
-                transition: { duration: 0.2 },
-              })}
-            >
+            </div>
+          </section>
+          <aside className="md:col-span-4 space-y-4">
+            <div className="border rounded p-4 space-y-4">
+              <AssigneeSection
+                users={usersQuery.data?.items || []}
+                value={assignees}
+                loading={usersQuery.isLoading}
+                error={!!usersQuery.isError}
+                label={t('labels.assignees')}
+                errorMessage={t('messages.usersLoadFailed')}
+                onChange={(vals: string[]) => {
+                  setAssignees(vals);
+                  save({ assignees: vals });
+                }}
+                mutation={update}
+              />
+              <SaveIndicator mutation={update} />
+              <SupplierSection
+                value={supplier}
+                label={t('labels.supplier')}
+                onChange={(val) => {
+                  setSupplier(val);
+                  save({ supplier: val || null });
+                }}
+                mutation={update}
+              />
+              <SaveIndicator mutation={update} />
+              <div className="space-y-1 text-sm">
+                <h3 className="font-medium">{t('labels.keyDates')}</h3>
+                <ul className="space-y-1">
+                  <li>{t('labels.orderDate')}: {orderDate || '-'}</li>
+                  <li>{t('labels.orderReceivedDate')}: {orderReceivedDate || '-'}</li>
+                  <li>{t('labels.productsReceivedDate')}: {productsReceivedDate || '-'}</li>
+                  <li>{t('labels.deliveryDate')}: {deliveryDate || '-'}</li>
+                </ul>
+              </div>
+              <AttachmentsPanel
+                attachments={task.attachments || []}
+                onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+              />
+            </div>
+            <div id="activity" className="border rounded p-4 max-h-80 overflow-auto">
               <ActivityAuditPanel
                 hideTitle
                 audit={audit?.items || []}
@@ -590,75 +430,61 @@ export default function TaskDetail() {
                 error={!!auditError}
                 onRetry={() => refetchAudit()}
               />
-            </MotionDiv>
-          </TabsContent>
-        </Tabs>
-      </section>
+            </div>
+          </aside>
+        </div>
 
-      <section id="attachments" className="space-y-4">
-        <MotionDiv
-          {...(!shouldReduceMotion && {
-            initial: { opacity: 0, y: 4 },
-            animate: { opacity: 1, y: 0 },
-            transition: { duration: 0.2 },
-          })}
-        >
-          <AttachmentsPanel
-            attachments={task.attachments || []}
-            onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-          />
-        </MotionDiv>
-      </section>
-    </MotionDiv>
-    <BottomActionBar
-        actions={[
-          {
-            icon: 'message-circle',
-            label: 'Comentariu',
-            onClick: () => {
-              setActiveTab('comments')
-              document.getElementById('activity')?.scrollIntoView({ behavior: 'smooth' })
-              setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100)
+      <div id="attachments" />
+        <div id="comments-anchor" />
+
+        <BottomActionBar
+          actions={[
+            {
+              icon: 'message-circle',
+              label: 'Comentariu',
+              onClick: () => {
+                document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => document.getElementById('add-comment-input')?.focus(), 100);
+              },
             },
-          },
           {
-            icon: 'paperclip',
-            label: 'Atașament',
-            onClick: () => {
-              document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' })
-              setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
+              icon: 'paperclip',
+              label: 'Atașament',
+              onClick: () => {
+                document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100);
+              },
             },
-          },
           {
-            icon: 'mail',
-            label: 'Email',
-            onClick: () => setEmailOpen(true),
-          },
-        ]}
-      />
-    </main>
+              icon: 'mail',
+              label: 'Email',
+              onClick: () => setEmailOpen(true),
+            },
+          ]}
+        />
+      </main>
     
       <EmailDrawer
-      open={emailOpen}
-      to={emailTo}
-      subject={emailSubject}
-      body={emailBody}
-      onChange={({ to, subject, body }) => {
-        if (to !== undefined) setEmailTo(to);
-        if (subject !== undefined) setEmailSubject(subject);
-        if (body !== undefined) setEmailBody(body);
-      }}
-      onSend={() => {
-        emailMut.mutate({
-          to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
-          subject: emailSubject,
-          body: emailBody,
-          attachments: task.attachments?.map((a: any) => a.id),
-        });
-        setEmailOpen(false);
-      }}
-      onClose={() => setEmailOpen(false)}
-    />
+        open={emailOpen}
+        to={emailTo}
+        subject={emailSubject}
+        body={emailBody}
+        onChange={({ to, subject, body }) => {
+          if (to !== undefined) setEmailTo(to);
+          if (subject !== undefined) setEmailSubject(subject);
+          if (body !== undefined) setEmailBody(body);
+        }}
+        onSend={() => {
+          emailMut.mutate({
+            to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
+            subject: emailSubject,
+            body: emailBody,
+            attachments: task.attachments?.map((a: any) => a.id),
+          });
+          setEmailOpen(false);
+        }}
+        onClose={() => setEmailOpen(false)}
+      />
     </>
   );
 }
