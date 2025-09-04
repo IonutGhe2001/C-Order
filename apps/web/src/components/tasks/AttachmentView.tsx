@@ -18,15 +18,9 @@ export default function AttachmentView({ taskId, attachment, onSave }: Props) {
   const url = getFileUrl(attachment.url);
   const isText = attachment.mimeType?.startsWith('text/') || attachment.mimeType === 'application/json';
   const isPdf = attachment.mimeType === 'application/pdf';
-  const officeTypes = [
-    'application/msword',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  ];
-  const isOffice = officeTypes.includes(attachment.mimeType);
+  const officeExt = ['docx', 'xlsx', 'pptx', 'doc', 'xls', 'ppt', 'odt', 'ods', 'odp', 'rtf'];
+  const ext = attachment.filename?.split('.').pop()?.toLowerCase() || '';
+  const isOffice = officeExt.includes(ext);
 
   useEffect(() => {
     if (isText) {
