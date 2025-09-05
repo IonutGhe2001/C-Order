@@ -48,7 +48,7 @@ import { useTimeToAction } from '@/lib/use-tta';
 export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolean }) {
   if (isMobile) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <TaskCardSkeleton key={i} />
         ))}
@@ -573,7 +573,7 @@ export default function TasksDataTable({
       </div>
 
       {isCardView ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
           {table.getRowModel().rows.map((row) => (
             <TaskCard
               key={row.id}
