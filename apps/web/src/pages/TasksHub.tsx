@@ -48,47 +48,49 @@ export default function TasksHub() {
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main
         id="main-content"
-        className="mt-14 px-4 sm:px-6 lg:px-8 lg:ml-60 max-w-7xl mx-auto flex flex-col gap-4 sm:gap-6"
+        className="mt-14 px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-[16rem,1fr] lg:ml-0 w-full gap-4 sm:gap-6"
       >
-        <Suspense fallback={<TasksHubSkeleton />}>
-          <TasksToolbar
-            quickFilter={[quickFilter, setQuickFilter]}
-            selected={selected}
-            onArchive={(ids) => archiveMut.mutate(ids)}
-            onDelete={(ids) => deleteMut.mutate(ids)}
-            onCreate={() => setCreateOpen(true)}
-            onOpenFilters={() => setFiltersOpen(true)}
-            search={search}
-          onSearchChange={setSearch}
-          table={table}
-          columnVisibility={columnVisibility}
-          view={view}
-          setView={setView}
-        />
-        <TasksDataTable
-          quickFilter={quickFilter}
-          filters={filters}
-          search={search}
-          onSelectionChange={setSelected}
-          onTableChange={setTable}
-          onColumnVisibilityChange={setColumnVisibility}
-          view={view}
-        />
-        </Suspense>
-        <CreateTaskSheet
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          showTrigger={false}
-        />
-        <FiltersDrawer
-          open={filtersOpen}
-          onOpenChange={setFiltersOpen}
-          filters={filters}
-          onChange={setFilters}
-        />
+        <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
+        <div className="flex flex-col gap-4 sm:gap-6">
+          <Suspense fallback={<TasksHubSkeleton />}>
+            <TasksToolbar
+              quickFilter={[quickFilter, setQuickFilter]}
+              selected={selected}
+              onArchive={(ids) => archiveMut.mutate(ids)}
+              onDelete={(ids) => deleteMut.mutate(ids)}
+              onCreate={() => setCreateOpen(true)}
+              onOpenFilters={() => setFiltersOpen(true)}
+              search={search}
+              onSearchChange={setSearch}
+              table={table}
+              columnVisibility={columnVisibility}
+              view={view}
+              setView={setView}
+            />
+            <TasksDataTable
+              quickFilter={quickFilter}
+              filters={filters}
+              search={search}
+              onSelectionChange={setSelected}
+              onTableChange={setTable}
+              onColumnVisibilityChange={setColumnVisibility}
+              view={view}
+            />
+          </Suspense>
+          <CreateTaskSheet
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            showTrigger={false}
+          />
+          <FiltersDrawer
+            open={filtersOpen}
+            onOpenChange={setFiltersOpen}
+            filters={filters}
+            onChange={setFilters}
+          />
+        </div>
       </main>
     </>
   );
