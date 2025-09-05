@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table, VisibilityState } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,9 +13,11 @@ import {
 interface ColumnsMenuProps {
   table: Table<any>;
   visibility: VisibilityState;
+  children?: React.ReactNode;
 }
 
-export default function ColumnsMenu({ table, visibility }: ColumnsMenuProps) {
+export default function ColumnsMenu({ table, visibility, children }: ColumnsMenuProps) {
+  const { t } = useTranslation();
   const columns = table
     .getAllLeafColumns()
     .filter((column) => column.id !== 'select' && column.id !== 'menu');
@@ -22,7 +25,13 @@ export default function ColumnsMenu({ table, visibility }: ColumnsMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="sm" variant="outline">Columns</Button>
+        {children ? (
+          children
+        ) : (
+          <Button size="sm" variant="outline">
+            {t('labels.columns')}
+          </Button>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {columns.map((column) => {
