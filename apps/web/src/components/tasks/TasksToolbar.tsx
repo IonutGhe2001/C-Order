@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter } from "lucide-react";
+import { Filter, LayoutGrid, LayoutList } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,8 @@ interface TasksToolbarProps {
   onSearchChange: (value: string) => void;
   table?: Table<any>;
   columnVisibility: VisibilityState;
+  view: "table" | "card";
+  setView: React.Dispatch<React.SetStateAction<"table" | "card">>;
 }
 
 export function TasksToolbarSkeleton() {
@@ -49,6 +51,7 @@ export function TasksToolbarSkeleton() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-8 w-32" />
         <Skeleton className="h-8 w-20" />
+        <Skeleton className="h-8 w-8" />
         <Skeleton className="h-8 w-28" />
       </div>
     </div>
@@ -66,6 +69,8 @@ export default function TasksToolbar({
   onSearchChange,
   table,
   columnVisibility,
+  view,
+  setView,
 }: TasksToolbarProps) {
   const [filter, setFilter] = quickFilter;
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
@@ -162,6 +167,22 @@ export default function TasksToolbar({
         {table && (
           <ColumnsMenu table={table} visibility={columnVisibility} />
         )}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setView(view === "table" ? "card" : "table")}
+        >
+          {view === "table" ? (
+            <LayoutGrid className="h-4 w-4" />
+          ) : (
+            <LayoutList className="h-4 w-4" />
+          )}
+          <span className="sr-only">
+            {view === "table"
+              ? t("labels.cardView", { defaultValue: "Card view" })
+              : t("labels.tableView", { defaultValue: "Table view" })}
+          </span>
+        </Button>
         <Button size="sm" variant="outline" onClick={onOpenFilters}>
           <Filter className="mr-2 h-4 w-4" />
           {t("buttons.filters")}

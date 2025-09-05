@@ -26,6 +26,7 @@ export default function TasksHub() {
   });
   const [table, setTable] = useState<Table<any>>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [view, setView] = useState<'table' | 'card'>('table');
   const qc = useQueryClient();
 
   const deleteMut = useMutation({
@@ -61,18 +62,21 @@ export default function TasksHub() {
             onCreate={() => setCreateOpen(true)}
             onOpenFilters={() => setFiltersOpen(true)}
             search={search}
-            onSearchChange={setSearch}
-            table={table}
-            columnVisibility={columnVisibility}
-          />
-          <TasksDataTable
-            quickFilter={quickFilter}
-            filters={filters}
-            search={search}
-            onSelectionChange={setSelected}
-            onTableChange={setTable}
-            onColumnVisibilityChange={setColumnVisibility}
-          />
+          onSearchChange={setSearch}
+          table={table}
+          columnVisibility={columnVisibility}
+          view={view}
+          setView={setView}
+        />
+        <TasksDataTable
+          quickFilter={quickFilter}
+          filters={filters}
+          search={search}
+          onSelectionChange={setSelected}
+          onTableChange={setTable}
+          onColumnVisibilityChange={setColumnVisibility}
+          view={view}
+        />
         </Suspense>
         <CreateTaskSheet
           open={createOpen}

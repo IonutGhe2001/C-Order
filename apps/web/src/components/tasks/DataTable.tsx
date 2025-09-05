@@ -48,7 +48,7 @@ import { useTimeToAction } from '@/lib/use-tta';
 export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolean }) {
   if (isMobile) {
     return (
-      <div className="grid gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <TaskCardSkeleton key={i} />
         ))}
@@ -122,6 +122,7 @@ export default function TasksDataTable({
   onSelectionChange,
   onTableChange,
   onColumnVisibilityChange,
+  view = 'table',
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
   filters?: TaskFilters;
@@ -129,6 +130,7 @@ export default function TasksDataTable({
   onSelectionChange?: (ids: string[]) => void;
   onTableChange?: (table: Table<Task>) => void;
   onColumnVisibilityChange?: (state: VisibilityState) => void;
+  view?: 'table' | 'card';
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -150,6 +152,7 @@ export default function TasksDataTable({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
+  const isCardView = view === 'card' || isMobile;
 
   useEffect(() => {
     const savedVisibility = localStorage.getItem('tasksTableColumnVisibility');
@@ -389,7 +392,7 @@ export default function TasksDataTable({
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
   const rowRefs = useRef<Record<number, HTMLTableRowElement | null>>({});
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const useVirtual = filteredData.length > 200;
+  const useVirtual = !isCardView && filteredData.length > 200;
   const rowVirtualizer = useVirtual
     ? useVirtualizer({
         count: table.getRowModel().rows.length,
@@ -490,7 +493,7 @@ export default function TasksDataTable({
       : 0;
 
   if (isLoading) {
-    return <TasksDataTableSkeleton isMobile={isMobile} />;
+    return <TasksDataTableSkeleton isMobile={isCardView} />;
   }
 
   if (isError) {
@@ -565,8 +568,8 @@ export default function TasksDataTable({
         )}
       </div>
 
-      {isMobile ? (
-        <div className="grid gap-2">
+      {isCardView ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {table.getRowModel().rows.map((row) => (
             <TaskCard
               key={row.id}
