@@ -208,7 +208,7 @@ export class TasksService {
     const filename = `${Date.now()}-${file.originalname}`;
     const filepath = join(uploadDir, filename);
     await fs.writeFile(filepath, file.buffer);
-    const data = {
+    const data: any = {
       filename: file.originalname,
       url: `/uploads/${filename}`,
       mimeType: file.mimetype,
@@ -218,6 +218,7 @@ export class TasksService {
     if (attId === 'new') {
       return this.prisma.attachment.create({ data });
     }
+    data.version = { increment: 1 };
     return this.prisma.attachment.update({ where: { id: attId }, data });
   }
 

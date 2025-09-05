@@ -19,8 +19,6 @@ services:
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile
-    environment:
-      VITE_DS_URL: http://localhost:8082
     depends_on:
       db:
         condition: service_healthy
