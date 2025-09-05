@@ -507,9 +507,13 @@ export default function TasksDataTable({
 
   if (!data?.items?.length) {
     return (
-      <div className="text-center p-4 text-sm text-foreground space-y-2">
-        <p>{t('messages.noTasks')}</p>
-        <CreateTaskSheet triggerText="Creează" />
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 p-4 text-center text-sm text-foreground">
+        <Icon name="inbox" className="h-12 w-12 text-muted-foreground" />
+        <div className="space-y-1">
+          <p className="text-base font-medium">{t('messages.noTasks')}</p>
+          <p className="text-muted-foreground">{t('messages.noTasksGuidance')}</p>
+        </div>
+        <CreateTaskSheet triggerText={t('buttons.addTask')} />
       </div>
     );
   }

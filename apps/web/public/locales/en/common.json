@@ -139,6 +139,7 @@
     "updateSuccess": "Update successful",
     "noComments": "No comments yet. Add one.",
     "noTasks": "No tasks yet.",
+    "noTasksGuidance": "Get started by creating a new task.",
     "noSuppliers": "No suppliers yet.",
     "suppliersLoadFailed": "Couldn't load suppliers. Check your connection and retry.",
     "selectedCount": "{{count}} selected",
