@@ -13,14 +13,17 @@ export class OnlyOfficeService {
 
   constructor(private prisma: PrismaService) {}
 
-  buildConfig(att: { id: string; filename: string; url: string; mimeType: string }, user: { id: string; name: string }) {
-    const key = `${att.id}-${Date.now()}`;
+  async buildConfig(att: { id: string; filename: string; url: string; mimeType: string }, user: { id: string; name: string }) {
+   // citește versiunea curentă din DB
+   const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
+   const version = (rec?.version ?? 1);    
+   const key = `${att.id}:${version}`; // unic pe versiune
     const document = {
-      fileType: att.filename.split('.').pop(),
-      title: att.filename,
-      url: att.url.startsWith('http') ? att.url : `${this.api}${att.url}`,
-      key,
-      permissions: { edit: true, download: false },
+     fileType: att.filename.split('.').pop()?.toLowerCase(),
+     title: att.filename,
+     url: (att.url.startsWith('http') ? att.url : `${this.api}${att.url}`) + `?v=${version}`, // cache-buster
+     key,    
+     permissions: { edit: true, download: false },   
     };
     const editorConfig = {
       callbackUrl: `${this.api}/api/onlyoffice/callback?attId=${att.id}`,
@@ -36,11 +39,15 @@ export class OnlyOfficeService {
     const r = await fetch(body.url);
     if (!r.ok) throw new Error('DS fetch failed');
     const buf = Buffer.from(await r.arrayBuffer());
-    // suprascrie atașamentul original
-    const att = await this.prisma.attachment.findUnique({ where: { id: attId } });
+    // suprascrie atașamentul original + bump versiune
+    const att = await this.prisma.attachment.findUnique({ where: { id: attId }, select: { url: true } });
     if (!att) return { error: 1 };
     const target = join(process.cwd(), att.url.startsWith('/') ? att.url.slice(1) : att.url);
     await fs.writeFile(target, buf);
+    await this.prisma.attachment.update({
+      where: { id: attId },
+      data: { version: { increment: 1 } } // necesită câmp numeric "version" în schema
+    });
     return { error: 0 };
   }
 }
