@@ -5,6 +5,8 @@ services:
       POSTGRES_DB: task
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -13,26 +15,6 @@ services:
       timeout: 3s
       retries: 20
 
-  api:
-    build:
-      context: .
-      dockerfile: ./apps/api/Dockerfile
-    environment:
-      DATABASE_URL: postgresql://postgres:123456@db:5432/task
-      JWT_ACCESS_SECRET: changeme
-      JWT_REFRESH_SECRET: changeme2
-      COOKIE_DOMAIN: localhost
-      API_PUBLIC_URL: http://api:3001
-      DS_PUBLIC_URL: http://onlyoffice
-      DS_JWT_SECRET: supersecret
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "3001:3001"
-    volumes:
-      - api_uploads:/app/uploads
-
   web:
     build:
       context: .
@@ -40,24 +22,22 @@ services:
     environment:
       VITE_DS_URL: http://localhost:8082
     depends_on:
-      - api
+      db:
+        condition: service_healthy
     ports:
-      - "5174:5173"   # host:container (frontend va fi accesibil la http://localhost:5174)
+      - "5174:5173"
 
   onlyoffice:
     image: onlyoffice/documentserver:latest
     environment:
       - JWT_ENABLED=true
-      - JWT_SECRET=supersecret
+      - JWT_SECRET=changeme_super_secret   # <- să fie IDENTIC cu DS_JWT_SECRET din API
       - JWT_HEADER=Authorization
     ports:
       - "8082:80"
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
-    depends_on:
-      - api
 
 volumes:
   db_data:
-  api_uploads:
   onlyoffice_data:
