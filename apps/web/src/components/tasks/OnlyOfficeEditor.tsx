@@ -2,54 +2,40 @@
 import { useEffect, useRef, useState } from 'react';
 import { apiRoot } from '../../lib/api';
 
-declare global {
-  interface Window {
-    DocsAPI: any;
-  }
-}
-
 export default function OnlyOfficeEditor({ taskId, attId }: { taskId: string; attId: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [state, setState] = useState<{ config: any; token: string; dsUrl: string } | null>(null);
+  const [config, setConfig] = useState<any>(null);
+  const containerId = `oo-editor-${attId}`;
 
   useEffect(() => {
     (async () => {
       const r = await fetch(
         `${apiRoot}/api/tasks/${taskId}/attachments/${attId}/onlyoffice-config`,
-        {
-          credentials: 'include',
-        },
+        { credentials: 'include' },
       );
       const cfg = await r.json();
-      setState(cfg);
+      setConfig(cfg);
     })();
   }, [taskId, attId]);
 
   useEffect(() => {
-    if (!state || !ref.current) return;
-    const { config, token, dsUrl } = state;
+    if (!config || !ref.current) return;
     const ensure = () =>
       new Promise<void>((res) => {
         if ((window as any).DocsAPI) return res();
         const s = document.createElement('script');
-        s.src = `${dsUrl}/web-apps/apps/api/documents/api.js`;
+        s.src = `${import.meta.env.VITE_DS_URL || 'http://localhost:8082'}/web-apps/apps/api/documents/api.js`;
         s.onload = () => res();
         document.body.appendChild(s);
       });
     let editor: any;
     ensure().then(() => {
-      editor = new window.DocsAPI.DocEditor(ref.current, {
-        ...config,
-        document: { ...config.document, token },
-        editorConfig: { ...config.editorConfig, token },
-        height: '100%',
-        width: '100%',
-      });
+      editor = new (window as any).DocsAPI.DocEditor(containerId, { ...config, width: '100%', height: '100%' });
     });
     return () => {
       if (editor && editor.destroyEditor) editor.destroyEditor();
     };
-  }, [state]);
+  }, [config]);
 
-  return <div className="w-full h-full" ref={ref} />;
+  return <div id={containerId} className="w-full h-[70vh]" ref={ref} />;
 }

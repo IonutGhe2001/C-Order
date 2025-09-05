@@ -21,9 +21,10 @@ onlyoffice:
 API environment:
 
 ```
-DS_JWT_SECRET=changeme_super_secret
+DS_JWT_SECRET=changeme_super_secret       # identic cu JWT_SECRET din OnlyOffice
 DS_PUBLIC_URL=http://localhost:8082
-API_PUBLIC_URL=http://api:3001
+API_PUBLIC_URL=http://api:3001            # în Docker
+# API_PUBLIC_URL=http://host.docker.internal:3001  # local `npm run dev`
 ```
 
 The API signs the editor config and saves changes through the OnlyOffice callback, updating the original file in `uploads/`.
