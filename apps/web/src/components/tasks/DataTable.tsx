@@ -56,58 +56,58 @@ export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolea
     );
   }
   return (
-    <table className="min-w-full border">
+    <table className="min-w-full rounded-md shadow-sm divide-y">
       <thead className="bg-brand-muted">
-        <tr>
-          <th className="p-2 w-8">
+        <tr className="divide-x">
+          <th className="p-4 w-8">
             <Skeleton className="h-4 w-4" />
           </th>
-          <th className="p-2">
+          <th className="p-4">
             <Skeleton className="h-4 w-40" />
           </th>
-          <th className="p-2">
+          <th className="p-4">
             <Skeleton className="h-4 w-24" />
           </th>
-          <th className="p-2">
+          <th className="p-4">
             <Skeleton className="h-4 w-20" />
           </th>
-          <th className="p-2">
+          <th className="p-4">
             <Skeleton className="h-4 w-24" />
           </th>
-          <th className="p-2">
+          <th className="p-4">
             <Skeleton className="h-4 w-24" />
           </th>
-          <th className="p-2">
+          <th className="p-4">
             <Skeleton className="h-4 w-32" />
           </th>
-          <th className="p-2 w-8" />
+          <th className="p-4 w-8" />
         </tr>
       </thead>
-      <tbody>
+      <tbody className="divide-y">
         {Array.from({ length: 5 }).map((_, i) => (
-          <tr key={i} className="border-t">
-            <td className="p-2">
+          <tr key={i} className="divide-x even:bg-brand-muted/50">
+            <td className="p-4">
               <Skeleton className="h-4 w-4" />
             </td>
-            <td className="p-2">
+            <td className="p-4">
               <Skeleton className="h-4 w-40" />
             </td>
-            <td className="p-2">
+            <td className="p-4">
               <Skeleton className="h-4 w-24" />
             </td>
-            <td className="p-2">
+            <td className="p-4">
               <Skeleton className="h-4 w-20" />
             </td>
-            <td className="p-2">
+            <td className="p-4">
               <Skeleton className="h-4 w-24" />
             </td>
-            <td className="p-2">
+            <td className="p-4">
               <Skeleton className="h-4 w-24" />
             </td>
-            <td className="p-2">
+            <td className="p-4">
               <Skeleton className="h-4 w-32" />
             </td>
-            <td className="p-2" />
+            <td className="p-4" />
           </tr>
         ))}
       </tbody>
@@ -404,7 +404,7 @@ export default function TasksDataTable({
     const logRowClick = useTimeToAction('open_task_detail');
   const MemoCell = React.memo(({ cell }: { cell: any }) => (
     <td
-      className={`p-2 ${cell.column.id === 'menu' ? 'sticky right-0 bg-background' : ''}`}
+      className={`p-4 ${cell.column.id === 'menu' ? 'sticky right-0 bg-background' : ''}`}
     >
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </td>
@@ -582,15 +582,15 @@ export default function TasksDataTable({
         </div>
       ) : (
         <div ref={tableContainerRef} className="overflow-auto">
-          <table className="min-w-full border">
+          <table className="min-w-full rounded-md shadow-sm divide-y">
             <thead className="sticky top-0 bg-brand-muted text-gray-800 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
+                <tr key={headerGroup.id} className="divide-x">
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
                       colSpan={header.colSpan}
-                      className={`p-2 border-b text-left text-gray-800 ${
+                      className={`p-4 text-left text-gray-800 ${
                         header.column.id === 'menu' ? 'sticky right-0 bg-brand-muted' : 'bg-brand-muted'
                       }`}
                       draggable
@@ -623,12 +623,12 @@ export default function TasksDataTable({
                 </tr>
               ))}
             </thead>
-            <tbody>
+            <tbody className="divide-y">
               {columnFilters.length > 0 && (
                 <tr>
                   <td
                     colSpan={table.getVisibleLeafColumns().length}
-                    className="p-2 border-b"
+                    className="p-4"
                   >
                     <div className="flex flex-wrap gap-2">
                       {columnFilters.map((cf) => {
@@ -670,7 +670,7 @@ export default function TasksDataTable({
                         }}
                         data-index={virtualRow.index}
                         tabIndex={0}
-                        className={`border-t hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
+                        className={`divide-x even:bg-brand-muted/50 hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
                         onClick={() => {
                           logRowClick();
                           navigate(`/tasks/${row.original.id}`);
@@ -704,7 +704,7 @@ export default function TasksDataTable({
                     }}
                     data-index={index}
                     tabIndex={0}
-                    className={`border-t hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
+                    className={`divide-x even:bg-brand-muted/50 hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
                     onClick={() => {
                       logRowClick();
                       navigate(`/tasks/${row.original.id}`);
