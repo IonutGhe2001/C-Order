@@ -10,7 +10,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://localhost:5174', 'http://localhost:8082'],
+    origin: (origin, callback) => {
+      if (!origin || /^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
