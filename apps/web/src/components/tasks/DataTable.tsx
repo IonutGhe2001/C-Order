@@ -150,9 +150,8 @@ export default function TasksDataTable({
     right: ['menu'],
   });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [isMobile, setIsMobile] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
-  const isCardView = view === 'card' || isMobile;
+  const isCardView = view === 'card';
 
   useEffect(() => {
     const savedVisibility = localStorage.getItem('tasksTableColumnVisibility');
@@ -181,15 +180,6 @@ export default function TasksDataTable({
   useEffect(() => {
     localStorage.setItem('tasksTableColumnOrder', JSON.stringify(columnOrder));
   }, [columnOrder]);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)');
-    const handle = (e: MediaQueryListEvent | MediaQueryList) =>
-      setIsMobile(e.matches);
-    handle(mq);
-    mq.addEventListener('change', handle);
-    return () => mq.removeEventListener('change', handle);
-  }, []);
 
 
   const deleteMutation = useMutation({
@@ -493,7 +483,19 @@ export default function TasksDataTable({
       : 0;
 
   if (isLoading) {
-    return <TasksDataTableSkeleton isMobile={isCardView} />;
+    if (isCardView) {
+      return <TasksDataTableSkeleton isMobile />;
+    }
+    return (
+      <>
+        <div className="hidden md:block">
+          <TasksDataTableSkeleton />
+        </div>
+        <div className="md:hidden">
+          <TasksDataTableSkeleton isMobile />
+        </div>
+      </>
+    );
   }
 
   if (isError) {
@@ -572,165 +574,163 @@ export default function TasksDataTable({
         )}
       </div>
 
-      {isCardView ? (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
-          {table.getRowModel().rows.map((row) => (
-            <TaskCard
-              key={row.id}
-              task={row.original}
-              selected={row.getIsSelected()}
-              onSelectChange={row.getToggleSelectedHandler()}
-              onClick={() => navigate(`/tasks/${row.original.id}`)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div ref={tableContainerRef} className="overflow-auto">
-          <table className="min-w-full rounded-md shadow-sm divide-y">
-            <thead className="sticky top-0 bg-brand-muted text-gray-800 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="divide-x">
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      className={`p-4 text-left text-gray-800 ${
-                        header.column.id === 'menu' ? 'sticky right-0 bg-brand-muted' : 'bg-brand-muted'
-                      }`}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, header.column)}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => handleDrop(e, header.column)}
+      <div
+        className={`grid ${isCardView ? '' : 'md:hidden'} grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4`}
+      >
+        {table.getRowModel().rows.map((row) => (
+          <TaskCard
+            key={row.id}
+            task={row.original}
+            selected={row.getIsSelected()}
+            onSelectChange={row.getToggleSelectedHandler()}
+            onClick={() => navigate(`/tasks/${row.original.id}`)}
+          />
+        ))}
+      </div>
+      <div
+        ref={tableContainerRef}
+        className={`${isCardView ? 'hidden' : 'hidden md:block'} overflow-auto`}
+      >
+        <table className="min-w-full rounded-md shadow-sm divide-y">
+          <thead className="sticky top-0 bg-brand-muted text-gray-800 z-10">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id} className="divide-x">
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className={`p-4 text-left text-gray-800 ${
+                      header.column.id === 'menu'
+                        ? 'sticky right-0 bg-brand-muted'
+                        : 'bg-brand-muted'
+                    }`}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, header.column)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => handleDrop(e, header.column)}
+                  >
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className="flex items-center gap-2 cursor-pointer select-none"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getIsSorted() === 'asc' && (
+                          <Icon name="arrow-up" className="ml-1 inline h-3 w-3" />
+                        )}
+                        {header.column.getIsSorted() === 'desc' && (
+                          <Icon
+                            name="arrow-down"
+                            className="ml-1 inline h-3 w-3"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="divide-y">
+            {columnFilters.length > 0 && (
+              <tr>
+                <td colSpan={table.getVisibleLeafColumns().length} className="p-4">
+                  <div className="flex flex-wrap gap-2">
+                    {columnFilters.map((cf) => {
+                      const column = table.getColumn(cf.id);
+                      if (!column) return null;
+                      return (
+                        <Badge key={cf.id} className="flex items-center gap-1">
+                          <span>
+                            {cf.id}: {String(cf.value)}
+                          </span>
+                          <button
+                            onClick={() => column.setFilterValue(undefined)}
+                            aria-label="Remove filter"
+                          >
+                            <Icon name="x" className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </td>
+              </tr>
+            )}
+            {useVirtual ? (
+              <>
+                {paddingTop > 0 && (
+                  <tr>
+                    <td style={{ height: paddingTop }} />
+                  </tr>
+                )}
+                {virtualRows.map((virtualRow) => {
+                  const row = table.getRowModel().rows[virtualRow.index];
+                  return (
+                    <tr
+                      key={row.id}
+                      ref={(el) => {
+                        rowRefs.current[virtualRow.index] = el;
+                        if (el) rowVirtualizer!.measureElement(el);
+                      }}
+                      data-index={virtualRow.index}
+                      tabIndex={0}
+                      className={`divide-x even:bg-brand-muted/50 hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
+                      onClick={() => {
+                        logRowClick();
+                        navigate(`/tasks/${row.original.id}`);
+                      }}
+                      onMouseEnter={() =>
+                        queryClient.prefetchQuery({
+                          queryKey: ['task', row.original.id],
+                          queryFn: () => getTask(row.original.id),
+                        })
+                      }
+                      onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
                     >
-                      {header.isPlaceholder ? null : (
-                        <div
-                          className="flex items-center gap-2 cursor-pointer select-none"
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {header.column.getIsSorted() === 'asc' && (
-                            <Icon
-                              name="arrow-up"
-                              className="ml-1 inline h-3 w-3"
-                            />
-                          )}
-                          {header.column.getIsSorted() === 'desc' && (
-                            <Icon
-                              name="arrow-down"
-                              className="ml-1 inline h-3 w-3"
-                            />
-                          )}
-                        </div>
-                      )}
-                    </th>
+                      {row.getVisibleCells().map((cell) => (
+                        <MemoCell key={cell.id} cell={cell} />
+                      ))}
+                    </tr>
+                  );
+                })}
+                {paddingBottom > 0 && (
+                  <tr>
+                    <td style={{ height: paddingBottom }} />
+                  </tr>
+                )}
+              </>
+            ) : (
+              table.getRowModel().rows.map((row, index) => (
+                <tr
+                  key={row.id}
+                  ref={(el) => {
+                    rowRefs.current[index] = el;
+                  }}
+                  data-index={index}
+                  tabIndex={0}
+                  className={`divide-x even:bg-brand-muted/50 hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
+                  onClick={() => {
+                    logRowClick();
+                    navigate(`/tasks/${row.original.id}`);
+                  }}
+                  onMouseEnter={() =>
+                    queryClient.prefetchQuery({
+                      queryKey: ['task', row.original.id],
+                      queryFn: () => getTask(row.original.id),
+                    })
+                  }
+                  onKeyDown={(e) => handleRowKeyDown(e, index, row.original.id)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <MemoCell key={cell.id} cell={cell} />
                   ))}
                 </tr>
-              ))}
-            </thead>
-            <tbody className="divide-y">
-              {columnFilters.length > 0 && (
-                <tr>
-                  <td
-                    colSpan={table.getVisibleLeafColumns().length}
-                    className="p-4"
-                  >
-                    <div className="flex flex-wrap gap-2">
-                      {columnFilters.map((cf) => {
-                        const column = table.getColumn(cf.id);
-                        if (!column) return null;
-                        return (
-                          <Badge key={cf.id} className="flex items-center gap-1">
-                            <span>
-                              {cf.id}: {String(cf.value)}
-                            </span>
-                            <button
-                              onClick={() => column.setFilterValue(undefined)}
-                              aria-label="Remove filter"
-                            >
-                              <Icon name="x" className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {useVirtual ? (
-                <>
-                  {paddingTop > 0 && (
-                    <tr>
-                      <td style={{ height: paddingTop }} />
-                    </tr>
-                  )}
-                  {virtualRows.map((virtualRow) => {
-                    const row = table.getRowModel().rows[virtualRow.index];
-                    return (
-                      <tr
-                        key={row.id}
-                        ref={(el) => {
-                          rowRefs.current[virtualRow.index] = el;
-                          if (el) rowVirtualizer!.measureElement(el);
-                        }}
-                        data-index={virtualRow.index}
-                        tabIndex={0}
-                        className={`divide-x even:bg-brand-muted/50 hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
-                        onClick={() => {
-                          logRowClick();
-                          navigate(`/tasks/${row.original.id}`);
-                        }}
-                        onMouseEnter={() =>
-                          queryClient.prefetchQuery({
-                            queryKey: ['task', row.original.id],
-                            queryFn: () => getTask(row.original.id),
-                          })
-                        }
-                        onKeyDown={(e) => handleRowKeyDown(e, virtualRow.index, row.original.id)}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <MemoCell key={cell.id} cell={cell} />
-                        ))}
-                      </tr>
-                    );
-                  })}
-                  {paddingBottom > 0 && (
-                    <tr>
-                      <td style={{ height: paddingBottom }} />
-                    </tr>
-                  )}
-                </>
-              ) : (
-                table.getRowModel().rows.map((row, index) => (
-                  <tr
-                    key={row.id}
-                    ref={(el) => {
-                      rowRefs.current[index] = el;
-                    }}
-                    data-index={index}
-                    tabIndex={0}
-                    className={`divide-x even:bg-brand-muted/50 hover:bg-brand-muted cursor-pointer text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${row.getIsSelected() ? 'bg-brand-muted ring-2 ring-brand' : ''}`}
-                    onClick={() => {
-                      logRowClick();
-                      navigate(`/tasks/${row.original.id}`);
-                    }}
-                    onMouseEnter={() =>
-                      queryClient.prefetchQuery({
-                        queryKey: ['task', row.original.id],
-                        queryFn: () => getTask(row.original.id),
-                      })
-                    }
-                    onKeyDown={(e) => handleRowKeyDown(e, index, row.original.id)}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <MemoCell key={cell.id} cell={cell} />
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       <div className="flex items-center justify-end gap-2">
         <Button
           variant="outline"

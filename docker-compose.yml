@@ -38,6 +38,8 @@ services:
       - JWT_ENABLED=true
       - JWT_SECRET=changeme_super_secret
       - JWT_HEADER=Authorization
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # necesar pe Linux  
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
 
