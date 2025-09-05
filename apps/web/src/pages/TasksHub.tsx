@@ -50,7 +50,7 @@ export default function TasksHub() {
       <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main
         id="main-content"
-        className="mt-14 px-4 sm:px-6 lg:px-8 lg:ml-60 flex flex-col gap-4"
+        className="mt-14 px-4 sm:px-6 lg:px-8 lg:ml-60 max-w-7xl mx-auto flex flex-col gap-4 sm:gap-6"
       >
         <Suspense fallback={<TasksHubSkeleton />}>
           <TasksToolbar
