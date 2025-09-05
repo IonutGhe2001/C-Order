@@ -13,7 +13,7 @@ const buttonVariants = cva(
       variant: {
         primary: primaryClasses,
         default: primaryClasses,
-        secondary: 'bg-brand-muted text-brand hover:bg-brand',
+        secondary: 'bg-brand-muted text-brand hover:bg-brand hover:text-brand-fg',
         link: 'text-brand underline-offset-4 hover:underline',
         destructive:
           'bg-danger text-brand-fg hover:bg-danger/90',
