@@ -40,6 +40,7 @@ export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarPr
       to: undefined,
       priority: undefined,
     });
+    const statuses = statusOptions();
 
   return (
     <div className="flex flex-wrap items-end gap-2 justify-between">
@@ -60,7 +61,7 @@ export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarPr
             <SelectValue placeholder={t("labels.status")} />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            {statusOptions.map((s) => (
+            {statuses.map((s) => (
               <SelectItem key={s.value} value={s.value}>
                 {t(s.label)}
               </SelectItem>

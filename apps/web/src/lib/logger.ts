@@ -4,6 +4,7 @@ let userId: string | null = null;
 const startTime = performance.now();
 
 function sendLog(type: string, data: Record<string, any>) {
+  if (import.meta.env.DEV) return;
   const payload = { type, userId, timestamp: Date.now(), ...data };
   fetch(`${base}/logs`, {
     method: 'POST',

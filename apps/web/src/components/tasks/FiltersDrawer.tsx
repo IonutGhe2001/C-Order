@@ -41,6 +41,7 @@ export default function FiltersDrawer({
   const users = usersQuery.data?.items || [];
   const statusVal = (filters.status as string) || "";
   const assigneeVal = (filters.assignees as string) || "";
+  const statuses = statusOptions();
 
   const clear = () => {
     onChange({ status: undefined, assignees: undefined, from: undefined, to: undefined });
@@ -65,7 +66,7 @@ export default function FiltersDrawer({
                 <SelectValue placeholder={t("labels.status")} />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {statusOptions.map((s) => (
+                {statuses.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {t(s.label)}
                   </SelectItem>
