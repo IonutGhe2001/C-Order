@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent } from './ui/sheet';
 import {
@@ -19,6 +19,12 @@ export default function Sidebar({
   onOpenChange?: (open: boolean) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--sidebar-width',
+      collapsed ? '72px' : '240px'
+    );
+  }, [collapsed]);
   const linkClass = (isActive: boolean) =>
     `flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
       collapsed ? 'justify-center p-2' : 'px-4 py-2'

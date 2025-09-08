@@ -56,7 +56,7 @@ export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolea
     );
   }
   return (
-    <table className="min-w-full rounded-md shadow-sm divide-y">
+    <table className="w-full rounded-md shadow-sm divide-y">
       <thead className="bg-brand-muted">
         <tr className="divide-x">
           <th className="p-4 w-8">
@@ -589,9 +589,9 @@ export default function TasksDataTable({
       </div>
       <div
         ref={tableContainerRef}
-        className={`${isCardView ? 'hidden' : 'hidden md:block'} overflow-auto`}
+        className={`${isCardView ? 'hidden' : 'hidden md:block'} overflow-auto w-full`}
       >
-        <table className="min-w-full rounded-md shadow-sm divide-y">
+        <table className="w-full rounded-md shadow-sm divide-y">
           <thead className="sticky top-0 bg-brand-muted text-gray-800 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="divide-x">

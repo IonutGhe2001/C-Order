@@ -10,6 +10,7 @@
   --brand-muted: 0 72% 90%;
   --ring: var(--brand);
   --density: 1;
+  --sidebar-width: 240px;
 }
 
 
