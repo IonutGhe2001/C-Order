@@ -14,6 +14,7 @@ interface CustomizeColumnsDialogProps {
   customColumns: ColumnConfig[];
   columnNames: Record<string, string>;
   onSave: (names: Record<string, string>, customCols: ColumnConfig[]) => void;
+  onRemoveColumn?: (id: string) => void;
 }
 
 export default function CustomizeColumnsDialog({
@@ -23,6 +24,7 @@ export default function CustomizeColumnsDialog({
   customColumns,
   columnNames,
   onSave,
+  onRemoveColumn,
 }: CustomizeColumnsDialogProps) {
   const { t } = useTranslation();
   const [names, setNames] = React.useState<Record<string, string>>(columnNames);
@@ -45,7 +47,11 @@ export default function CustomizeColumnsDialog({
   };
 
   const handleRemove = (id: string) => {
-    setCustom(custom.filter((c) => c.id !== id));
+    if (custom.some((c) => c.id === id)) {
+      setCustom(custom.filter((c) => c.id !== id));
+    } else {
+      onRemoveColumn?.(id);
+    }
     setNames((prev) => {
       const { [id]: _omit, ...rest } = prev;
       return rest;
@@ -69,16 +75,14 @@ export default function CustomizeColumnsDialog({
                 setNames({ ...names, [col.id]: e.target.value })
               }
             />
-            {custom.some((c) => c.id === col.id) && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemove(col.id)}
-                aria-label={t('buttons.delete', { defaultValue: 'Delete' })}
-              >
-                <Icon name="trash" className="h-4 w-4" />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleRemove(col.id)}
+              aria-label={t('buttons.delete', { defaultValue: 'Delete' })}
+            >
+              <Icon name="trash" className="h-4 w-4" />
+            </Button>
           </div>
         ))}
         <Button variant="outline" onClick={handleAdd}>

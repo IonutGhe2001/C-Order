@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { TaskStatus } from '@prisma/client';
+import { TaskStatus, Priority } from '@prisma/client';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { MailService } from '../mail.service';
@@ -12,22 +12,46 @@ export interface UploadedFile {
 }
 
 const statusValues = Object.values(TaskStatus);
+const priorityValues = Object.values(Priority);
 
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService, private mail: MailService) {}
   list(params: any) {
-    const { q, status, orderDate, authority } = params;
+    const { q, status, orderDate, authority, priority, assignees, from, to } = params;
 
     if (status && !statusValues.includes(status as TaskStatus)) {
       throw new BadRequestException('Invalid status');
     }
+    if (priority && !priorityValues.includes(priority as Priority)) {
+      throw new BadRequestException('Invalid priority');
+    }
 
     const where: any = {
       ...(status ? { status: status as TaskStatus } : {}),
+      ...(priority ? { priority: priority as Priority } : {}),
       ...(orderDate ? { orderDate: new Date(orderDate) } : {}),
       ...(authority
         ? { authority: { contains: authority, mode: 'insensitive' } }
+        : {}),
+        ...(assignees
+        ? {
+            assignees: {
+              some: {
+                id: {
+                  in: Array.isArray(assignees) ? assignees : [assignees],
+                },
+              },
+            },
+          }
+        : {}),
+      ...(from || to
+        ? {
+            createdAt: {
+              ...(from ? { gte: new Date(from) } : {}),
+              ...(to ? { lte: new Date(to) } : {}),
+            },
+          }
         : {}),
       ...(q
         ? {
@@ -41,7 +65,7 @@ export class TasksService {
 
     return this.prisma.task.findMany({
       where,
-      include: { supplier: true, owner: true },
+      include: { supplier: true, owner: true, assignees: true },
       orderBy: { createdAt: 'desc' },
     });
   }

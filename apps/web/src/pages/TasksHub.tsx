@@ -17,10 +17,12 @@ export default function TasksHub() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
+    q: undefined,
     status: undefined,
     assignees: undefined,
     from: undefined,
     to: undefined,
+    priority: undefined,
   });
   const [table, setTable] = useState<Table<any>>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -39,6 +41,10 @@ export default function TasksHub() {
             : String((c as any).accessorKey || c.id),
       })),
     [t]
+  );
+  const activeBaseColumns = useMemo(
+    () => baseColumns.filter((c) => columnVisibility[c.id] !== false),
+    [baseColumns, columnVisibility]
   );
   useEffect(() => {
     const names = localStorage.getItem("tasksColumnNames");
@@ -86,6 +92,11 @@ export default function TasksHub() {
     return () => window.removeEventListener("open-customize-columns", open as any);
   }, []);
 
+  const handleRemoveColumn = (id: string) => {
+    setColumnVisibility((prev) => ({ ...prev, [id]: false }));
+    table?.getColumn(id)?.toggleVisibility(false);
+  };
+
   return (
     <>
       <Header
@@ -126,9 +137,10 @@ export default function TasksHub() {
           <CustomizeColumnsDialog
             open={editColumnsOpen}
             onOpenChange={setEditColumnsOpen}
-            columns={baseColumns}
+            columns={activeBaseColumns}
             customColumns={customColumns}
             columnNames={columnNames}
+            onRemoveColumn={handleRemoveColumn}
             onSave={(names, cols) => {
               setColumnNames(names);
               setCustomColumns(cols);

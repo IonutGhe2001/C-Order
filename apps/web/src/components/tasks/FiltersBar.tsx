@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,12 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { listUsers, TaskFilters } from "@/lib/api";
 import { statusOptions } from "./columns";
+
+const priorityOptions = [
+  { value: "LOW", label: "priority.LOW" },
+  { value: "MEDIUM", label: "priority.MEDIUM" },
+  { value: "HIGH", label: "priority.HIGH" },
+];
 
 interface FiltersBarProps {
   filters: TaskFilters;
@@ -25,72 +32,96 @@ export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarPr
   const users = data?.items || [];
 
   const clear = () =>
-    onChange({ status: undefined, assignees: undefined, from: undefined, to: undefined });
+    onChange({
+      q: undefined,
+      status: undefined,
+      assignees: undefined,
+      from: undefined,
+      to: undefined,
+      priority: undefined,
+    });
 
   return (
     <div className="flex flex-wrap items-end gap-2 justify-between">
       <div className="flex flex-wrap items-end gap-2">
-      <Select
-        value={(filters.status as string) || ""}
-        onValueChange={(v) => onChange({ ...filters, status: v || undefined })}
-      >
-        <SelectTrigger className="w-40 text-sm">
-          <SelectValue placeholder={t("labels.status")} />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          {statusOptions.map((s) => (
-            <SelectItem key={s.value} value={s.value}>
-              {t(s.label)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select
-        value={(filters.assignees as string) || ""}
-        onValueChange={(v) => onChange({ ...filters, assignees: v || undefined })}
-      >
-        <SelectTrigger className="w-40 text-sm">
-          <SelectValue placeholder={t("labels.assignees")} />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          {users.map((u: any) => (
-            <SelectItem key={u.id} value={u.id}>
-              {u.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <DatePicker
-        selected={filters.from ? new Date(filters.from) : null}
-        onChange={(date: Date | null) =>
-          onChange({
-            ...filters,
-            from: date ? date.toISOString().slice(0, 10) : undefined,
-          })
-        }
-        className="w-40 border rounded p-2 text-sm bg-white"
-        dateFormat="yyyy-MM-dd"
-        placeholderText={t("labels.from", { defaultValue: "From" })}
-      />
-      <DatePicker
-        selected={filters.to ? new Date(filters.to) : null}
-        onChange={(date: Date | null) =>
-          onChange({
-            ...filters,
-            to: date ? date.toISOString().slice(0, 10) : undefined,
-          })
-        }
-        className="w-40 border rounded p-2 text-sm bg-white"
-        dateFormat="yyyy-MM-dd"
-        placeholderText={t("labels.to", { defaultValue: "To" })}
-      />
-      <Button variant="outline" onClick={clear}>
-        {t("buttons.clearFilters")}
-      </Button>
+      <Input
+          value={filters.q || ""}
+          onChange={(e) =>
+            onChange({ ...filters, q: e.target.value || undefined })
+          }
+          placeholder={t("placeholders.searchTasks")}
+          className="w-40"
+        />
+        <Select
+          value={(filters.status as string) || ""}
+          onValueChange={(v) => onChange({ ...filters, status: v || undefined })}
+        >
+          <SelectTrigger className="w-40 text-sm">
+            <SelectValue placeholder={t("labels.status")} />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {statusOptions.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {t(s.label)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={(filters.assignees as string) || ""}
+          onValueChange={(v) => onChange({ ...filters, assignees: v || undefined })}
+        >
+          <SelectTrigger className="w-40 text-sm">
+            <SelectValue placeholder={t("labels.assignees")} />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {users.map((u: any) => (
+              <SelectItem key={u.id} value={u.id}>
+                {u.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={(filters.priority as string) || ""}
+          onValueChange={(v) => onChange({ ...filters, priority: v || undefined })}
+        >
+          <SelectTrigger className="w-40 text-sm">
+            <SelectValue placeholder={t("labels.priority")} />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {priorityOptions.map((p) => (
+              <SelectItem key={p.value} value={p.value}>
+                {t(p.label)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <DatePicker
+          startDate={filters.from ? new Date(filters.from) : null}
+          endDate={filters.to ? new Date(filters.to) : null}
+          selectsRange
+          onChange={(dates: [Date | null, Date | null]) => {
+            const [start, end] = dates;
+            onChange({
+              ...filters,
+              from: start ? start.toISOString().slice(0, 10) : undefined,
+              to: end ? end.toISOString().slice(0, 10) : undefined,
+            });
+          }}
+          className="w-52 border rounded p-2 text-sm bg-white"
+          dateFormat="yyyy-MM-dd"
+          placeholderText={t("labels.dateRange", {
+            defaultValue: "Date range",
+          })}
+          popperClassName="z-50"
+          portalId="root"
+        />
+        <Button variant="outline" onClick={clear}>
+          {t("buttons.clearFilters")}
+        </Button>
       </div>
-      <Button onClick={onCreate}>
-        {t("buttons.addTask")}
-      </Button>
+      <Button onClick={onCreate}>{t("buttons.addTask")}</Button>
     </div>
   );
 }

@@ -49,6 +49,7 @@ export interface TaskFilters {
   assignees?: string | string[];
   from?: string;
   to?: string;
+  priority?: string;
   orderDate?: string;
   authority?: string;
 }
