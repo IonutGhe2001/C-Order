@@ -16,11 +16,8 @@ enum Role {
 enum TaskStatus {
   OPEN
   IN_PROGRESS
-  BLOCKED
-  DONE
   LIVRAT_PARTIAL
   FINALIZAT
-  CANCELLED
 }
 
 enum Priority {
@@ -63,7 +60,7 @@ model Task {
   id          String      @id @default(cuid())
   title       String
   description String?
-  status      TaskStatus  @default(IN_PROGRESS)
+  status      TaskStatus  @default(OPEN)
   priority    Priority    @default(MEDIUM)
   dueDate     DateTime?
   amount      Decimal?    @db.Decimal(12, 2)

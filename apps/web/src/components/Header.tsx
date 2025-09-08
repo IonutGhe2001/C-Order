@@ -19,6 +19,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import ColumnsMenu from './tasks/ColumnsMenu';
 import { Table, VisibilityState } from '@tanstack/react-table';
+import CreateTaskSheet from './tasks/CreateTaskSheet';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -30,6 +31,7 @@ interface HeaderProps {
 
 export default function Header({ onToggleSidebar, table, columnVisibility, view, setView }: HeaderProps) {
   const [commandOpen, setCommandOpen] = useState(false);
+  const [taskSheetOpen, setTaskSheetOpen] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -73,7 +75,12 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
           <div className="flex items-center space-x-2 ml-auto z-10">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="primary" aria-label={t('buttons.add')} className="text-brand-fg">
+                <Button
+                  variant="primary"
+                  aria-label={t('buttons.add')}
+                  className="text-brand-fg"
+                  onClick={() => setTaskSheetOpen(true)}
+                >
                   <Icon name="plus" className="h-4 w-4 mr-2" />{t('buttons.add')}
                 </Button>
               </TooltipTrigger>
@@ -121,6 +128,14 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                 </TooltipTrigger>
                 <TooltipContent>{t('labels.userMenu')}</TooltipContent>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setTaskSheetOpen(true);
+                    }}
+                  >
+                    {t('buttons.addTask')}
+                  </DropdownMenuItem>
                   {table && columnVisibility && (
                     <ColumnsMenu table={table} visibility={columnVisibility}>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -158,6 +173,7 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
         </header>
       </TooltipProvider>
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
+      <CreateTaskSheet open={taskSheetOpen} onOpenChange={setTaskSheetOpen} showTrigger={false} />
     </>
   );
 }

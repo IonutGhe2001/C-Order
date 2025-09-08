@@ -6,11 +6,8 @@ export type StatusColor = NonNullable<VariantProps<typeof badgeVariants>['varian
 export const statusColors: Record<string, StatusColor> = {
   OPEN: 'info',
   IN_PROGRESS: 'warning',
-  BLOCKED: 'danger',
-  DONE: 'success',
   LIVRAT_PARTIAL: 'warning',
   FINALIZAT: 'success',
-  CANCELLED: 'danger',
 };
 
 export function getStatusColor(status: string): StatusColor {

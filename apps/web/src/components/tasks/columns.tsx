@@ -16,11 +16,8 @@ export interface Task {
 export const statusOptions = [
   { value: 'OPEN', label: 'statuses.OPEN' },
   { value: 'IN_PROGRESS', label: 'statuses.IN_PROGRESS' },
-  { value: 'BLOCKED', label: 'statuses.BLOCKED' },
-  { value: 'DONE', label: 'statuses.DONE' },
   { value: 'LIVRAT_PARTIAL', label: 'statuses.LIVRAT_PARTIAL' },
   { value: 'FINALIZAT', label: 'statuses.FINALIZAT' },
-  { value: 'CANCELLED', label: 'statuses.CANCELLED' },
 ];
 
 export const statusLabels: Record<string, string> = Object.fromEntries(

@@ -262,7 +262,7 @@ export default function TasksDataTable({
     return items.filter((t) => {
       const due = t.dueDate ? new Date(t.dueDate) : undefined;
       if (quickFilter === 'overdue') {
-        return !!due && due < today && t.status !== 'DONE';
+        return !!due && due < today && t.status !== 'FINALIZAT';
       }
       if (quickFilter === 'today') {
         return (

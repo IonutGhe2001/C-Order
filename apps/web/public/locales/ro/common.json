@@ -8,13 +8,10 @@
     "dashboard": "Dashboard"
   },
   "statuses": {
-    "OPEN": "Deschis",
-    "IN_PROGRESS": "În progres",
-    "BLOCKED": "Blocat",
-    "DONE": "Finalizat",
+    "OPEN": "Nou",
+    "IN_PROGRESS": "În lucru",
     "LIVRAT_PARTIAL": "Livrat parțial",
-    "FINALIZAT": "Finalizat",
-    "CANCELLED": "Anulat"
+    "FINALIZAT": "Finalizat"
   },
   "priority": {
     "LOW": "Scăzută",

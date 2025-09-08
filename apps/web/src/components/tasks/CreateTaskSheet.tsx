@@ -26,21 +26,15 @@ import Stepper from "@/components/ui/Stepper";
 const statuses = [
   "OPEN",
   "IN_PROGRESS",
-  "BLOCKED",
-  "DONE",
   "LIVRAT_PARTIAL",
   "FINALIZAT",
-  "CANCELLED",
 ] as const;
 
 const statusLabels: Record<string, string> = {
   OPEN: "statuses.OPEN",
   IN_PROGRESS: "statuses.IN_PROGRESS",
-  BLOCKED: "statuses.BLOCKED",
-  DONE: "statuses.DONE",
   LIVRAT_PARTIAL: "statuses.LIVRAT_PARTIAL",
   FINALIZAT: "statuses.FINALIZAT",
-  CANCELLED: "statuses.CANCELLED",
 };
 
 const orderTypeOptions = [
@@ -71,7 +65,7 @@ export default function CreateTaskSheet({
     defaultValues: {
       title: "",
       description: "",
-      status: "IN_PROGRESS",
+      status: "OPEN",
       priority: "MEDIUM",
       assignees: [],
       supplier: "",

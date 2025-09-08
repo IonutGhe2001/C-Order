@@ -47,4 +47,9 @@
     animation: none !important;
     transition: none !important;
   }
+  }
+
+/* Ensure react-datepicker popper appears above sticky table headers */
+.react-datepicker-popper {
+  z-index: 60 !important;
 }

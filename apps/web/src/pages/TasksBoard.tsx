@@ -9,15 +9,7 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { statusLabels } from '../components/tasks/columns';
 
-const statuses = [
-  'OPEN',
-  'IN_PROGRESS',
-  'BLOCKED',
-  'DONE',
-  'LIVRAT_PARTIAL',
-  'FINALIZAT',
-  'CANCELLED',
-];
+const statuses = ['OPEN', 'IN_PROGRESS', 'LIVRAT_PARTIAL', 'FINALIZAT'];
 const labels: Record<string, string> = statusLabels;
 
 function ViewSwitcher() {

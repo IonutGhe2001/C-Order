@@ -7,11 +7,8 @@ export const taskSchema = z.object({
   status: z.enum([
     "OPEN",
     "IN_PROGRESS",
-    "BLOCKED",
-    "DONE",
     "LIVRAT_PARTIAL",
     "FINALIZAT",
-    "CANCELLED",
   ]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   assignees: z.array(z.string()).min(1, i18n.t('validation.assigneeRequired')),

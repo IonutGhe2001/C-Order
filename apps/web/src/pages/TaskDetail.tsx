@@ -27,15 +27,13 @@ import { statusLabels } from '../components/tasks/columns';
 import { SaveIndicator } from '../components/ui/save-indicator';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../components/ui/tooltip';
 import { formatDateTime } from '@/lib/i18n';
+import { useToast } from '@/components/ui/toaster';
 
 const statuses = [
   'OPEN',
   'IN_PROGRESS',
-  'BLOCKED',
-  'DONE',
   'LIVRAT_PARTIAL',
   'FINALIZAT',
-  'CANCELLED',
 ];
 const labels: Record<string, string> = statusLabels;
 const priorities = ['LOW', 'MEDIUM', 'HIGH'];
@@ -48,21 +46,15 @@ const priorityLabels: Record<string, string> = {
 const statusColorClasses: Record<string, string> = {
   OPEN: 'text-info',
   IN_PROGRESS: 'text-warning',
-  BLOCKED: 'text-danger',
-  DONE: 'text-success',
   LIVRAT_PARTIAL: 'text-warning',
   FINALIZAT: 'text-success',
-  CANCELLED: 'text-danger',
 };
 
 const statusIcons: Record<string, IconName> = {
   OPEN: 'circle',
   IN_PROGRESS: 'loader-2',
-  BLOCKED: 'ban',
-  DONE: 'check-circle',
   LIVRAT_PARTIAL: 'circle-dot',
   FINALIZAT: 'check-circle',
-  CANCELLED: 'x-circle',
 };
 
 const priorityIcons: Record<string, IconName> = {
@@ -80,11 +72,8 @@ const priorityColorClasses: Record<string, string> = {
 const statusBadgeVariants: Record<string, BadgeProps['variant']> = {
   OPEN: 'info',
   IN_PROGRESS: 'warning',
-  BLOCKED: 'danger',
-  DONE: 'success',
   LIVRAT_PARTIAL: 'warning',
   FINALIZAT: 'success',
-  CANCELLED: 'danger',
 };
 
 const priorityBadgeVariants: Record<string, BadgeProps['variant']> = {
@@ -103,6 +92,7 @@ export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
   const { t } = useTranslation();
+  const toast = useToast();
   const {
     data: task,
     isLoading,
@@ -199,10 +189,34 @@ export default function TaskDetail() {
   }, [task]);
 
   const changeStatus = (s: string) => {
+    if (status === 'FINALIZAT' && s === 'IN_PROGRESS') {
+      toast({
+        title: t('messages.taskReopened', {
+          defaultValue: 'Task reopened',
+        }),
+        variant: 'error',
+      });
+    }
     setStatus(s);
     update.mutate({ status: s });
   };
-  const save = (data: Partial<TaskPayload>) => update.mutate(data);
+  const save = (data: Partial<TaskPayload>) => {
+    if (status === 'FINALIZAT') {
+      toast({
+        title: t('messages.taskFinalized', {
+          defaultValue: 'Task is finalized. Change status to "In progress" to edit.',
+        }),
+        variant: 'error',
+      });
+      return;
+    }
+    const payload: Partial<TaskPayload> = { ...data };
+    if (status === 'OPEN' && !('status' in data)) {
+      payload.status = 'IN_PROGRESS';
+      setStatus('IN_PROGRESS');
+    }
+    update.mutate(payload);
+  };
 
   if (isLoading) {
     return (
