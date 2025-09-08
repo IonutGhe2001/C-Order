@@ -54,6 +54,7 @@ interface TasksToolbarProps {
   columnVisibility: VisibilityState;
   view: "table" | "card";
   setView: React.Dispatch<React.SetStateAction<"table" | "card">>;
+  onOpenEditColumns: () => void;
 }
 
 export function TasksToolbarSkeleton() {
@@ -84,6 +85,7 @@ export default function TasksToolbar({
   columnVisibility,
   view,
   setView,
+  onOpenEditColumns,
 }: TasksToolbarProps) {
   const [filter, setFilter] = quickFilter;
   const isLoading = useIsFetching({ queryKey: ["tasks"] }) > 0;
@@ -203,28 +205,36 @@ export default function TasksToolbar({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {table && (
-              <ColumnsMenu table={table} visibility={columnVisibility}>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  {t("labels.columns")}
-                </DropdownMenuItem>
-              </ColumnsMenu>
-            )}
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
-                setView(view === "table" ? "card" : "table");
-              }}
-            >
-              {view === "table"
-                ? t("labels.cardView", { defaultValue: "Card view" })
-                : t("labels.tableView", { defaultValue: "Table view" })}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onOpenFilters}>
-              {t("buttons.filters")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {table && (
+                <ColumnsMenu table={table} visibility={columnVisibility}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    {t("labels.columns")}
+                  </DropdownMenuItem>
+                </ColumnsMenu>
+              )}
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setView(view === "table" ? "card" : "table");
+                }}
+              >
+                {view === "table"
+                  ? t("labels.cardView", { defaultValue: "Card view" })
+                  : t("labels.tableView", { defaultValue: "Table view" })}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  onOpenEditColumns();
+                }}
+              >
+                {t("buttons.editColumns", { defaultValue: "Edit columns" })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onOpenFilters}>
+                {t("buttons.filters")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
       </div>
     </div>
   );

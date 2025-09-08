@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -18,25 +18,13 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listTasks, listUsers, updateTask, TaskPayload, getTask, deleteTask, TaskFilters } from '@/lib/api';
+import { listTasks, listUsers, updateTask, TaskPayload, getTask, TaskFilters } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/toaster';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from '@/components/ui/tooltip';
 import TaskCard from './TaskCard';
 import TaskCardSkeleton from './TaskCardSkeleton';
 import { Task, createTaskColumns, statusOptions } from './columns';
@@ -123,6 +111,8 @@ export default function TasksDataTable({
   onTableChange,
   onColumnVisibilityChange,
   view = 'table',
+  columnNames = {},
+  customColumns = [],
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
   filters?: TaskFilters;
@@ -131,6 +121,8 @@ export default function TasksDataTable({
   onTableChange?: (table: Table<Task>) => void;
   onColumnVisibilityChange?: (state: VisibilityState) => void;
   view?: 'table' | 'card';
+  columnNames?: Record<string, string>;
+  customColumns?: { id: string; header: string }[];
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -146,10 +138,9 @@ export default function TasksDataTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
-  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
-    right: ['menu'],
-  });
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [customData, setCustomData] = useState<Record<string, Record<string, string>>>({});
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
   const isCardView = view === 'card';
 
@@ -165,7 +156,19 @@ export default function TasksDataTable({
     }
     if (savedOrder) {
       try {
-        setColumnOrder(JSON.parse(savedOrder));
+        const parsed = JSON.parse(savedOrder).filter((id: string) => id !== 'menu');
+        setColumnOrder(parsed);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('tasksCustomData');
+    if (saved) {
+      try {
+        setCustomData(JSON.parse(saved));
       } catch {
         /* ignore */
       }
@@ -181,12 +184,17 @@ export default function TasksDataTable({
     localStorage.setItem('tasksTableColumnOrder', JSON.stringify(columnOrder));
   }, [columnOrder]);
 
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteTask(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
-    onError: () => toast({ title: t('messages.updateFailed'), variant: 'error' }),
-  });
+   const updateCustomData = useCallback(
+    (taskId: string, columnId: string, value: string) => {
+      setCustomData((prev) => {
+        const row = { ...(prev[taskId] || {}), [columnId]: value };
+        const next = { ...prev, [taskId]: row };
+        localStorage.setItem('tasksCustomData', JSON.stringify(next));
+        return next;
+      });
+    },
+    []
+  );
 
   const columns = useMemo<ColumnDef<Task>[]>(() => {
     const selectColumn: ColumnDef<Task> = {
@@ -213,51 +221,34 @@ export default function TasksDataTable({
       enableColumnFilter: false,
       size: 30,
     };
-    const actionColumn: ColumnDef<Task> = {
-      id: 'menu',
-      header: () => '...',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="text-brand hover:text-brand/80"
-                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                    aria-label="More options"
-                  >
-                    <Icon name="more-horizontal" className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>More options</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DropdownMenuContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <DropdownMenuItem
-              onSelect={() => navigate(`/tasks/${row.original.id}`)}
-              className="gap-2"
-            >
-              <Icon name="eye" className="h-4 w-4" /> View task
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={() => deleteMutation.mutate(row.original.id)}
-              className="gap-2"
-            >
-              <Icon name="trash" className="h-4 w-4" /> Delete task
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+    const baseCols = createTaskColumns(t).map((col) => {
+      const key = String((col as any).accessorKey || col.id);
+      return {
+        ...col,
+        id: key,
+        accessorKey: (col as any).accessorKey || key,
+        header: columnNames[key] || col.header,
+      } as ColumnDef<Task>;
+    });
+    const extraCols = customColumns.map((col) => ({
+      id: col.id,
+      accessorKey: col.id,
+      header: columnNames[col.id] || col.header,
+      cell: ({ row }: { row: any }) => {
+        const taskId = row.original.id;
+        const value = customData[taskId]?.[col.id] || '';
+        return (
+          <Input
+            value={value}
+            onChange={(e) => updateCustomData(taskId, col.id, e.target.value)}
+          />
+        );
+      },
       enableSorting: false,
       enableColumnFilter: false,
-      size: 40,
-    };
-    return [selectColumn, ...createTaskColumns(t), actionColumn];
-  }, [navigate, t, deleteMutation]);
+      }));
+    return [selectColumn, ...baseCols, ...extraCols];
+  }, [t, columnNames, customColumns, customData, updateCustomData]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];
@@ -393,9 +384,7 @@ export default function TasksDataTable({
     : null;
     const logRowClick = useTimeToAction('open_task_detail');
   const MemoCell = React.memo(({ cell }: { cell: any }) => (
-    <td
-      className={`p-4 ${cell.column.id === 'menu' ? 'sticky right-0 bg-background' : ''}`}
-    >
+    <td className="p-4">
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </td>
   ));
@@ -599,11 +588,7 @@ export default function TasksDataTable({
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    className={`p-4 text-left text-gray-800 ${
-                      header.column.id === 'menu'
-                        ? 'sticky right-0 bg-brand-muted'
-                        : 'bg-brand-muted'
-                    }`}
+                    className="p-4 text-left text-gray-800 bg-brand-muted"
                     draggable
                     onDragStart={(e) => handleDragStart(e, header.column)}
                     onDragOver={(e) => e.preventDefault()}

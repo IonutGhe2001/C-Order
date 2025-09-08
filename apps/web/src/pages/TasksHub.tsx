@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, Suspense, lazy, useEffect, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table, VisibilityState } from "@tanstack/react-table";
 import Header from "../components/Header";
@@ -8,6 +8,9 @@ import TasksToolbar from "../components/tasks/TasksToolbar";
 import FiltersDrawer from "../components/tasks/FiltersDrawer";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import { deleteTask, archiveTask, TaskFilters } from "../lib/api";
+import { createTaskColumns } from "../components/tasks/columns";
+import CustomizeColumnsDialog from "../components/tasks/CustomizeColumnsDialog";
+import { useTranslation } from "react-i18next";
 
 const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 
@@ -27,6 +30,45 @@ export default function TasksHub() {
   const [table, setTable] = useState<Table<any>>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [view, setView] = useState<'table' | 'card'>('table');
+  const [editColumnsOpen, setEditColumnsOpen] = useState(false);
+  const [columnNames, setColumnNames] = useState<Record<string, string>>({});
+  const [customColumns, setCustomColumns] = useState<{ id: string; header: string }[]>([]);
+  const { t } = useTranslation();
+  const baseColumns = useMemo(
+    () =>
+      createTaskColumns(t).map((c) => ({
+        id: String((c as any).accessorKey || c.id),
+        header:
+          typeof c.header === "string"
+            ? c.header
+            : String((c as any).accessorKey || c.id),
+      })),
+    [t]
+  );
+  useEffect(() => {
+    const names = localStorage.getItem("tasksColumnNames");
+    if (names) {
+      try {
+        setColumnNames(JSON.parse(names));
+      } catch {
+        /* ignore */
+      }
+    }
+    const custom = localStorage.getItem("tasksCustomColumns");
+    if (custom) {
+      try {
+        setCustomColumns(JSON.parse(custom));
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("tasksColumnNames", JSON.stringify(columnNames));
+  }, [columnNames]);
+  useEffect(() => {
+    localStorage.setItem("tasksCustomColumns", JSON.stringify(customColumns));
+  }, [customColumns]);
   const qc = useQueryClient();
 
   const deleteMut = useMutation({
@@ -68,6 +110,7 @@ export default function TasksHub() {
               columnVisibility={columnVisibility}
               view={view}
               setView={setView}
+              onOpenEditColumns={() => setEditColumnsOpen(true)}
             />
             <TasksDataTable
               quickFilter={quickFilter}
@@ -77,6 +120,8 @@ export default function TasksHub() {
               onTableChange={setTable}
               onColumnVisibilityChange={setColumnVisibility}
               view={view}
+              columnNames={columnNames}
+              customColumns={customColumns}
             />
           </Suspense>
           <CreateTaskSheet
@@ -89,6 +134,17 @@ export default function TasksHub() {
             onOpenChange={setFiltersOpen}
             filters={filters}
             onChange={setFilters}
+          />
+          <CustomizeColumnsDialog
+            open={editColumnsOpen}
+            onOpenChange={setEditColumnsOpen}
+            columns={baseColumns}
+            customColumns={customColumns}
+            columnNames={columnNames}
+            onSave={(names, cols) => {
+              setColumnNames(names);
+              setCustomColumns(cols);
+            }}
           />
         </div>
       </main>
