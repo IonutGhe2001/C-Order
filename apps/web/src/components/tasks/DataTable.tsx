@@ -145,6 +145,8 @@ export default function TasksDataTable({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [customData, setCustomData] = useState<Record<string, Record<string, string>>>({});
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [dragPosition, setDragPosition] = useState<'left' | 'right' | null>(null);
   const isCardView = view === 'card';
 
   useEffect(() => {
@@ -389,15 +391,32 @@ export default function TasksDataTable({
     e.dataTransfer.setData('text/plain', column.id);
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLElement>, target: any) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    setDragOverId(target.id);
+    setDragPosition(x > rect.width / 2 ? 'right' : 'left');
+  };
+
   const handleDrop = (e: React.DragEvent<HTMLElement>, target: any) => {
     const draggedId = e.dataTransfer.getData('text/plain');
     if (!draggedId) return;
     const newOrder = [...table.getState().columnOrder];
     const from = newOrder.indexOf(draggedId);
-    const to = newOrder.indexOf(target.id);
+    let to = newOrder.indexOf(target.id);
     newOrder.splice(from, 1);
+    if (from < to) to--;
+    if (dragPosition === 'right') to++;
     newOrder.splice(to, 0, draggedId);
     setColumnOrder(newOrder);
+    setDragOverId(null);
+    setDragPosition(null);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverId(null);
+    setDragPosition(null);
   };
 
   const virtualRows = useVirtual ? rowVirtualizer!.getVirtualItems() : [];
@@ -472,10 +491,17 @@ export default function TasksDataTable({
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    className="p-4 text-left text-gray-800 bg-brand-muted cursor-move"
+                    className={`p-4 text-left text-gray-800 bg-brand-muted cursor-move ${
+                      dragOverId === header.column.id
+                        ? dragPosition === 'right'
+                          ? 'border-r-2 border-brand'
+                          : 'border-l-2 border-brand'
+                        : ''
+                    }`}
                     draggable
                     onDragStart={(e) => handleDragStart(e, header.column)}
-                    onDragOver={(e) => e.preventDefault()}
+                    onDragOver={(e) => handleDragOver(e, header.column)}
+                    onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, header.column)}
                   >
                     {header.isPlaceholder ? null : (

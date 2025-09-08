@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip';
-import { Icon } from '../lib/lucide-icon';
+import { Icon, IconName } from '../lib/lucide-icon';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +27,7 @@ export default function Sidebar({
   }, [collapsed]);
   const linkClass = (isActive: boolean) =>
     `flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
-      collapsed ? 'justify-center p-2' : 'px-4 py-2'
+      collapsed ? 'justify-center p-2' : 'px-4 py-2 gap-2'
     } ${
       isActive
         ? 'text-brand border-l-4 border-brand'
@@ -49,17 +49,22 @@ export default function Sidebar({
   };
 
   const { t } = useTranslation();
-  const groups = [
+  const groups: {
+    label: string;
+    links: { to: string; label: string; icon: IconName }[];
+  }[] = [
     {
       label: t('labels.general'),
-      links: [{ to: '/dashboard', label: t('nav.dashboard') }],
+      links: [
+        { to: '/dashboard', label: t('nav.dashboard'), icon: 'layout-dashboard' },
+      ],
     },
     {
       label: t('nav.tasks'),
       links: [
-        { to: '/tasks', label: t('labels.inbox') },
-        { to: '/tasks?assigned=me', label: t('labels.assignedToMe') },
-        { to: '/tasks?status=done', label: t('labels.completed') },
+        { to: '/tasks', label: t('labels.inbox'), icon: 'inbox' },
+        { to: '/tasks?assigned=me', label: t('labels.assignedToMe'), icon: 'user' },
+        { to: '/tasks?status=done', label: t('labels.completed'), icon: 'check-circle' },
       ],
     },
   ];
@@ -89,6 +94,7 @@ export default function Sidebar({
                 aria-label={collapsed ? l.label : undefined}
                 aria-current={isActive ? 'page' : undefined}
               >
+                <Icon name={l.icon} className="h-4 w-4" />
                 <span className={collapsed ? 'sr-only' : ''}>{l.label}</span>
               </Link>
             );
