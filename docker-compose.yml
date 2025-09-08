@@ -29,7 +29,7 @@ services:
       - "5174:5173"
 
   onlyoffice:
-    image: onlyoffice/documentserver:latest
+    image: onlyoffice/documentserver
     container_name: onlyoffice
     restart: unless-stopped
     ports:

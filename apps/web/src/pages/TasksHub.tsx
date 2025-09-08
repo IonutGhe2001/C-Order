@@ -48,11 +48,11 @@ export default function TasksHub() {
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main
         id="main-content"
-        className="mt-14 px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-[16rem,1fr] lg:ml-0 w-full gap-4 sm:gap-6"
+        className="pt-14 md:ml-60 ml-0 px-4 sm:px-6 lg:px-8 w-full"
       >
-        <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
         <div className="flex flex-col gap-4 sm:gap-6">
           <Suspense fallback={<TasksHubSkeleton />}>
             <TasksToolbar
