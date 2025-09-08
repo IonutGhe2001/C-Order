@@ -11,18 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Archive, MoreHorizontal, Trash } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { MoreHorizontal } from "lucide-react";
 import { Table, VisibilityState } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -36,9 +25,6 @@ type QuickFilter = "" | "overdue" | "today" | "noAssignee";
 
 interface TasksToolbarProps {
   quickFilter: [QuickFilter, React.Dispatch<React.SetStateAction<QuickFilter>>];
-  selected: string[];
-  onArchive: (ids: string[]) => void;
-  onDelete: (ids: string[]) => void;
   onCreate: () => void;
   search: string;
   onSearchChange: (value: string) => void;
@@ -66,9 +52,6 @@ export function TasksToolbarSkeleton() {
 
 export default function TasksToolbar({
   quickFilter,
-  selected,
-  onArchive,
-  onDelete,
   onCreate,
   search,
   onSearchChange,
@@ -100,60 +83,6 @@ export default function TasksToolbar({
     <div className="flex items-center justify-between">
       <h1 className="text-xl font-semibold">{t("nav.tasks")}</h1>
       <div className="flex items-center gap-3">
-        {selected.length > 0 && (
-          <>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  aria-label={t("buttons.archive")}
-                >
-                  <Archive className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t("dialogs.archiveSelected")}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("messages.confirmAction")}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t("buttons.cancel")}</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onArchive(selected)}>
-                    {t("buttons.archive")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  aria-label={t("buttons.delete")}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t("dialogs.deleteSelected")}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("messages.confirmAction")}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t("buttons.cancel")}</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDelete(selected)}>
-                    {t("buttons.delete")}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </>
-        )}
         <Input
           placeholder={t("placeholders.searchTasks", { defaultValue: "Search tasks..." })}
           aria-label={t("labels.searchTasks", { defaultValue: "Search tasks" })}

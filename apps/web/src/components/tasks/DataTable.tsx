@@ -31,6 +31,7 @@ import { Icon } from '@/lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
 import CreateTaskSheet from './CreateTaskSheet';
 import { useTimeToAction } from '@/lib/use-tta';
+import BottomActionBar from '../ui/bottom-action-bar';
 
 export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolean }) {
   if (isMobile) {
@@ -109,6 +110,8 @@ export default function TasksDataTable({
   onSelectionChange,
   onTableChange,
   onColumnVisibilityChange,
+  onArchive,
+  onDelete,
   view = 'table',
   columnNames = {},
   customColumns = [],
@@ -119,6 +122,8 @@ export default function TasksDataTable({
   onSelectionChange?: (ids: string[]) => void;
   onTableChange?: (table: Table<Task>) => void;
   onColumnVisibilityChange?: (state: VisibilityState) => void;
+  onArchive?: (ids: string[]) => void;
+  onDelete?: (ids: string[]) => void;
   view?: 'table' | 'card';
   columnNames?: Record<string, string>;
   customColumns?: { id: string; header: string }[];
@@ -467,7 +472,7 @@ export default function TasksDataTable({
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    className="p-4 text-left text-gray-800 bg-brand-muted"
+                    className="p-4 text-left text-gray-800 bg-brand-muted cursor-move"
                     draggable
                     onDragStart={(e) => handleDragStart(e, header.column)}
                     onDragOver={(e) => e.preventDefault()}
@@ -628,14 +633,42 @@ export default function TasksDataTable({
         </select>
       </div>
     {selectedRows.length > 0 && (
-          <div className="fixed bottom-0 left-0 right-0 z-20 bg-background border-t p-2 flex items-center justify-between">
-            <span className="text-sm">
-              {t('messages.selectedCount', { count: selectedRows.length })}
-            </span>
-            <Button size="sm" variant="outline" onClick={exportCsv}>
-              Export CSV
-            </Button>
-          </div>
+          <BottomActionBar>
+            <div className="flex items-center gap-4">
+              <span className="text-sm">
+                {t('messages.selectedCount', { count: selectedRows.length })}
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => onDelete?.(selectedRows.map((r) => r.id))}
+                >
+                  <Icon name="trash" className="h-4 w-4" />
+                  <span>{t('buttons.delete')}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => onArchive?.(selectedRows.map((r) => r.id))}
+                >
+                  <Icon name="archive" className="h-4 w-4" />
+                  <span>{t('buttons.archive')}</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-1"
+                  onClick={exportCsv}
+                >
+                  <Icon name="download" className="h-4 w-4" />
+                  <span>CSV</span>
+                </Button>
+              </div>
+            </div>
+          </BottomActionBar>
         )}
       </div>
     );

@@ -10,6 +10,12 @@ import {
   TooltipContent,
   TooltipProvider,
 } from './ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from './ui/dropdown-menu';
 import { useTranslation } from 'react-i18next';
 
 export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
@@ -90,12 +96,31 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
               <TooltipContent>{t('labels.help')}</TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="outline" aria-label={t('labels.userMenu')} className="text-brand-fg border-brand-fg">
-                  <Icon name="user" className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('labels.userMenu')}</TooltipContent>
+              <DropdownMenu>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      aria-label={t('labels.userMenu')}
+                      className="text-brand-fg border-brand-fg"
+                    >
+                      <Icon name="user" className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>{t('labels.userMenu')}</TooltipContent>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      window.dispatchEvent(new Event('open-customize-columns'));
+                    }}
+                  >
+                    {t('buttons.editColumns', { defaultValue: 'Edit columns' })}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </Tooltip>
           </div>
           <div className="absolute inset-x-0 flex justify-center px-4 pointer-events-none">

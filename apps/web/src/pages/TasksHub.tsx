@@ -17,7 +17,6 @@ const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 export default function TasksHub() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<"" | "overdue" | "today" | "noAssignee">("");
-  const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
@@ -74,7 +73,6 @@ export default function TasksHub() {
     mutationFn: (ids: string[]) => Promise.all(ids.map((id) => deleteTask(id))),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
-      setSelected([]);
     },
   });
 
@@ -82,9 +80,14 @@ export default function TasksHub() {
     mutationFn: (ids: string[]) => Promise.all(ids.map((id) => archiveTask(id))),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
-      setSelected([]);
     },
   });
+
+  useEffect(() => {
+    const open = () => setEditColumnsOpen(true);
+    window.addEventListener("open-customize-columns", open as any);
+    return () => window.removeEventListener("open-customize-columns", open as any);
+  }, []);
 
   return (
     <>
@@ -98,9 +101,6 @@ export default function TasksHub() {
           <Suspense fallback={<TasksHubSkeleton />}>
             <TasksToolbar
               quickFilter={[quickFilter, setQuickFilter]}
-              selected={selected}
-              onArchive={(ids) => archiveMut.mutate(ids)}
-              onDelete={(ids) => deleteMut.mutate(ids)}
               onCreate={() => setCreateOpen(true)}
               search={search}
               onSearchChange={setSearch}
@@ -115,9 +115,10 @@ export default function TasksHub() {
               quickFilter={quickFilter}
               filters={filters}
               search={search}
-              onSelectionChange={setSelected}
               onTableChange={setTable}
               onColumnVisibilityChange={setColumnVisibility}
+              onArchive={(ids) => archiveMut.mutate(ids)}
+              onDelete={(ids) => deleteMut.mutate(ids)}
               view={view}
               columnNames={columnNames}
               customColumns={customColumns}
