@@ -7,6 +7,7 @@ import { useToast } from '../components/ui/toaster';
 import { Skeleton } from '../components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { useTimeToAction } from '../lib/use-tta';
+import loginIllustration from '../assets/login-illustration.svg?raw';
 
 export default function Login(){
   const [email, setEmail] = useState('');
@@ -39,52 +40,64 @@ export default function Login(){
   }
 
   const shouldReduceMotion = useReducedMotion();
-  return shouldReduceMotion ? (
-    <main id="main-content" className="min-h-screen flex items-center justify-center p-6">
-      <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
-        <h1 className="text-2xl font-semibold">{t('titles.signIn')}</h1>
+  const form = (
+    <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
+      <h1 className="text-2xl font-semibold">{t('titles.signIn')}</h1>
+      <Input
+        placeholder={t('placeholders.emailExample')}
+        autoFocus
+        value={email}
+        onChange={e=>setEmail(e.target.value)}
+        onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
+        tabIndex={1}
+        disabled={loading}
+      />
+      {errors.email && <p className="text-sm text-danger">{errors.email}</p>}
+      <div className="relative">
         <Input
-          placeholder={t('placeholders.emailExample')}
-          autoFocus
-          value={email}
-          onChange={e=>setEmail(e.target.value)}
+          className="pr-16"
+          placeholder={t('placeholders.passwordExample')}
+          type={showPwd ? 'text' : 'password'}
+          value={password}
+          onChange={e=>setPassword(e.target.value)}
           onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
-          tabIndex={1}
+          tabIndex={2}
           disabled={loading}
         />
-        {errors.email && <p className="text-sm text-danger">{errors.email}</p>}
-        <div className="relative">
-          <Input
-            className="pr-16"
-            placeholder={t('placeholders.passwordExample')}
-            type={showPwd ? 'text' : 'password'}
-            value={password}
-            onChange={e=>setPassword(e.target.value)}
-            onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
-            tabIndex={2}
-            disabled={loading}
-          />
-          <Button
-            type="button"
-            variant="link"
-            className="absolute top-1/2 -translate-y-1/2 right-2 h-auto p-0 text-sm"
-            onClick={()=>setShowPwd(s=>!s)}
-            tabIndex={3}
-            disabled={loading}
-          >
-            {t(showPwd ? 'buttons.hide' : 'buttons.show')}
-          </Button>
-        </div>
-        {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
         <Button
-          type="submit"
-          className="flex items-center justify-center"
+          type="button"
+          variant="link"
+          className="absolute top-1/2 -translate-y-1/2 right-2 h-auto p-0 text-sm"
+          onClick={()=>setShowPwd(s=>!s)}
+          tabIndex={3}
           disabled={loading}
-          tabIndex={4}
         >
-          {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
+          {t(showPwd ? 'buttons.hide' : 'buttons.show')}
         </Button>
-      </form>
+      </div>
+      {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
+      <Button
+        type="submit"
+        className="flex items-center justify-center"
+        disabled={loading}
+        tabIndex={4}
+      >
+        {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
+      </Button>
+    </form>
+  );
+
+  const illustration = (
+    <div
+      className="hidden lg:flex items-center justify-center bg-muted p-6"
+      dangerouslySetInnerHTML={{ __html: loginIllustration }}
+    />
+  );
+
+  return shouldReduceMotion ? (
+    <main id="main-content" className="min-h-screen grid lg:grid-cols-2">
+      {illustration}
+      <div className="flex items-center justify-center p-6">{form}</div>
     </main>
   ) : (
     <motion.main
@@ -92,52 +105,10 @@ export default function Login(){
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="min-h-screen flex items-center justify-center p-6"
+      className="min-h-screen grid lg:grid-cols-2"
     >
-      <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
-        <h1 className="text-2xl font-semibold">{t('titles.signIn')}</h1>
-        <Input
-          placeholder={t('placeholders.emailExample')}
-          autoFocus
-          value={email}
-          onChange={e=>setEmail(e.target.value)}
-          onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
-          tabIndex={1}
-          disabled={loading}
-        />
-        {errors.email && <p className="text-sm text-danger">{errors.email}</p>}
-        <div className="relative">
-          <Input
-            className="pr-16"
-            placeholder={t('placeholders.passwordExample')}
-            type={showPwd ? 'text' : 'password'}
-            value={password}
-            onChange={e=>setPassword(e.target.value)}
-            onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
-            tabIndex={2}
-            disabled={loading}
-          />
-          <Button
-            type="button"
-            variant="link"
-            className="absolute top-1/2 -translate-y-1/2 right-2 h-auto p-0 text-sm"
-            onClick={()=>setShowPwd(s=>!s)}
-            tabIndex={3}
-            disabled={loading}
-          >
-            {t(showPwd ? 'buttons.hide' : 'buttons.show')}
-          </Button>
-        </div>
-        {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
-        <Button
-          type="submit"
-          className="flex items-center justify-center"
-          disabled={loading}
-          tabIndex={4}
-        >
-          {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
-        </Button>
-      </form>
+      {illustration}
+      <div className="flex items-center justify-center p-6">{form}</div>
     </motion.main>
   );
 }
