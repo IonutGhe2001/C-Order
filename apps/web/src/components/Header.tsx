@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 import ColumnsMenu from './tasks/ColumnsMenu';
 import { Table, VisibilityState } from '@tanstack/react-table';
 import CreateTaskSheet from './tasks/CreateTaskSheet';
+import StatusManager from './StatusManager';
+import { logout } from '@/lib/api';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -32,6 +34,7 @@ interface HeaderProps {
 export default function Header({ onToggleSidebar, table, columnVisibility, view, setView }: HeaderProps) {
   const [commandOpen, setCommandOpen] = useState(false);
   const [taskSheetOpen, setTaskSheetOpen] = useState(false);
+  const [statusManagerOpen, setStatusManagerOpen] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -163,6 +166,22 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                   >
                     {t('buttons.editColumns', { defaultValue: 'Edit columns' })}
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setStatusManagerOpen(true);
+                    }}
+                  >
+                    {t('buttons.manageStatuses', { defaultValue: 'Manage statuses' })}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      logout().then(() => (window.location.href = '/login'));
+                    }}
+                  >
+                    {t('buttons.logout', { defaultValue: 'Logout' })}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </Tooltip>
@@ -174,6 +193,7 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
       </TooltipProvider>
       <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
       <CreateTaskSheet open={taskSheetOpen} onOpenChange={setTaskSheetOpen} showTrigger={false} />
+      <StatusManager open={statusManagerOpen} onOpenChange={setStatusManagerOpen} />
     </>
   );
 }

@@ -69,6 +69,10 @@ export async function login(email: string, password: string) {
   return r.json();
 }
 
+export async function logout() {
+  await fetchWithAuth(`${base}/auth/logout`, { method: 'POST' });
+}
+
 export async function listTasks(params: TaskFilters = {}) {
   const qs = new URLSearchParams(
     Object.entries(params)
@@ -184,6 +188,38 @@ export async function createTask(data: TaskPayload) {
 
 export async function listUsers() {
   const r = await fetchWithAuth(`${base}/users`);
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function listStatuses() {
+  const r = await fetchWithAuth(`${base}/statuses`);
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function createStatus(name: string) {
+  const r = await fetchWithAuth(`${base}/statuses`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function updateStatus(id: string, name: string) {
+  const r = await fetchWithAuth(`${base}/statuses/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function deleteStatus(id: string) {
+  const r = await fetchWithAuth(`${base}/statuses/${id}`, { method: 'DELETE' });
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }

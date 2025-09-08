@@ -23,19 +23,32 @@ import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
 import TaskNav from '../components/tasks/task-nav';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
-import { statusLabels } from '../components/tasks/columns';
+import { loadStatuses, getStatusLabels } from '../lib/status-store';
 import { SaveIndicator } from '../components/ui/save-indicator';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../components/ui/tooltip';
 import { formatDateTime } from '@/lib/i18n';
 import { useToast } from '@/components/ui/toaster';
 
-const statuses = [
-  'OPEN',
-  'IN_PROGRESS',
-  'LIVRAT_PARTIAL',
-  'FINALIZAT',
-];
-const labels: Record<string, string> = statusLabels;
+const statusColorClassesMap: Record<string, string> = {
+  OPEN: 'circle',
+  IN_PROGRESS: 'loader-2',
+  LIVRAT_PARTIAL: 'circle-dot',
+  FINALIZAT: 'check-circle',
+};
+
+const statusIconsMap: Record<string, IconName> = {
+  LOW: 'arrow-down',
+  MEDIUM: 'arrow-right',
+  HIGH: 'arrow-up',
+};
+
+
+const statusBadgeVariantsMap: Record<string, BadgeProps['variant']> = {
+  OPEN: 'info',
+  IN_PROGRESS: 'warning',
+  LIVRAT_PARTIAL: 'warning',
+  FINALIZAT: 'success',
+};
 const priorities = ['LOW', 'MEDIUM', 'HIGH'];
 const priorityLabels: Record<string, string> = {
   LOW: 'priority.LOW',
@@ -43,19 +56,6 @@ const priorityLabels: Record<string, string> = {
   HIGH: 'priority.HIGH',
 };
 
-const statusColorClasses: Record<string, string> = {
-  OPEN: 'text-info',
-  IN_PROGRESS: 'text-warning',
-  LIVRAT_PARTIAL: 'text-warning',
-  FINALIZAT: 'text-success',
-};
-
-const statusIcons: Record<string, IconName> = {
-  OPEN: 'circle',
-  IN_PROGRESS: 'loader-2',
-  LIVRAT_PARTIAL: 'circle-dot',
-  FINALIZAT: 'check-circle',
-};
 
 const priorityIcons: Record<string, IconName> = {
   LOW: 'arrow-down',
@@ -69,12 +69,6 @@ const priorityColorClasses: Record<string, string> = {
   HIGH: 'text-danger',
 };
 
-const statusBadgeVariants: Record<string, BadgeProps['variant']> = {
-  OPEN: 'info',
-  IN_PROGRESS: 'warning',
-  LIVRAT_PARTIAL: 'warning',
-  FINALIZAT: 'success',
-};
 
 const priorityBadgeVariants: Record<string, BadgeProps['variant']> = {
   LOW: 'success',
@@ -92,6 +86,13 @@ export default function TaskDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
   const { t } = useTranslation();
+  const [statuses, setStatuses] = useState<string[]>(loadStatuses());
+  const labels = useMemo(() => getStatusLabels(), [statuses]);
+  useEffect(() => {
+    const handler = () => setStatuses(loadStatuses());
+    window.addEventListener('statuses-updated', handler);
+    return () => window.removeEventListener('statuses-updated', handler);
+  }, []);
   const toast = useToast();
   const {
     data: task,
@@ -289,16 +290,16 @@ export default function TaskDetail() {
             <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
               <PopoverTrigger asChild>
                 <Badge
-                  variant={statusBadgeVariants[status]}
+                  variant={statusBadgeVariantsMap[status] || 'info'}
                   className="cursor-pointer flex items-center gap-1"
                 >
-                  <Icon name={statusIcons[status]} className="h-4 w-4" />
-                  <span>{t(labels[status])}</span>
+                  <Icon name={statusIconsMap[status] || 'circle'} className="h-4 w-4" />
+                  <span>{t(labels[status] || `statuses.${status}`)}</span>
                 </Badge>
               </PopoverTrigger>
               <PopoverContent className="p-0">
                 <ul className="flex flex-col">
-                  {statuses.map(s => (
+                  {statuses.map((s) => (
                     <li key={s}>
                       <button
                         className="flex items-center gap-2 px-2 py-1 text-sm w-full hover:bg-muted"
@@ -307,8 +308,11 @@ export default function TaskDetail() {
                           setStatusPopoverOpen(false);
                         }}
                       >
-                        <Icon name={statusIcons[s]} className={cn('h-4 w-4', statusColorClasses[s])} />
-                        <span>{t(labels[s])}</span>
+                        <Icon
+                          name={statusIconsMap[s] || 'circle'}
+                          className={cn('h-4 w-4', statusColorClassesMap[s] || 'text-info')}
+                        />
+                        <span>{t(labels[s] || `statuses.${s}`)}</span>
                       </button>
                     </li>
                   ))}

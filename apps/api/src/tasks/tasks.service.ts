@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { TaskStatus, Priority } from '@prisma/client';
+import { Priority } from '@prisma/client';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { MailService } from '../mail.service';
@@ -11,7 +11,6 @@ export interface UploadedFile {
   size: number;
 }
 
-const statusValues = Object.values(TaskStatus);
 const priorityValues = Object.values(Priority);
 
 @Injectable()
@@ -19,16 +18,12 @@ export class TasksService {
   constructor(private prisma: PrismaService, private mail: MailService) {}
   list(params: any) {
     const { q, status, orderDate, authority, priority, assignees, from, to } = params;
-
-    if (status && !statusValues.includes(status as TaskStatus)) {
-      throw new BadRequestException('Invalid status');
-    }
     if (priority && !priorityValues.includes(priority as Priority)) {
       throw new BadRequestException('Invalid priority');
     }
 
     const where: any = {
-      ...(status ? { status: status as TaskStatus } : {}),
+      ...(status ? { status } : {}),
       ...(priority ? { priority: priority as Priority } : {}),
       ...(orderDate ? { orderDate: new Date(orderDate) } : {}),
       ...(authority
@@ -74,15 +69,11 @@ export class TasksService {
       by: ['status'],
       _count: { _all: true },
     });
-    return Object.values(TaskStatus).map((status) => {
-      const found: any = grouped.find((g) => g.status === status);
-      const value = found ? found._count._all : 0;
-      const result: any = { title: status, value, trend: [value] };
-      if (found?.delta !== undefined) result.delta = found.delta;
-      if (found?.icon !== undefined) result.icon = found.icon;
-      if (found?.href !== undefined) result.href = found.href;
-      return result;
-    });
+    return grouped.map((g) => ({
+      title: g.status,
+      value: g._count._all,
+      trend: [g._count._all],
+    }));
   }
   
   get(id: string) {
@@ -115,9 +106,6 @@ export class TasksService {
       description,
     } = data;
 
-    if (status && !statusValues.includes(status as TaskStatus)) {
-      throw new BadRequestException('Invalid status');
-    }
 
     let computedDelivery = deliveryDate;
     if (!computedDelivery && orderDate) {
@@ -170,9 +158,6 @@ export class TasksService {
       productsReceivedDate,
       deliveryDate,
     } = data;
-    if (status && !statusValues.includes(status as TaskStatus)) {
-      throw new BadRequestException('Invalid status');
-    }
     const updateData: any = {
       status,
       priority,

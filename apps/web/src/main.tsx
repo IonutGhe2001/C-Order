@@ -29,6 +29,7 @@ import { useAuth } from './lib/use-auth';
 import { setLoggerUser, logLoad } from './lib/logger';
 import { setAnalyticsUser } from './lib/analytics';
 import './lib/i18n';
+import { logout } from './lib/api';
 
 const qc = new QueryClient();
 
@@ -107,6 +108,20 @@ function AppRoutes() {
   );
 }
 
+function AutoLogout() {
+  useEffect(() => {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const timeout = midnight.getTime() - now.getTime();
+    const id = setTimeout(() => {
+      logout().finally(() => (window.location.href = '/login'));
+    }, timeout);
+    return () => clearTimeout(id);
+  }, []);
+  return null;
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider attribute="class" defaultTheme="light">
@@ -115,6 +130,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <ErrorBoundary>
             <LoggingProvider>
               <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <AutoLogout />
                 <AppRoutes />
               </BrowserRouter>
             </LoggingProvider>

@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { getStatusColor } from '@/lib/status-colors';
 import { formatDate, formatDateTime } from '@/lib/i18n';
+import { loadStatuses, getStatusLabels } from '@/lib/status-store';
 
 export interface Task {
   id: string;
@@ -13,16 +14,11 @@ export interface Task {
   createdAt: string;
 }
 
-export const statusOptions = [
-  { value: 'OPEN', label: 'statuses.OPEN' },
-  { value: 'IN_PROGRESS', label: 'statuses.IN_PROGRESS' },
-  { value: 'LIVRAT_PARTIAL', label: 'statuses.LIVRAT_PARTIAL' },
-  { value: 'FINALIZAT', label: 'statuses.FINALIZAT' },
-];
+export function statusOptions() {
+  return loadStatuses().map((s) => ({ value: s, label: `statuses.${s}` }));
+}
 
-export const statusLabels: Record<string, string> = Object.fromEntries(
-  statusOptions.map((s) => [s.value, s.label]),
-);
+export const statusLabels: Record<string, string> = getStatusLabels();
 
 export const createTaskColumns = (t: (key: string) => string): ColumnDef<Task>[] => [
   {

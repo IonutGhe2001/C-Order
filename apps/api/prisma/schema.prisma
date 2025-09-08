@@ -13,18 +13,16 @@ enum Role {
   VIEWER
 }
 
-enum TaskStatus {
-  OPEN
-  IN_PROGRESS
-  LIVRAT_PARTIAL
-  FINALIZAT
-}
-
 enum Priority {
   LOW
   MEDIUM
   HIGH
   URGENT
+}
+
+model Status {
+  id   String @id @default(cuid())
+  name String @unique
 }
 
 model User {
@@ -60,7 +58,7 @@ model Task {
   id          String      @id @default(cuid())
   title       String
   description String?
-  status      TaskStatus  @default(OPEN)
+  status      String      @default("OPEN")
   priority    Priority    @default(MEDIUM)
   dueDate     DateTime?
   amount      Decimal?    @db.Decimal(12, 2)

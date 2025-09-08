@@ -4,12 +4,7 @@ import i18n from '../i18n';
 export const taskSchema = z.object({
   title: z.string().min(1, i18n.t('validation.titleRequired')),
   description: z.string().optional(),
-  status: z.enum([
-    "OPEN",
-    "IN_PROGRESS",
-    "LIVRAT_PARTIAL",
-    "FINALIZAT",
-  ]),
+  status: z.string(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   assignees: z.array(z.string()).min(1, i18n.t('validation.assigneeRequired')),
   dueDate: z.date({ required_error: i18n.t('validation.dueDateRequired') }),

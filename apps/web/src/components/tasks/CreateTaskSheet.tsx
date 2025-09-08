@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,20 +22,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import Stepper from "@/components/ui/Stepper";
-
-const statuses = [
-  "OPEN",
-  "IN_PROGRESS",
-  "LIVRAT_PARTIAL",
-  "FINALIZAT",
-] as const;
-
-const statusLabels: Record<string, string> = {
-  OPEN: "statuses.OPEN",
-  IN_PROGRESS: "statuses.IN_PROGRESS",
-  LIVRAT_PARTIAL: "statuses.LIVRAT_PARTIAL",
-  FINALIZAT: "statuses.FINALIZAT",
-};
+import { loadStatuses, getStatusLabels } from "@/lib/status-store";
 
 const orderTypeOptions = [
   "Achizitie Directa",
@@ -59,13 +46,21 @@ export default function CreateTaskSheet({
   const setOpen = onOpenChange ?? setInternalOpen;
   const { t } = useTranslation();
   const resetStepRef = useRef<() => void>(() => {});
+  const [statuses, setStatuses] = useState<string[]>(loadStatuses());
+
+  useEffect(() => {
+    const handler = () => setStatuses(loadStatuses());
+    window.addEventListener('statuses-updated', handler);
+    return () => window.removeEventListener('statuses-updated', handler);
+  }, []);
+  const statusLabels = useMemo(() => getStatusLabels(), [statuses]);
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
       description: "",
-      status: "OPEN",
+      status: statuses[0] || "OPEN",
       priority: "MEDIUM",
       assignees: [],
       supplier: "",
@@ -258,7 +253,7 @@ export default function CreateTaskSheet({
                             }
                             onClick={() => form.setValue("status", s)}
                           >
-                            {t(statusLabels[s])}
+                            {t(statusLabels[s] || `statuses.${s}`)}
                           </Button>
                         ))}
                       </div>

@@ -13,7 +13,16 @@ async function main() {
   // sample supplier and task
   const sup = await prisma.supplier.create({ data: { name: 'ACME SRL' } });
   const owner = await prisma.user.findUnique({ where: { email: 'admin@corp.local' } });
-  await prisma.task.create({ data: { title: 'Primul task', description: 'MVP procurement', ownerId: owner!.id, supplierId: sup.id } });
+  await prisma.status.createMany({
+    data: [
+      { name: 'OPEN' },
+      { name: 'IN_PROGRESS' },
+      { name: 'LIVRAT_PARTIAL' },
+      { name: 'FINALIZAT' },
+    ],
+    skipDuplicates: true,
+  });
+  await prisma.task.create({ data: { title: 'Primul task', description: 'MVP procurement', ownerId: owner!.id, supplierId: sup.id, status: 'OPEN' } });
 }
 
 main().finally(()=>prisma.$disconnect());

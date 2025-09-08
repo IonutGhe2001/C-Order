@@ -1,11 +1,12 @@
 import React from 'react';
-import { Task, statusLabels } from './columns';
+import { Task } from './columns';
 import { Badge } from '@/components/ui/badge';
 import { getStatusColor } from '@/lib/status-colors';
 import { useQueryClient } from '@tanstack/react-query';
 import { getTask } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/lib/i18n';
+import { getStatusLabels } from '@/lib/status-store';
 
 interface Props {
   task: Task;
@@ -39,7 +40,7 @@ export default function TaskCard({ task, selected, onSelectChange, onClick }: Pr
             <h3 className="font-semibold text-sm">{task.title}</h3>
           </div>
           <Badge variant={getStatusColor(task.status)}>
-            {t(statusLabels[task.status] || `statuses.${task.status}`)}
+            {t(getStatusLabels()[task.status] || `statuses.${task.status}`)}
           </Badge>
         </div>
         <div className="text-xs text-foreground space-y-1">

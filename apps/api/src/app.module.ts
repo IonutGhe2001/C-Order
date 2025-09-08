@@ -6,9 +6,10 @@ import { PrismaService } from './prisma/prisma.service';
 import { AnalyticsController } from './analytics.controller';
 import { OnlyOfficeService } from './onlyoffice/onlyoffice.service';
 import { OnlyOfficeController } from './onlyoffice/onlyoffice.controller';
+import { StatusesModule } from './statuses/statuses.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, TasksModule],
+  imports: [AuthModule, UsersModule, TasksModule, StatusesModule],
   providers: [PrismaService, OnlyOfficeService],
   controllers: [AnalyticsController, OnlyOfficeController],
 })
