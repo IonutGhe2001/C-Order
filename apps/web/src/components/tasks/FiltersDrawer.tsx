@@ -64,7 +64,7 @@ export default function FiltersDrawer({
               <SelectTrigger className="mt-1 w-full text-sm">
                 <SelectValue placeholder={t("labels.status")} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {statusOptions.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {t(s.label)}
@@ -84,7 +84,7 @@ export default function FiltersDrawer({
               <SelectTrigger className="mt-1 w-full text-sm">
                 <SelectValue placeholder={t("labels.assignees")} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {users.map((u: any) => (
                   <SelectItem key={u.id} value={u.id}>
                     {u.name}

@@ -4,7 +4,6 @@ import { Table, VisibilityState } from "@tanstack/react-table";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
-import TasksToolbar from "../components/tasks/TasksToolbar";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import FiltersBar from "../components/tasks/FiltersBar";
 import { deleteTask, archiveTask, TaskFilters } from "../lib/api";
@@ -16,8 +15,6 @@ const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 
 export default function TasksHub() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [quickFilter, setQuickFilter] = useState<"" | "overdue" | "today" | "noAssignee">("");
-  const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
     status: undefined,
@@ -91,7 +88,13 @@ export default function TasksHub() {
 
   return (
     <>
-      <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Header
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        table={table}
+        columnVisibility={columnVisibility}
+        view={view}
+        setView={setView}
+      />
         <Sidebar isOpen={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main
         id="main-content"
@@ -99,22 +102,13 @@ export default function TasksHub() {
       >
         <div className="flex flex-col gap-4 sm:gap-6">
           <Suspense fallback={<TasksHubSkeleton />}>
-            <TasksToolbar
-              quickFilter={[quickFilter, setQuickFilter]}
-              onCreate={() => setCreateOpen(true)}
-              search={search}
-              onSearchChange={setSearch}
-              table={table}
-              columnVisibility={columnVisibility}
-              view={view}
-              setView={setView}
-              onOpenEditColumns={() => setEditColumnsOpen(true)}
-            />
-            <FiltersBar filters={filters} onChange={setFilters} />
-            <TasksDataTable
-              quickFilter={quickFilter}
+            <FiltersBar
               filters={filters}
-              search={search}
+              onChange={setFilters}
+              onCreate={() => setCreateOpen(true)}
+            />
+            <TasksDataTable
+              filters={filters}
               onTableChange={setTable}
               onColumnVisibilityChange={setColumnVisibility}
               onArchive={(ids) => archiveMut.mutate(ids)}

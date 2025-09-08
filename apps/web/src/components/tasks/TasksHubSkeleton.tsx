@@ -1,5 +1,5 @@
 import React from 'react';
-import { TasksToolbarSkeleton } from './TasksToolbar';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TasksDataTableSkeleton } from './DataTable';
 
 export default function TasksHubSkeleton() {
@@ -15,7 +15,16 @@ export default function TasksHubSkeleton() {
 
   return (
     <div className="space-y-4">
-      <TasksToolbarSkeleton />
+      <div className="flex flex-wrap items-end gap-2 justify-between">
+        <div className="flex flex-wrap items-end gap-2">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+        <Skeleton className="h-8 w-32" />
+      </div>
       <TasksDataTableSkeleton isMobile={isMobile} />
     </div>
   );

@@ -402,7 +402,14 @@ export default function TasksDataTable({
   const handleDrop = (e: React.DragEvent<HTMLElement>, target: any) => {
     const draggedId = e.dataTransfer.getData('text/plain');
     if (!draggedId) return;
-    const newOrder = [...table.getState().columnOrder];
+    const currentOrder = table.getState().columnOrder;
+    const newOrder =
+      currentOrder.length > 0
+        ? [...currentOrder]
+        : table
+            .getAllLeafColumns()
+            .map((c) => c.id)
+            .filter((id) => id !== 'menu');
     const from = newOrder.indexOf(draggedId);
     let to = newOrder.indexOf(target.id);
     newOrder.splice(from, 1);

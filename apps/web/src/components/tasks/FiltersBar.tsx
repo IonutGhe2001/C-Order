@@ -8,16 +8,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { listUsers, TaskFilters } from "@/lib/api";
 import { statusOptions } from "./columns";
 
 interface FiltersBarProps {
   filters: TaskFilters;
   onChange: (filters: TaskFilters) => void;
+  onCreate: () => void;
 }
 
-export default function FiltersBar({ filters, onChange }: FiltersBarProps) {
+export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarProps) {
   const { t } = useTranslation();
   const { data } = useQuery({ queryKey: ["users"], queryFn: listUsers });
   const users = data?.items || [];
@@ -26,7 +28,8 @@ export default function FiltersBar({ filters, onChange }: FiltersBarProps) {
     onChange({ status: undefined, assignees: undefined, from: undefined, to: undefined });
 
   return (
-    <div className="flex flex-wrap items-end gap-2">
+    <div className="flex flex-wrap items-end gap-2 justify-between">
+      <div className="flex flex-wrap items-end gap-2">
       <Select
         value={(filters.status as string) || ""}
         onValueChange={(v) => onChange({ ...filters, status: v || undefined })}
@@ -34,7 +37,7 @@ export default function FiltersBar({ filters, onChange }: FiltersBarProps) {
         <SelectTrigger className="w-40 text-sm">
           <SelectValue placeholder={t("labels.status")} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {statusOptions.map((s) => (
             <SelectItem key={s.value} value={s.value}>
               {t(s.label)}
@@ -49,7 +52,7 @@ export default function FiltersBar({ filters, onChange }: FiltersBarProps) {
         <SelectTrigger className="w-40 text-sm">
           <SelectValue placeholder={t("labels.assignees")} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {users.map((u: any) => (
             <SelectItem key={u.id} value={u.id}>
               {u.name}
@@ -57,24 +60,36 @@ export default function FiltersBar({ filters, onChange }: FiltersBarProps) {
           ))}
         </SelectContent>
       </Select>
-      <Input
-        type="date"
-        className="w-40"
-        value={filters.from || ""}
-        onChange={(e) =>
-          onChange({ ...filters, from: e.target.value || undefined })
+      <DatePicker
+        selected={filters.from ? new Date(filters.from) : null}
+        onChange={(date: Date | null) =>
+          onChange({
+            ...filters,
+            from: date ? date.toISOString().slice(0, 10) : undefined,
+          })
         }
+        className="w-40 border rounded p-2 text-sm bg-white"
+        dateFormat="yyyy-MM-dd"
+        placeholderText={t("labels.from", { defaultValue: "From" })}
       />
-      <Input
-        type="date"
-        className="w-40"
-        value={filters.to || ""}
-        onChange={(e) =>
-          onChange({ ...filters, to: e.target.value || undefined })
+      <DatePicker
+        selected={filters.to ? new Date(filters.to) : null}
+        onChange={(date: Date | null) =>
+          onChange({
+            ...filters,
+            to: date ? date.toISOString().slice(0, 10) : undefined,
+          })
         }
+        className="w-40 border rounded p-2 text-sm bg-white"
+        dateFormat="yyyy-MM-dd"
+        placeholderText={t("labels.to", { defaultValue: "To" })}
       />
       <Button variant="outline" onClick={clear}>
         {t("buttons.clearFilters")}
+      </Button>
+      </div>
+      <Button onClick={onCreate}>
+        {t("buttons.addTask")}
       </Button>
     </div>
   );

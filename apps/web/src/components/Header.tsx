@@ -17,8 +17,18 @@ import {
   DropdownMenuItem,
 } from './ui/dropdown-menu';
 import { useTranslation } from 'react-i18next';
+import ColumnsMenu from './tasks/ColumnsMenu';
+import { Table, VisibilityState } from '@tanstack/react-table';
 
-export default function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+interface HeaderProps {
+  onToggleSidebar: () => void;
+  table?: Table<any>;
+  columnVisibility?: VisibilityState;
+  view?: 'table' | 'card';
+  setView?: React.Dispatch<React.SetStateAction<'table' | 'card'>>;
+}
+
+export default function Header({ onToggleSidebar, table, columnVisibility, view, setView }: HeaderProps) {
   const [commandOpen, setCommandOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -111,6 +121,25 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar: () => voi
                 </TooltipTrigger>
                 <TooltipContent>{t('labels.userMenu')}</TooltipContent>
                 <DropdownMenuContent align="end">
+                  {table && columnVisibility && (
+                    <ColumnsMenu table={table} visibility={columnVisibility}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        {t('labels.columns')}
+                      </DropdownMenuItem>
+                    </ColumnsMenu>
+                  )}
+                  {view && setView && (
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setView(view === 'table' ? 'card' : 'table');
+                      }}
+                    >
+                      {view === 'table'
+                        ? t('labels.cardView', { defaultValue: 'Card view' })
+                        : t('labels.tableView', { defaultValue: 'Table view' })}
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
