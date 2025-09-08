@@ -17,17 +17,16 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listTasks, listUsers, updateTask, TaskPayload, getTask, TaskFilters } from '@/lib/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { listTasks, getTask, TaskFilters } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/toaster';
 import { Badge } from '@/components/ui/badge';
 import TaskCard from './TaskCard';
 import TaskCardSkeleton from './TaskCardSkeleton';
-import { Task, createTaskColumns, statusOptions } from './columns';
+import { Task, createTaskColumns } from './columns';
 import { Icon } from '@/lib/lucide-icon';
 import { useTranslation } from 'react-i18next';
 import CreateTaskSheet from './CreateTaskSheet';
@@ -126,7 +125,6 @@ export default function TasksDataTable({
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const toast = useToast();
   const { t } = useTranslation();
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -313,63 +311,6 @@ export default function TasksDataTable({
     }
   }, [rowSelection, onSelectionChange]);
 
-  const usersQuery = useQuery({
-    queryKey: ['users'],
-    queryFn: listUsers,
-    enabled: table.getSelectedRowModel().rows.length > 0,
-  });
-
-  const mutation = useMutation({
-    mutationFn: async ({ ids, data }: { ids: string[]; data: Partial<TaskPayload> }) => {
-      await Promise.all(ids.map((id) => updateTask(id, data)));
-    },
-    onMutate: async ({ ids, data }) => {
-      await queryClient.cancelQueries({ queryKey: ['tasks'] });
-      const previous = queryClient.getQueryData<any>(['tasks']);
-      const userMap: Record<string, string> = Object.fromEntries(
-        usersQuery.data?.items?.map((u: any) => [u.id, u.name]) || [],
-      );
-      queryClient.setQueryData(['tasks'], (old: any) => {
-        if (!old?.items) return old;
-        return {
-          ...old,
-          items: old.items.map((t: any) => {
-            if (!ids.includes(t.id)) return t;
-            return {
-              ...t,
-              ...(data.status ? { status: data.status } : {}),
-              ...(data.assignees
-                ? {
-                    assignees: data.assignees.map((id: string) => ({
-                      id,
-                      name: userMap[id] || id,
-                    })),
-                  }
-                : {}),
-              ...(data.dueDate ? { dueDate: data.dueDate } : {}),
-            };
-          }),
-        };
-      });
-      return { previous };
-    },
-    onError: (_err, _vars, ctx) => {
-      if (ctx?.previous) {
-        queryClient.setQueryData(['tasks'], ctx.previous);
-      }
-      toast({ title: t('messages.updateFailed'), variant: 'error' });
-    },
-    onSuccess: () => toast({ title: t('messages.updateSuccess'), variant: 'success' }),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      setRowSelection({});
-    },
-  });
-
-  const [bulkStatus, setBulkStatus] = useState('');
-  const [bulkAssignees, setBulkAssignees] = useState<string[]>([]);
-  const [bulkDueDate, setBulkDueDate] = useState('');
-
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
   const rowRefs = useRef<Record<number, HTMLTableRowElement | null>>({});
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -413,16 +354,6 @@ export default function TasksDataTable({
         rowRefs.current[index - 1]?.scrollIntoView({ block: 'nearest' });
       }
       rowRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleBulkApply = () => {
-    const payload: Partial<TaskPayload> = {};
-    if (bulkStatus) payload.status = bulkStatus;
-    if (bulkAssignees.length) payload.assignees = bulkAssignees;
-    if (bulkDueDate) payload.dueDate = new Date(bulkDueDate).toISOString();
-    if (Object.keys(payload).length) {
-      mutation.mutate({ ids: selectedRows.map((r) => r.id), data: payload });
     }
   };
 
@@ -511,58 +442,6 @@ export default function TasksDataTable({
 
   return (
     <div className="space-y-2">
-      <div className="sticky top-0 z-20 bg-background">
-        {selectedRows.length > 0 && (
-          <div className="flex flex-wrap items-end gap-2 p-2 border-b">
-            <span className="text-sm">
-              {t('messages.selectedCount', { count: selectedRows.length })}
-            </span>
-            <select
-              className="border p-1 rounded"
-              value={bulkStatus}
-              onChange={(e) => setBulkStatus(e.target.value)}
-            >
-              <option value="">{t('labels.status')}</option>
-              {statusOptions.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {t(s.label)}
-                </option>
-              ))}
-            </select>
-          {usersQuery.isLoading ? (
-              <Skeleton className="h-8 w-40" />
-            ) : usersQuery.isError ? null : (
-              <select
-                multiple
-                className="border p-1 rounded h-20"
-                value={bulkAssignees}
-                onChange={(e) =>
-                  setBulkAssignees(Array.from(e.target.selectedOptions, (o) => o.value))
-                }
-              >
-                {usersQuery.data?.items?.map((u: any) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
-                  </option>
-                ))}
-              </select>
-            )}
-            <Input
-              type="date"
-              className="w-40"
-              value={bulkDueDate}
-              onChange={(e) => setBulkDueDate(e.target.value)}
-            />
-            <Button size="sm" onClick={handleBulkApply} disabled={mutation.isPending}>
-              {t('buttons.apply')}
-            </Button>
-            <Button size="sm" variant="outline" onClick={exportCsv}>
-              Export CSV
-            </Button>
-          </div>
-        )}
-      </div>
-
       <div
         className={`grid ${isCardView ? '' : 'md:hidden'} grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4`}
       >
@@ -748,6 +627,16 @@ export default function TasksDataTable({
           ))}
         </select>
       </div>
-    </div>
-  );
+    {selectedRows.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 z-20 bg-background border-t p-2 flex items-center justify-between">
+            <span className="text-sm">
+              {t('messages.selectedCount', { count: selectedRows.length })}
+            </span>
+            <Button size="sm" variant="outline" onClick={exportCsv}>
+              Export CSV
+            </Button>
+          </div>
+        )}
+      </div>
+    );
 }

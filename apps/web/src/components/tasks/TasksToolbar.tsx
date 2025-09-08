@@ -11,14 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Archive,
-  Filter,
-  LayoutGrid,
-  LayoutList,
-  MoreHorizontal,
-  Trash,
-} from "lucide-react";
+import { Archive, MoreHorizontal, Trash } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,7 +40,6 @@ interface TasksToolbarProps {
   onArchive: (ids: string[]) => void;
   onDelete: (ids: string[]) => void;
   onCreate: () => void;
-  onOpenFilters: () => void;
   search: string;
   onSearchChange: (value: string) => void;
   table?: Table<any>;
@@ -78,7 +70,6 @@ export default function TasksToolbar({
   onArchive,
   onDelete,
   onCreate,
-  onOpenFilters,
   search,
   onSearchChange,
   table,
@@ -208,33 +199,30 @@ export default function TasksToolbar({
               {table && (
                 <ColumnsMenu table={table} visibility={columnVisibility}>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    {t("labels.columns")}
-                  </DropdownMenuItem>
-                </ColumnsMenu>
-              )}
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setView(view === "table" ? "card" : "table");
-                }}
-              >
-                {view === "table"
-                  ? t("labels.cardView", { defaultValue: "Card view" })
-                  : t("labels.tableView", { defaultValue: "Table view" })}
+                {t("labels.columns")}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  onOpenEditColumns();
-                }}
-              >
-                {t("buttons.editColumns", { defaultValue: "Edit columns" })}
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onOpenFilters}>
-                {t("buttons.filters")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </ColumnsMenu>
+          )}
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setView(view === "table" ? "card" : "table");
+            }}
+          >
+            {view === "table"
+              ? t("labels.cardView", { defaultValue: "Card view" })
+              : t("labels.tableView", { defaultValue: "Table view" })}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              onOpenEditColumns();
+            }}
+          >
+            {t("buttons.editColumns", { defaultValue: "Edit columns" })}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       </div>
     </div>
   );

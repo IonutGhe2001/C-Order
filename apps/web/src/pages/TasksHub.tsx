@@ -5,8 +5,8 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksToolbar from "../components/tasks/TasksToolbar";
-import FiltersDrawer from "../components/tasks/FiltersDrawer";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
+import FiltersBar from "../components/tasks/FiltersBar";
 import { deleteTask, archiveTask, TaskFilters } from "../lib/api";
 import { createTaskColumns } from "../components/tasks/columns";
 import CustomizeColumnsDialog from "../components/tasks/CustomizeColumnsDialog";
@@ -20,7 +20,6 @@ export default function TasksHub() {
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>({
     status: undefined,
     assignees: undefined,
@@ -103,7 +102,6 @@ export default function TasksHub() {
               onArchive={(ids) => archiveMut.mutate(ids)}
               onDelete={(ids) => deleteMut.mutate(ids)}
               onCreate={() => setCreateOpen(true)}
-              onOpenFilters={() => setFiltersOpen(true)}
               search={search}
               onSearchChange={setSearch}
               table={table}
@@ -112,6 +110,7 @@ export default function TasksHub() {
               setView={setView}
               onOpenEditColumns={() => setEditColumnsOpen(true)}
             />
+            <FiltersBar filters={filters} onChange={setFilters} />
             <TasksDataTable
               quickFilter={quickFilter}
               filters={filters}
@@ -128,12 +127,6 @@ export default function TasksHub() {
             open={createOpen}
             onOpenChange={setCreateOpen}
             showTrigger={false}
-          />
-          <FiltersDrawer
-            open={filtersOpen}
-            onOpenChange={setFiltersOpen}
-            filters={filters}
-            onChange={setFilters}
           />
           <CustomizeColumnsDialog
             open={editColumnsOpen}
