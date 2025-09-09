@@ -15,9 +15,9 @@ async function bootstrap() {
   });
 
   // folosește calea absolută către apps/api/uploads indiferent de src/dist
-  const UPLOAD_DIR = join(process.cwd(), 'apps', 'api', 'uploads');
+  const UPLOAD_DIR = join(__dirname, '..', 'uploads'); // <repo>/apps/api/uploads
   app.use('/uploads', express.static(UPLOAD_DIR, {
-    setHeaders: (res) => res.setHeader('Cache-Control', 'no-store, max-age=0'),
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-store, max-age=0'),
   }));
 
   await app.listen(3001);

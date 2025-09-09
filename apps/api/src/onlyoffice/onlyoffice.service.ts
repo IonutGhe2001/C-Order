@@ -48,10 +48,10 @@ export class OnlyOfficeService {
     const att = await this.prisma.attachment.findUnique({ where: { id: attId }, select: { url: true } });
     if (!att?.url) return { error: 1 };
 
-    const uploadDir = join(process.cwd(), 'apps', 'api', 'uploads'); // același cu main.ts
+    const uploadDir = join(__dirname, '..', 'uploads'); // identic cu main.ts
     await fs.mkdir(uploadDir, { recursive: true });
-
-    const fileName = basename(att.url);         // ex: 1757...-formular semnat.pdf
+    
+    const fileName = basename(att.url);                 // ex: 1757405099223-formular semnat.pdf
     const target = join(uploadDir, fileName);
     await fs.writeFile(target, buf);
 
