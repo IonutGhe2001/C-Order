@@ -15,7 +15,7 @@ export class OnlyOfficeService {
   async buildConfig(att: { id: string; filename: string; url: string; mimeType: string }, user: { id: string; name: string }) {
     const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
     const version = rec?.version ?? 1;
-    const key = `${att.id}_${version}`;
+    const key = `${att.id}_${version}_${Date.now()}`;
 
     const baseUrl = att.url.startsWith('http') ? att.url : `${this.api}${att.url}`;
     const documentUrl = encodeURI(baseUrl) + `?v=${version}`;
