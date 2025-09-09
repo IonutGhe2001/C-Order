@@ -332,8 +332,11 @@ export default function TaskDetail() {
             <Input
               className="text-2xl font-semibold flex-1 border-none focus-visible:ring-0 p-0"
               value={title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-              onBlur={() => save({ title })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const val = e.target.value;
+                setTitle(val);
+                save({ title: val });
+              }}
             />
             <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
               <PopoverTrigger asChild>
@@ -446,7 +449,13 @@ export default function TaskDetail() {
         <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardContent className="space-y-2">
-                <RichEditor value={desc} onChange={setDesc} onBlur={() => save({ description: desc })} />
+                <RichEditor
+                  value={desc}
+                  onChange={(value: string) => {
+                    setDesc(value);
+                    save({ description: value });
+                  }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
