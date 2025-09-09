@@ -1,5 +1,7 @@
 import { Input } from '../ui/input';
 import { useTranslation } from 'react-i18next';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface Props {
   orderDate: string;
@@ -31,11 +33,25 @@ export default function OrderDeliveryPanel({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">{t('labels.orderDate')}</label>
-        <Input type="date" value={orderDate} onChange={e => onChange({ orderDate: e.target.value })} />
+        <DatePicker
+          selected={orderDate ? new Date(orderDate) : null}
+          onChange={(d: Date | null) =>
+            onChange({ orderDate: d ? d.toISOString().slice(0, 10) : '' })
+          }
+          dateFormat="yyyy-MM-dd"
+          className="w-full border p-2"
+        />
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">{t('labels.orderReceivedDate')}</label>
-        <Input type="date" value={orderReceivedDate} onChange={e => onChange({ orderReceivedDate: e.target.value })} />
+        <DatePicker
+          selected={orderReceivedDate ? new Date(orderReceivedDate) : null}
+          onChange={(d: Date | null) =>
+            onChange({ orderReceivedDate: d ? d.toISOString().slice(0, 10) : '' })
+          }
+          dateFormat="yyyy-MM-dd"
+          className="w-full border p-2"
+        />
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">{t('labels.orderNumber')}</label>
@@ -56,7 +72,14 @@ export default function OrderDeliveryPanel({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">{t('labels.productsReceivedDate')}</label>
-        <Input type="date" value={productsReceivedDate} onChange={e => onChange({ productsReceivedDate: e.target.value })} />
+        <DatePicker
+          selected={productsReceivedDate ? new Date(productsReceivedDate) : null}
+          onChange={(d: Date | null) =>
+            onChange({ productsReceivedDate: d ? d.toISOString().slice(0, 10) : '' })
+          }
+          dateFormat="yyyy-MM-dd"
+          className="w-full border p-2"
+        />
       </div>
       <div className="md:col-span-2 flex flex-col gap-1">
         <label className="inline-flex items-center text-sm font-medium">
@@ -64,7 +87,14 @@ export default function OrderDeliveryPanel({
           {t('labels.earlyDelivery')}
         </label>
         {earlyDelivery && (
-          <Input type="date" value={deliveryDate} onChange={e => onChange({ deliveryDate: e.target.value })} />
+          <DatePicker
+            selected={deliveryDate ? new Date(deliveryDate) : null}
+            onChange={(d: Date | null) =>
+              onChange({ deliveryDate: d ? d.toISOString().slice(0, 10) : '' })
+            }
+            dateFormat="yyyy-MM-dd"
+            className="w-full border p-2"
+          />
         )}
       </div>
     </div>

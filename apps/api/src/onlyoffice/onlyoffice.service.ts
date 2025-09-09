@@ -2,15 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
-import { join, sep, basename } from 'path';
+import { join, basename } from 'path';
 import { promises as fs } from 'fs';
-
-function resolveUploadsDir() {
-  const base = __dirname.includes(`${sep}dist${sep}`)
-    ? __dirname.replace(`${sep}dist${sep}`, `${sep}src${sep}`)
-    : __dirname;
-  return join(base, 'uploads');
-}
 
 @Injectable()
 export class OnlyOfficeService {
@@ -59,18 +52,15 @@ export class OnlyOfficeService {
     const att = await this.prisma.attachment.findUnique({ where: { id: attId }, select: { url: true } });
     if (!att?.url) return { error: 1 };
 
-    const uploadDir = resolveUploadsDir();
+    // <repo>/apps/api/src -> .. -> <repo>/apps/api/uploads
+    const uploadDir = join(__dirname, '..', 'uploads');
     await fs.mkdir(uploadDir, { recursive: true });
 
-    const fileName = basename(att.url);       // ex: 1757-...-formular semnat.pdf
-    const target = join(uploadDir, fileName); // scriem în același loc servit public
+    const fileName = basename(att.url);            // ex: 1757...-formular semnat.pdf
+    const target = join(uploadDir, fileName);
     await fs.writeFile(target, buf);
 
-    await this.prisma.attachment.update({
-      where: { id: attId },
-      data: { version: { increment: 1 } },
-    });
-
+    await this.prisma.attachment.update({ where: { id: attId }, data: { version: { increment: 1 } } });
     return { error: 0 };
   }
 }

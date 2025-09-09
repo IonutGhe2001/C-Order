@@ -1,6 +1,5 @@
 import AssigneeChips from './AssigneeChips';
 import { Skeleton } from '../ui/skeleton';
-import { SaveIndicator } from '../ui/save-indicator';
 
 interface AssigneeSectionProps {
   users: { id: string; name: string }[];
@@ -10,7 +9,6 @@ interface AssigneeSectionProps {
   label: string;
   errorMessage: string;
   onChange: (ids: string[]) => void;
-  mutation: any;
 }
 
 export default function AssigneeSection({
@@ -21,7 +19,6 @@ export default function AssigneeSection({
   label,
   errorMessage,
   onChange,
-  mutation,
 }: AssigneeSectionProps) {
   return (
     <div>
@@ -31,10 +28,7 @@ export default function AssigneeSection({
       ) : error ? (
         <div className="mt-1 text-red-600 text-sm">{errorMessage}</div>
       ) : (
-        <>
-          <AssigneeChips users={users} value={value} onChange={onChange} />
-          <SaveIndicator mutation={mutation} />
-        </>
+        <AssigneeChips users={users} value={value} onChange={onChange} />
       )}
     </div>
   );

@@ -1,14 +1,12 @@
 import { Input } from '../ui/input';
-import { SaveIndicator } from '../ui/save-indicator';
 
 interface SupplierSectionProps {
   value: string;
   label: string;
   onChange: (value: string) => void;
-  mutation: any;
 }
 
-export default function SupplierSection({ value, label, onChange, mutation }: SupplierSectionProps) {
+export default function SupplierSection({ value, label, onChange }: SupplierSectionProps) {
   return (
     <div>
       <label className="block text-sm font-medium">{label}</label>
@@ -17,7 +15,6 @@ export default function SupplierSection({ value, label, onChange, mutation }: Su
         value={value}
         onChange={e => onChange(e.target.value)}
       />
-      <SaveIndicator mutation={mutation} />
     </div>
   );
 }

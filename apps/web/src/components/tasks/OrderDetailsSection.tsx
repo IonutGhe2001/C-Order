@@ -1,5 +1,4 @@
 import OrderDeliveryPanel from './OrderDeliveryPanel';
-import { SaveIndicator } from '../ui/save-indicator';
 import { TaskPayload } from '@/lib/api';
 
 interface OrderDetailsSectionProps {
@@ -21,7 +20,6 @@ interface OrderDetailsSectionProps {
   setEarlyDelivery: (val: boolean) => void;
   setDeliveryDate: (val: string) => void;
   save: (data: Partial<TaskPayload>) => void;
-  mutation: any;
 }
 
 export default function OrderDetailsSection({
@@ -43,7 +41,6 @@ export default function OrderDetailsSection({
   setEarlyDelivery,
   setDeliveryDate,
   save,
-  mutation,
 }: OrderDetailsSectionProps) {
   const handleChange = (d: {
     orderDate?: string;
@@ -92,7 +89,6 @@ export default function OrderDetailsSection({
         orderTypes={orderTypes}
         onChange={handleChange}
       />
-      <SaveIndicator mutation={mutation} />
     </div>
   );
 }

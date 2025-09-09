@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useBlocker } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
 import { useState, useEffect, useMemo, type ElementType } from 'react';
@@ -23,12 +23,20 @@ import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { loadStatuses, getStatusLabels } from '../lib/status-store';
-import { SaveIndicator } from '../components/ui/save-indicator';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../components/ui/tooltip';
 import { formatDateTime } from '@/lib/i18n';
 import { useToast } from '@/components/ui/toaster';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { Card, CardContent } from '../components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '../components/ui/alert-dialog';
 
 const statusColorClassesMap: Record<string, string> = {
   OPEN: 'circle',
@@ -155,7 +163,7 @@ export default function TaskDetail() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('details');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
 
@@ -201,9 +209,18 @@ export default function TaskDetail() {
       });
     }
     setStatus(s);
-    update.mutate({ status: s });
+    save({ status: s });
   };
+  const [pending, setPending] = useState<Partial<TaskPayload>>({});
+  const [hasChanges, setHasChanges] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+
   const save = (data: Partial<TaskPayload>) => {
+    setPending(prev => ({ ...prev, ...data }));
+    setHasChanges(true);
+  };
+
+  const persist = (after?: () => void) => {
     if (status === 'FINALIZAT') {
       toast({
         title: t('messages.taskFinalized', {
@@ -213,12 +230,49 @@ export default function TaskDetail() {
       });
       return;
     }
-    const payload: Partial<TaskPayload> = { ...data };
-    if (status === 'OPEN' && !('status' in data)) {
+    const payload: Partial<TaskPayload> = { ...pending };
+    if (status === 'OPEN' && !('status' in payload)) {
       payload.status = 'IN_PROGRESS';
       setStatus('IN_PROGRESS');
     }
-    update.mutate(payload);
+    update.mutate(payload, {
+      onSuccess: () => {
+        setPending({});
+        setHasChanges(false);
+        after && after();
+      },
+    });
+  };
+
+  const blocker = useBlocker(hasChanges) as any;
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      setLeaveOpen(true);
+    }
+  }, [blocker.state]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (!hasChanges) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasChanges]);
+
+  const handleStay = () => {
+    setLeaveOpen(false);
+    blocker?.reset();
+  };
+  const handleLeave = () => {
+    setLeaveOpen(false);
+    blocker?.proceed();
+  };
+  const handleSaveAndLeave = () => {
+    persist(() => blocker?.proceed());
+    setLeaveOpen(false);
   };
 
   if (isLoading) {
@@ -271,7 +325,7 @@ export default function TaskDetail() {
     <main id="main-content" className="p-6 space-y-4">
         <header className="sticky top-0 z-10 bg-background border-b p-2 space-y-2">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: `#${task.id}` }]} />
+            <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task?.title || '' }]} />
             <div className="flex items-center gap-2">
               <Button variant="secondary" size="sm">
                 <Icon name="share-2" className="h-4 w-4 mr-1" /> Share
@@ -288,7 +342,6 @@ export default function TaskDetail() {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
               onBlur={() => save({ title })}
             />
-            <SaveIndicator mutation={update} />
             <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
               <PopoverTrigger asChild>
                 <Badge
@@ -321,7 +374,6 @@ export default function TaskDetail() {
                 </ul>
               </PopoverContent>
             </Popover>
-            <SaveIndicator mutation={update} />
             <Popover open={priorityPopoverOpen} onOpenChange={setPriorityPopoverOpen}>
               <PopoverTrigger asChild>
                 <Badge
@@ -384,11 +436,11 @@ export default function TaskDetail() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 md:w-auto">
-            <TabsTrigger value="overview">
-              {t('labels.overview', { defaultValue: 'Overview' })}
-            </TabsTrigger>
             <TabsTrigger value="details">
               {t('labels.details', { defaultValue: 'Details' })}
+            </TabsTrigger>
+            <TabsTrigger value="overview">
+              {t('labels.overview', { defaultValue: 'Overview' })}
             </TabsTrigger>
             <TabsTrigger value="comments">
               {t('labels.comments', { defaultValue: 'Comments' })}
@@ -402,7 +454,6 @@ export default function TaskDetail() {
             <Card>
               <CardContent className="space-y-2">
                 <RichEditor value={desc} onChange={setDesc} onBlur={() => save({ description: desc })} />
-                <SaveIndicator mutation={update} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -429,7 +480,6 @@ export default function TaskDetail() {
                   setEarlyDelivery={setEarlyDelivery}
                   setDeliveryDate={setDeliveryDate}
                   save={save}
-                  mutation={update}
                 />
               </CardContent>
             </Card>
@@ -446,9 +496,7 @@ export default function TaskDetail() {
                     setAssignees(vals);
                     save({ assignees: vals });
                   }}
-                  mutation={update}
                 />
-                <SaveIndicator mutation={update} />
                 <SupplierSection
                   value={supplier}
                   label={t('labels.supplier')}
@@ -456,9 +504,7 @@ export default function TaskDetail() {
                     setSupplier(val);
                     save({ supplier: val || null });
                   }}
-                  mutation={update}
                 />
-                <SaveIndicator mutation={update} />
                 <div>
                   <h3 className="text-sm font-medium">{t('labels.keyDates')}</h3>
                   <ul className="text-sm space-y-1">
@@ -532,6 +578,13 @@ export default function TaskDetail() {
         <BottomActionBar>
           <div className="flex gap-2">
             <Button
+              size="sm"
+              onClick={() => persist()}
+              disabled={!hasChanges || update.isPending}
+            >
+              {t('buttons.save', { defaultValue: 'Save' })}
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               className="flex flex-col items-center gap-1"
@@ -566,6 +619,26 @@ export default function TaskDetail() {
             </Button>
           </div>
         </BottomActionBar>
+        <AlertDialog open={leaveOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t('messages.unsavedChanges', { defaultValue: 'Unsaved changes' })}
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={handleStay}>
+                {t('buttons.stay', { defaultValue: 'Stay' })}
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleSaveAndLeave}>
+                {t('buttons.save', { defaultValue: 'Save' })}
+              </AlertDialogAction>
+              <AlertDialogAction onClick={handleLeave} className="bg-danger text-white">
+                {t('buttons.leaveWithoutSaving', { defaultValue: 'Leave without saving' })}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     
       <EmailDrawer
