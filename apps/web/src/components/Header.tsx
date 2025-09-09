@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Icon } from '../lib/lucide-icon';
 import CommandPalette from './CommandPalette';
 import { motion } from 'framer-motion';
@@ -76,19 +75,6 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
             <div className="text-xl font-bold">{t('titles.appName')}</div>
           </div>
           <div className="flex items-center space-x-2 ml-auto z-10">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="primary"
-                  aria-label={t('buttons.add')}
-                  className="text-brand-fg"
-                  onClick={() => setTaskSheetOpen(true)}
-                >
-                  <Icon name="plus" className="h-4 w-4 mr-2" />{t('buttons.add')}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('buttons.add')}</TooltipContent>
-            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -185,9 +171,6 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                 </DropdownMenuContent>
               </DropdownMenu>
             </Tooltip>
-          </div>
-          <div className="absolute inset-x-0 flex justify-center px-4 pointer-events-none">
-            <Input placeholder={t('placeholders.search')} className="w-full max-w-md pointer-events-auto" />
           </div>
         </header>
       </TooltipProvider>
