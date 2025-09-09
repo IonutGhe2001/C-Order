@@ -20,6 +20,7 @@ import TasksTimeline from './pages/TasksTimeline';
 import SupplierDetail from './pages/SupplierDetail';
 import PageSkeleton from './components/PageSkeleton';
 import TasksHubPageSkeleton from './components/tasks/TasksHubPageSkeleton';
+import TaskDetailPageSkeleton from './components/tasks/TaskDetailPageSkeleton';
 
 const TasksHub = lazy(() => import('./pages/TasksHub'));
 const TaskDetail = lazy(() => import('./pages/TaskDetail'));
@@ -87,7 +88,7 @@ function AppRoutes() {
             path="/tasks/:id"
             element={
               <Protected>
-                <Suspense fallback={<PageSkeleton />}>
+                <Suspense fallback={<TaskDetailPageSkeleton />}>
                   <TaskDetail />
                 </Suspense>
               </Protected>

@@ -5,7 +5,6 @@ import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, 
 import { useState, useEffect, useMemo, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
-import { Skeleton } from '../components/ui/skeleton';
 import { Input } from '../components/ui/input';
 import BottomActionBar from '../components/ui/bottom-action-bar';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -30,6 +29,7 @@ import { useToast } from '@/components/ui/toaster';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { Card, CardContent } from '../components/ui/card';
 import UnsavedChangesDialog from '../components/UnsavedChangesDialog';
+import TaskDetailSkeleton from '../components/tasks/TaskDetailSkeleton';
 
 const statusColorClassesMap: Record<string, string> = {
   OPEN: 'circle',
@@ -279,17 +279,7 @@ export default function TaskDetail() {
           })}
           className="p-6 space-y-4"
         >
-          <Skeleton className="h-6 w-24" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-[150px]" />
-            </div>
-            <div className="space-y-4">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-64" />
-            </div>
-          </div>
+          <TaskDetailSkeleton />
         </MotionDiv>
       </main>
     );
