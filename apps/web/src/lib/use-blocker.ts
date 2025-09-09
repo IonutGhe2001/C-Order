@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState, useCallback } from 'react';
 import { UNSAFE_NavigationContext } from 'react-router-dom';
 
-export type BlockerState = 'unblocked' | 'blocked' | 'proceeding';
+type BlockerState = 'unblocked' | 'blocked' | 'proceeding';
 
-export interface Blocker {
+interface Blocker {
   state: BlockerState;
   reset: () => void;
   proceed: () => void;
@@ -16,6 +16,7 @@ export function useBlocker(when: boolean = false): Blocker {
 
   useEffect(() => {
     if (!when) return;
+    if (typeof navigator.block !== 'function') return;
 
     const unblock = navigator.block((transition: any) => {
       const autoUnblockingTx = {
