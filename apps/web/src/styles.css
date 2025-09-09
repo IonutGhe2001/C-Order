@@ -2,8 +2,6 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-@import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-@import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 @layer base {
   body {

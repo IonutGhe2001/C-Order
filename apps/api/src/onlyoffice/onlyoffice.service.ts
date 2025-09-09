@@ -17,20 +17,20 @@ export class OnlyOfficeService {
    // citește versiunea curentă din DB
    const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
    const version = (rec?.version ?? 1);    
-   const key = `${att.id}:${version}`; // unic pe versiune
+   const key = `${att.id}_${version}`; // unic pe versiune
     const document = {
-     fileType: att.filename.split('.').pop()?.toLowerCase(),
-     title: att.filename,
-     url: (att.url.startsWith('http') ? att.url : `${this.api}${att.url}`) + `?v=${version}`, // cache-buster
-     key,    
-     permissions: { edit: true, download: true },   
-    };
+  fileType: att.filename.split('.').pop()?.toLowerCase(),
+  title: att.filename,
+  url: (att.url.startsWith('http') ? att.url : `${this.api}${att.url}`) + `?v=${version}`,
+  key,                               // unic pe versiune
+  permissions: { edit: true, download: true }, // ← în interiorul "document"
+};
     const editorConfig = {
       callbackUrl: `${this.api}/api/onlyoffice/callback?attId=${att.id}`,
       user,
       customization: { autosave: true },
     };
-    const token = jwt.sign({ document, editorConfig }, this.secret);
+    const token = jwt.sign({ document, editorConfig }, this.secret, { algorithm: 'HS256' });
     return { document, editorConfig, token };
   }
 

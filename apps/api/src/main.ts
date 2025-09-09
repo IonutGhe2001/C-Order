@@ -19,9 +19,9 @@ async function bootstrap() {
     },
     credentials: true,
   });
-  app.use('/uploads', express.static(join(process.cwd(), 'uploads'), {
-    setHeaders: (res) => res.setHeader('Cache-Control', 'no-store, max-age=0')
-  }));
+  app.use('/uploads', express.static(join(process.cwd(), 'src', 'uploads'), {
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-store, max-age=0')
+}));
   await app.listen(3001);
 }
 bootstrap();
