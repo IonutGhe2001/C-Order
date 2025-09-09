@@ -20,7 +20,6 @@ import OrderDetailsSection from '../components/tasks/OrderDetailsSection';
 import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
 import CommentsPanel from '../components/tasks/CommentsPanel';
 import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
-import TaskNav from '../components/tasks/task-nav';
 import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { loadStatuses, getStatusLabels } from '../lib/status-store';
@@ -28,6 +27,8 @@ import { SaveIndicator } from '../components/ui/save-indicator';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../components/ui/tooltip';
 import { formatDateTime } from '@/lib/i18n';
 import { useToast } from '@/components/ui/toaster';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
+import { Card, CardContent } from '../components/ui/card';
 
 const statusColorClassesMap: Record<string, string> = {
   OPEN: 'circle',
@@ -154,6 +155,7 @@ export default function TaskDetail() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
 
@@ -380,122 +382,152 @@ export default function TaskDetail() {
           </div>
         </header>
 
-      <TaskNav />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4 md:w-auto">
+            <TabsTrigger value="overview">
+              {t('labels.overview', { defaultValue: 'Overview' })}
+            </TabsTrigger>
+            <TabsTrigger value="details">
+              {t('labels.details', { defaultValue: 'Details' })}
+            </TabsTrigger>
+            <TabsTrigger value="comments">
+              {t('labels.comments', { defaultValue: 'Comments' })}
+            </TabsTrigger>
+            <TabsTrigger value="activity">
+              {t('labels.activity', { defaultValue: 'Activity' })}
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <section id="overview" className="md:col-span-8 space-y-4">
-            <div className="border rounded p-4 space-y-2">
-              <RichEditor value={desc} onChange={setDesc} onBlur={() => save({ description: desc })} />
-              <SaveIndicator mutation={update} />
-            </div>
-            <div className="border rounded p-4">
-              <OrderDetailsSection
-                orderDate={orderDate}
-                orderReceivedDate={orderReceivedDate}
-                orderNumber={orderNumber}
-                authority={authority}
-                orderType={orderType}
-                productsReceivedDate={productsReceivedDate}
-                earlyDelivery={earlyDelivery}
-                deliveryDate={deliveryDate}
-                orderTypes={orderTypeOptions}
-                setOrderDate={setOrderDate}
-                setOrderReceivedDate={setOrderReceivedDate}
-                setOrderNumber={setOrderNumber}
-                setAuthority={setAuthority}
-                setOrderType={setOrderType}
-                setProductsReceivedDate={setProductsReceivedDate}
-                setEarlyDelivery={setEarlyDelivery}
-                setDeliveryDate={setDeliveryDate}
-                save={save}
-                mutation={update}
-              />
-            </div>
-            <div id="comments" className="border rounded p-4">
-              <CommentsPanel
-                hideTitle
-                inputId="add-comment-input"
-                comments={task.comments || []}
-                onAdd={(body) => commentMut.mutate(body)}
-              />
-            </div>
-          </section>
-          <aside className="md:col-span-4 space-y-4">
-            <div id="attachments" className="border rounded p-4 space-y-4">
-              <AssigneeSection
-                users={usersQuery.data?.items || []}
-                value={assignees}
-                loading={usersQuery.isLoading}
-                error={!!usersQuery.isError}
-                label={t('labels.assignees')}
-                errorMessage={t('messages.usersLoadFailed')}
-                onChange={(vals: string[]) => {
-                  setAssignees(vals);
-                  save({ assignees: vals });
-                }}
-                mutation={update}
-              />
-              <SaveIndicator mutation={update} />
-              <SupplierSection
-                value={supplier}
-                label={t('labels.supplier')}
-                onChange={(val) => {
-                  setSupplier(val);
-                  save({ supplier: val || null });
-                }}
-                mutation={update}
-              />
-              <SaveIndicator mutation={update} />
-              <div>
-                <h3 className="text-sm font-medium">{t('labels.keyDates')}</h3>
-                <ul className="text-sm space-y-1">
-                  <li>
-                    {t('labels.createdAt')}: {task.createdAt ? formatDateTime(new Date(task.createdAt)) : '-'}
-                  </li>
-                  <li>
-                    {t('labels.updatedAt')}: {task.updatedAt ? formatDateTime(new Date(task.updatedAt)) : '-'}
-                  </li>
-                  <li>
-                    {t('labels.sla')}: {task.sla ? formatDateTime(new Date(task.sla)) : '-'}
-                  </li>
-                  <li>
-                    {t('labels.dueDate')}: {
-                      dueDate ? (
-                        <span
-                          className={cn(
-                            dueStatus === 'overdue'
-                              ? 'text-danger'
-                              : dueStatus === 'warning'
-                              ? 'text-warning'
-                              : 'text-success',
-                          )}
-                        >
-                          {formatDateTime(new Date(dueDate))}
-                        </span>
-                      ) : (
-                        '-'
-                      )
-                    }
-                  </li>
-                </ul>
-              </div>
-              <AttachmentsPanel
-                taskId={task.id}
-                attachments={task.attachments || []}
-                onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
-              />
-            </div>
-            <div id="activity" className="border rounded p-4 max-h-80 overflow-auto">
-              <ActivityAuditPanel
-                hideTitle
-                audit={audit?.items || []}
-                loading={auditLoading}
-                error={!!auditError}
-                onRetry={() => refetchAudit()}
-              />
-            </div>
-          </aside>
-        </div>
+        <TabsContent value="overview" className="space-y-4">
+            <Card>
+              <CardContent className="space-y-2">
+                <RichEditor value={desc} onChange={setDesc} onBlur={() => save({ description: desc })} />
+                <SaveIndicator mutation={update} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="details" className="space-y-4">
+            <Card>
+              <CardContent>
+                <OrderDetailsSection
+                  orderDate={orderDate}
+                  orderReceivedDate={orderReceivedDate}
+                  orderNumber={orderNumber}
+                  authority={authority}
+                  orderType={orderType}
+                  productsReceivedDate={productsReceivedDate}
+                  earlyDelivery={earlyDelivery}
+                  deliveryDate={deliveryDate}
+                  orderTypes={orderTypeOptions}
+                  setOrderDate={setOrderDate}
+                  setOrderReceivedDate={setOrderReceivedDate}
+                  setOrderNumber={setOrderNumber}
+                  setAuthority={setAuthority}
+                  setOrderType={setOrderType}
+                  setProductsReceivedDate={setProductsReceivedDate}
+                  setEarlyDelivery={setEarlyDelivery}
+                  setDeliveryDate={setDeliveryDate}
+                  save={save}
+                  mutation={update}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="space-y-4">
+                <AssigneeSection
+                  users={usersQuery.data?.items || []}
+                  value={assignees}
+                  loading={usersQuery.isLoading}
+                  error={!!usersQuery.isError}
+                  label={t('labels.assignees')}
+                  errorMessage={t('messages.usersLoadFailed')}
+                  onChange={(vals: string[]) => {
+                    setAssignees(vals);
+                    save({ assignees: vals });
+                  }}
+                  mutation={update}
+                />
+                <SaveIndicator mutation={update} />
+                <SupplierSection
+                  value={supplier}
+                  label={t('labels.supplier')}
+                  onChange={(val) => {
+                    setSupplier(val);
+                    save({ supplier: val || null });
+                  }}
+                  mutation={update}
+                />
+                <SaveIndicator mutation={update} />
+                <div>
+                  <h3 className="text-sm font-medium">{t('labels.keyDates')}</h3>
+                  <ul className="text-sm space-y-1">
+                    <li>
+                      {t('labels.createdAt')}: {task.createdAt ? formatDateTime(new Date(task.createdAt)) : '-'}
+                    </li>
+                    <li>
+                      {t('labels.updatedAt')}: {task.updatedAt ? formatDateTime(new Date(task.updatedAt)) : '-'}
+                    </li>
+                    <li>
+                      {t('labels.sla')}: {task.sla ? formatDateTime(new Date(task.sla)) : '-'}
+                    </li>
+                    <li>
+                      {t('labels.dueDate')}: {
+                        dueDate ? (
+                          <span
+                            className={cn(
+                              dueStatus === 'overdue'
+                                ? 'text-danger'
+                                : dueStatus === 'warning'
+                                ? 'text-warning'
+                                : 'text-success',
+                            )}
+                          >
+                            {formatDateTime(new Date(dueDate))}
+                          </span>
+                        ) : (
+                          '-'
+                        )
+                      }
+                    </li>
+                  </ul>
+                </div>
+                <AttachmentsPanel
+                  taskId={task.id}
+                  attachments={task.attachments || []}
+                  onSave={(attId, file) => attachmentMut.mutate({ attId, file })}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="comments" className="space-y-4">
+            <Card>
+              <CardContent>
+                <CommentsPanel
+                  hideTitle
+                  inputId="add-comment-input"
+                  comments={task.comments || []}
+                  onAdd={(body) => commentMut.mutate(body)}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="activity" className="space-y-4">
+            <Card className="max-h-80 overflow-auto">
+              <CardContent>
+                <ActivityAuditPanel
+                  hideTitle
+                  audit={audit?.items || []}
+                  loading={auditLoading}
+                  error={!!auditError}
+                  onRetry={() => refetchAudit()}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         <BottomActionBar>
           <div className="flex gap-2">
@@ -504,8 +536,8 @@ export default function TaskDetail() {
               size="sm"
               className="flex flex-col items-center gap-1"
               onClick={() => {
-                document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })
-                setTimeout(() => document.querySelector<HTMLInputElement>('#add-comment-input')?.focus(), 100)
+                setActiveTab('comments');
+                setTimeout(() => document.querySelector<HTMLInputElement>('#add-comment-input')?.focus(), 100);
               }}
             >
               <Icon name="message-circle" className="h-5 w-5" />
@@ -516,8 +548,8 @@ export default function TaskDetail() {
               size="sm"
               className="flex flex-col items-center gap-1"
               onClick={() => {
-                document.getElementById('attachments')?.scrollIntoView({ behavior: 'smooth' })
-                setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100)
+                setActiveTab('details');
+                setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100);
               }}
             >
               <Icon name="paperclip" className="h-5 w-5" />
