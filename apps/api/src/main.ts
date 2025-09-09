@@ -20,6 +20,6 @@ async function bootstrap() {
   setHeaders: (res) => res.setHeader('Cache-Control', 'no-store, max-age=0'),
   }));
 
-  await app.listen(3001);
+  await app.listen(3001, '0.0.0.0');
 }
 bootstrap();
