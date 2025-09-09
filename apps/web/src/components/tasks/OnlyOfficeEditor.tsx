@@ -9,10 +9,9 @@ export default function OnlyOfficeEditor({ taskId, attId }: { taskId: string; at
 
   useEffect(() => {
     (async () => {
-      const r = await fetch(
-        `${apiRoot}/api/tasks/${taskId}/attachments/${attId}/onlyoffice-config`,
-        { credentials: 'include' },
-      );
+      const r = await fetch(`${apiRoot}/api/tasks/${taskId}/attachments/${attId}/onlyoffice-config`, {
+        credentials: 'include',
+      });
       const cfg = await r.json();
       setConfig(cfg);
     })();

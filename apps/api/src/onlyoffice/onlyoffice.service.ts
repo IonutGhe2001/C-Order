@@ -1,24 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken';
-import fetch from 'node-fetch';
-import { join, basename } from 'path';
-import { promises as fs } from 'fs';
+import { resolve, basename } from 'path';
+import { promises as fs, existsSync } from 'fs';
+
+function resolveUploadDir() {
+  const p1 = resolve(process.cwd(), 'uploads');
+  if (existsSync(p1)) return p1;
+  return resolve(process.cwd(), 'apps', 'api', 'uploads');
+}
 
 @Injectable()
 export class OnlyOfficeService {
   private secret = process.env.DS_JWT_SECRET!;
-  private api = process.env.API_PUBLIC_URL!;
+  private api = process.env.API_PUBLIC_URL!; // ex: http://host.docker.internal:3001
 
   constructor(private prisma: PrismaService) {}
 
-  async buildConfig(att: { id: string; filename: string; url: string; mimeType: string }, user: { id: string; name: string }) {
-    const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
+  async buildConfig(
+    att: { id: string; filename: string; url: string; mimeType: string },
+    user: { id: string; name: string },
+  ) {
+    const rec = await this.prisma.attachment.findUnique({
+      where: { id: att.id },
+      select: { version: true },
+    });
     const version = rec?.version ?? 1;
-    const key = `${att.id}_${version}_${Date.now()}`;
 
-    const baseUrl = att.url.startsWith('http') ? att.url : `${this.api}${att.url}`;
-    const documentUrl = encodeURI(baseUrl) + `?v=${version}`;
+    // att.url în DB: /uploads/<nume cu spații>.ext (NE-encodat)
+    const fileNameEsc = encodeURIComponent(basename(att.url));
+    const documentUrl = `${this.api}/uploads/${fileNameEsc}?v=${version}`;
+    const key = `${att.id}_${version}_${Date.now()}`;
 
     const document = {
       fileType: att.filename.split('.').pop()?.toLowerCase(),
@@ -35,27 +47,35 @@ export class OnlyOfficeService {
     };
 
     const token = jwt.sign({ document, editorConfig }, this.secret, { algorithm: 'HS256' });
+    console.log('OO document.url =', documentUrl);
     return { document, editorConfig, token };
   }
 
   async handleCallback(body: any, attId: string) {
     if (![2, 6].includes(body?.status)) return { error: 0 };
 
-    const r = await fetch(body.url);
+    const r = await fetch(body.url); // fetch global în Node 20
     if (!r.ok) throw new Error('DS fetch failed');
     const buf = Buffer.from(await r.arrayBuffer());
 
-    const att = await this.prisma.attachment.findUnique({ where: { id: attId }, select: { url: true } });
+    const att = await this.prisma.attachment.findUnique({
+      where: { id: attId },
+      select: { url: true },
+    });
     if (!att?.url) return { error: 1 };
 
-    const uploadDir = join(__dirname, '..', 'uploads'); // identic cu main.ts
+    const uploadDir = resolveUploadDir();
     await fs.mkdir(uploadDir, { recursive: true });
-    
-    const fileName = basename(att.url);                 // ex: 1757405099223-formular semnat.pdf
-    const target = join(uploadDir, fileName);
+
+    const fileName = basename(att.url); // ne-encodat în DB
+    const target = resolve(uploadDir, fileName);
     await fs.writeFile(target, buf);
 
-    await this.prisma.attachment.update({ where: { id: attId }, data: { version: { increment: 1 } } });
+    await this.prisma.attachment.update({
+      where: { id: attId },
+      data: { version: { increment: 1 } },
+    });
+
     return { error: 0 };
   }
 }
