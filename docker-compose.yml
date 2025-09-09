@@ -36,8 +36,9 @@ services:
       - "8082:80"
     environment:
       - JWT_ENABLED=true
-      - JWT_SECRET=changeme_super_secret
+      - JWT_SECRET=secret
       - JWT_HEADER=Authorization
+      - JWT_IN_BODY=false
     extra_hosts:
       - "host.docker.internal:host-gateway"   # necesar pe Linux  
     volumes:
