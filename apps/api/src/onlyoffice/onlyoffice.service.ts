@@ -23,7 +23,7 @@ export class OnlyOfficeService {
      title: att.filename,
      url: (att.url.startsWith('http') ? att.url : `${this.api}${att.url}`) + `?v=${version}`, // cache-buster
      key,    
-     permissions: { edit: true, download: false },   
+     permissions: { edit: true, download: true },   
     };
     const editorConfig = {
       callbackUrl: `${this.api}/api/onlyoffice/callback?attId=${att.id}`,
