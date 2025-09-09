@@ -29,15 +29,7 @@ import { formatDateTime } from '@/lib/i18n';
 import { useToast } from '@/components/ui/toaster';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { Card, CardContent } from '../components/ui/card';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from '../components/ui/alert-dialog';
+import UnsavedChangesDialog from '../components/UnsavedChangesDialog';
 
 const statusColorClassesMap: Record<string, string> = {
   OPEN: 'circle',
@@ -620,26 +612,12 @@ export default function TaskDetail() {
             </Button>
           </div>
         </BottomActionBar>
-        <AlertDialog open={leaveOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t('messages.unsavedChanges', { defaultValue: 'Unsaved changes' })}
-              </AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleStay}>
-                {t('buttons.stay', { defaultValue: 'Stay' })}
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={handleSaveAndLeave}>
-                {t('buttons.save', { defaultValue: 'Save' })}
-              </AlertDialogAction>
-              <AlertDialogAction onClick={handleLeave} className="bg-danger text-white">
-                {t('buttons.leaveWithoutSaving', { defaultValue: 'Leave without saving' })}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <UnsavedChangesDialog
+          open={leaveOpen}
+          onStay={handleStay}
+          onSave={handleSaveAndLeave}
+          onDiscard={handleLeave}
+        />
       </main>
     
       <EmailDrawer
