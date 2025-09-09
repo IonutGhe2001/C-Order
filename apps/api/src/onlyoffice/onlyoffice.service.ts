@@ -7,16 +7,12 @@ import { promises as fs } from 'fs';
 
 @Injectable()
 export class OnlyOfficeService {
-  private ds = process.env.DS_PUBLIC_URL!;
   private secret = process.env.DS_JWT_SECRET!;
   private api = process.env.API_PUBLIC_URL!;
 
   constructor(private prisma: PrismaService) {}
 
-  async buildConfig(
-    att: { id: string; filename: string; url: string; mimeType: string },
-    user: { id: string; name: string },
-  ) {
+  async buildConfig(att: { id: string; filename: string; url: string; mimeType: string }, user: { id: string; name: string }) {
     const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
     const version = rec?.version ?? 1;
     const key = `${att.id}_${version}`;
@@ -52,11 +48,10 @@ export class OnlyOfficeService {
     const att = await this.prisma.attachment.findUnique({ where: { id: attId }, select: { url: true } });
     if (!att?.url) return { error: 1 };
 
-    // <repo>/apps/api/src -> .. -> <repo>/apps/api/uploads
-    const uploadDir = join(__dirname, '..', 'uploads');
+    const uploadDir = join(process.cwd(), 'apps', 'api', 'uploads'); // același cu main.ts
     await fs.mkdir(uploadDir, { recursive: true });
 
-    const fileName = basename(att.url);            // ex: 1757...-formular semnat.pdf
+    const fileName = basename(att.url);         // ex: 1757...-formular semnat.pdf
     const target = join(uploadDir, fileName);
     await fs.writeFile(target, buf);
 

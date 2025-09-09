@@ -10,13 +10,12 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(cookieParser());
   app.enableCors({
-    origin: (origin, cb) =>
-      !origin || /^https?:\/\/localhost(:\d+)?$/.test(origin) ? cb(null, true) : cb(new Error('Not allowed by CORS')),
+    origin: (o, cb) => (!o || /^https?:\/\/localhost(:\d+)?$/.test(o) ? cb(null, true) : cb(new Error('Not allowed by CORS'))),
     credentials: true,
   });
 
-  // <repo>/apps/api/src -> .. -> <repo>/apps/api/uploads
-  const UPLOAD_DIR = join(__dirname, '..', 'uploads');
+  // folosește calea absolută către apps/api/uploads indiferent de src/dist
+  const UPLOAD_DIR = join(process.cwd(), 'apps', 'api', 'uploads');
   app.use('/uploads', express.static(UPLOAD_DIR, {
     setHeaders: (res) => res.setHeader('Cache-Control', 'no-store, max-age=0'),
   }));
