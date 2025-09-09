@@ -13,26 +13,32 @@ export class OnlyOfficeService {
 
   constructor(private prisma: PrismaService) {}
 
-  async buildConfig(att: { id: string; filename: string; url: string; mimeType: string }, user: { id: string; name: string }) {
-   // citește versiunea curentă din DB
-   const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
-   const version = (rec?.version ?? 1);    
-   const key = `${att.id}_${version}`; // unic pe versiune
-    const document = {
-  fileType: att.filename.split('.').pop()?.toLowerCase(),
-  title: att.filename,
-  url: (att.url.startsWith('http') ? att.url : `${this.api}${att.url}`) + `?v=${version}`,
-  key,                               // unic pe versiune
-  permissions: { edit: true, download: true }, // ← în interiorul "document"
-};
-    const editorConfig = {
-      callbackUrl: `${this.api}/api/onlyoffice/callback?attId=${att.id}`,
-      user,
-      customization: { autosave: true },
-    };
-    const token = jwt.sign({ document, editorConfig }, this.secret, { algorithm: 'HS256' });
-    return { document, editorConfig, token };
-  }
+  async buildConfig(att: { id: string; filename: string; url: string; mimeType: string },
+                  user: { id: string; name: string }) {
+  const rec = await this.prisma.attachment.findUnique({ where: { id: att.id }, select: { version: true } });
+  const version = rec?.version ?? 1;
+  const key = `${att.id}_${version}`;
+
+  const baseUrl = att.url.startsWith('http') ? att.url : `${this.api}${att.url}`;
+  const documentUrl = encodeURI(baseUrl) + `?v=${version}`;
+
+  const document = {
+    fileType: att.filename.split('.').pop()?.toLowerCase(),
+    title: att.filename,
+    url: documentUrl,
+    key,
+    permissions: { edit: true, download: true },
+  };
+
+  const editorConfig = {
+    callbackUrl: `${this.api}/api/onlyoffice/callback?attId=${att.id}`,
+    user,
+    customization: { autosave: true },
+  };
+
+  const token = jwt.sign({ document, editorConfig }, this.secret, { algorithm: 'HS256' });
+  return { document, editorConfig, token };
+}
 
   async handleCallback(body: any, attId: string) {
     if (![2, 6].includes(body?.status)) return { error: 0 };

@@ -4,7 +4,7 @@ import { SparkAreaChart } from '@tremor/react';
 import { Icon, IconName } from '@/lib/lucide-icon';
 import { formatNumber } from '@/lib/i18n';
 
-export interface KpiCardModernProps {
+interface KpiCardModernProps {
   title: string;
   value: number;
   trend: number[];

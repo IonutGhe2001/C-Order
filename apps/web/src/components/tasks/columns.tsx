@@ -18,7 +18,7 @@ export function statusOptions() {
   return loadStatuses().map((s) => ({ value: s, label: `statuses.${s}` }));
 }
 
-export const statusLabels: Record<string, string> = getStatusLabels();
+const statusLabels: Record<string, string> = getStatusLabels();
 
 export const createTaskColumns = (t: (key: string) => string): ColumnDef<Task>[] => [
   {

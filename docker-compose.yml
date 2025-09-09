@@ -38,7 +38,7 @@ services:
       - JWT_ENABLED=true
       - JWT_SECRET=secret
       - JWT_HEADER=Authorization
-      - JWT_IN_BODY=false
+      - JWT_IN_BODY=true
     extra_hosts:
       - "host.docker.internal:host-gateway"   # necesar pe Linux  
     volumes:

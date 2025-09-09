@@ -1,9 +1,9 @@
 import type { VariantProps } from 'class-variance-authority';
 import { badgeVariants } from '@/components/ui/badge';
 
-export type StatusColor = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
+type StatusColor = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 
-export const statusColors: Record<string, StatusColor> = {
+const statusColors: Record<string, StatusColor> = {
   OPEN: 'info',
   IN_PROGRESS: 'warning',
   LIVRAT_PARTIAL: 'warning',

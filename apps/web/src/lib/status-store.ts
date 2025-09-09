@@ -12,7 +12,7 @@ export function loadStatuses(): string[] {
   return [...defaultStatuses];
 }
 
-export function saveStatuses(statuses: string[]) {
+function saveStatuses(statuses: string[]) {
   localStorage.setItem(KEY, JSON.stringify(statuses));
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('statuses-updated'));
