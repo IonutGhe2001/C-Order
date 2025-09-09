@@ -1,12 +1,17 @@
 FROM node:20-alpine
-RUN corepack enable
 WORKDIR /app
+RUN corepack enable
 
-COPY apps/web/package.json apps/web/pnpm-lock.yaml ./
-# folosește no-frozen-lockfile ca să nu pice dacă lockfile-ul nu e sincron
-RUN pnpm install --no-frozen-lockfile
+# lockfile + workspace config din root
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+# copiem monorepo-ul (filtrează ce nu-ți trebuie prin .dockerignore)
+COPY apps ./apps
 
-COPY apps/web ./
+# instalează DOAR dep-urile pt web
+RUN pnpm install --filter ./apps/web... --frozen-lockfile
+
+# build
+WORKDIR /app/apps/web
 RUN pnpm build
 
 EXPOSE 5173

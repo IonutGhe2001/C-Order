@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: task
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: "task"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123456"
     ports:
       - "5432:5432"
     volumes:
@@ -15,32 +15,17 @@ services:
       timeout: 3s
       retries: 20
 
-  web:
-    build:
-      context: .
-      dockerfile: ./apps/web/Dockerfile
-    environment:
-      VITE_API_URL: http://localhost:3001
-      VITE_DS_URL:  http://localhost:8082
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "5174:5173"
-
   onlyoffice:
-    image: onlyoffice/documentserver
+    image: onlyoffice/documentserver:latest
     container_name: onlyoffice
     restart: unless-stopped
     ports:
       - "8082:80"
     environment:
-      - JWT_ENABLED=true
-      - JWT_SECRET=secret
-      - JWT_HEADER=Authorization
-      - JWT_IN_BODY=true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"   # necesar pe Linux  
+      JWT_ENABLED: "true"
+      JWT_SECRET: "secret"
+      JWT_HEADER: "Authorization"
+      JWT_IN_BODY: "true"
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
 
