@@ -26,7 +26,9 @@ export default function TasksHub() {
   });
   const [table, setTable] = useState<Table<any>>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [view, setView] = useState<'table' | 'card'>('table');
+  const [view, setView] = useState<'table' | 'card'>(() =>
+    (localStorage.getItem('tasksView') as 'table' | 'card') || 'table'
+  );
   const [editColumnsOpen, setEditColumnsOpen] = useState(false);
   const [columnNames, setColumnNames] = useState<Record<string, string>>({});
   const [customColumns, setCustomColumns] = useState<{ id: string; header: string }[]>([]);
@@ -70,6 +72,9 @@ export default function TasksHub() {
   useEffect(() => {
     localStorage.setItem("tasksCustomColumns", JSON.stringify(customColumns));
   }, [customColumns]);
+  useEffect(() => {
+    localStorage.setItem('tasksView', view);
+  }, [view]);
   const qc = useQueryClient();
 
   const deleteMut = useMutation({

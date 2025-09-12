@@ -85,6 +85,26 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
             <div className="text-xl font-bold">{t('titles.appName')}</div>
           </div>
           <div className="flex items-center space-x-2 ml-auto z-10">
+            {view && setView && (
+              <div className="flex items-center space-x-1">
+                <Button
+                  size="icon"
+                  variant={view === 'table' ? 'secondary' : 'ghost'}
+                  aria-label={t('labels.tableView', { defaultValue: 'Table view' })}
+                  onClick={() => setView('table')}
+                >
+                  <Icon name="table" className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant={view === 'card' ? 'secondary' : 'ghost'}
+                  aria-label={t('labels.cardView', { defaultValue: 'Card view' })}
+                  onClick={() => setView('card')}
+                >
+                  <Icon name="layout-grid" className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

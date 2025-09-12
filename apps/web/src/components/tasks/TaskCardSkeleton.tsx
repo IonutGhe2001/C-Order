@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TaskCardSkeleton() {
   return (
-    <div className="border rounded-md p-4 space-y-3">
+    <div className="border rounded-lg p-4 space-y-3 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-4 rounded" />

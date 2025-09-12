@@ -1,6 +1,7 @@
 import React from 'react';
 import { Task } from './columns';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { getStatusColor } from '@/lib/status-colors';
 import { useQueryClient } from '@tanstack/react-query';
 import { getTask } from '@/lib/api';
@@ -20,7 +21,10 @@ export default function TaskCard({ task, selected, onSelectChange, onClick }: Pr
   const { t } = useTranslation();
   return (
     <div
-      className="border rounded-md p-4 cursor-pointer hover:bg-brand-muted transition-colors duration-200 motion-reduce:transition-none"
+      className={`rounded-lg p-4 cursor-pointer bg-background border transition-all shadow-sm hover:shadow-md hover:bg-brand-muted ${
+        selected ? 'ring-2 ring-brand' : ''
+      }`}
+      aria-selected={selected}
       onClick={onClick}
       onMouseEnter={() =>
         qc.prefetchQuery({ queryKey: ['task', task.id], queryFn: () => getTask(task.id) })
@@ -30,10 +34,9 @@ export default function TaskCard({ task, selected, onSelectChange, onClick }: Pr
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
             {onSelectChange && (
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={selected}
-                onChange={(e) => onSelectChange(e.target.checked)}
+                onCheckedChange={(checked) => onSelectChange(!!checked)}
                 onClick={(e) => e.stopPropagation()}
               />
             )}
