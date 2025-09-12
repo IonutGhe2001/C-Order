@@ -113,7 +113,6 @@ export default function TasksDataTable({
   onArchive,
   onDelete,
   view = 'table',
-  columnNames = {},
   customColumns = [],
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
@@ -125,7 +124,6 @@ export default function TasksDataTable({
   onArchive?: (ids: string[]) => void;
   onDelete?: (ids: string[]) => void;
   view?: 'table' | 'card';
-  columnNames?: Record<string, string>;
   customColumns?: { id: string; header: string }[];
 }) {
   const navigate = useNavigate();
@@ -249,13 +247,12 @@ export default function TasksDataTable({
         ...col,
         id: key,
         accessorKey: (col as any).accessorKey || key,
-        header: columnNames[key] || col.header,
       } as ColumnDef<Task>;
     });
     const extraCols = customColumns.map((col) => ({
       id: col.id,
       accessorKey: col.id,
-      header: columnNames[col.id] || col.header,
+      header: col.header,
       cell: ({ row }: { row: any }) => {
         const taskId = row.original.id;
         const value = customData[taskId]?.[col.id] || '';
@@ -270,7 +267,7 @@ export default function TasksDataTable({
       enableColumnFilter: false,
       }));
     return [selectColumn, ...baseCols, ...extraCols];
-  }, [t, columnNames, customColumns, customData, updateCustomData]);
+  }, [t, customColumns, customData, updateCustomData]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];

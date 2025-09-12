@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy, useEffect, useMemo } from "react";
+import React, { useState, Suspense, lazy, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table, VisibilityState } from "@tanstack/react-table";
 import Header from "../components/Header";
@@ -7,9 +7,6 @@ import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import FiltersBar from "../components/tasks/FiltersBar";
 import { deleteTask, archiveTask, TaskFilters, listCustomFields } from "../lib/api";
-import { createTaskColumns } from "../components/tasks/columns";
-import CustomizeColumnsDialog from "../components/tasks/CustomizeColumnsDialog";
-import { useTranslation } from "react-i18next";
 
 const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
 
@@ -29,34 +26,8 @@ export default function TasksHub() {
   const [view, setView] = useState<'table' | 'card'>(() =>
     (localStorage.getItem('tasksView') as 'table' | 'card') || 'table'
   );
-  const [editColumnsOpen, setEditColumnsOpen] = useState(false);
-  const [columnNames, setColumnNames] = useState<Record<string, string>>({});
   const [customColumns, setCustomColumns] = useState<{ id: string; header: string }[]>([]);
-  const { t } = useTranslation();
-  const baseColumns = useMemo(
-    () =>
-      createTaskColumns(t).map((c) => ({
-        id: String((c as any).accessorKey || c.id),
-        header:
-          typeof c.header === "string"
-            ? c.header
-            : String((c as any).accessorKey || c.id),
-      })),
-    [t]
-  );
-  const activeBaseColumns = useMemo(
-    () => baseColumns.filter((c) => columnVisibility[c.id] !== false),
-    [baseColumns, columnVisibility]
-  );
   useEffect(() => {
-    const names = localStorage.getItem("tasksColumnNames");
-    if (names) {
-      try {
-        setColumnNames(JSON.parse(names));
-      } catch {
-        /* ignore */
-      }
-    }
     const custom = localStorage.getItem("tasksCustomColumns");
     if (custom) {
       try {
@@ -70,20 +41,12 @@ export default function TasksHub() {
   useEffect(() => {
     listCustomFields()
       .then((fields) => {
-        setCustomColumns((prev) => (prev.length ? prev : fields.map((f: any) => ({ id: f.id, header: f.label }))));
-        setColumnNames((prev) => {
-          const next = { ...prev };
-          fields.forEach((f: any) => {
-            next[f.id] = f.label;
-          });
-          return next;
-        });
+        const cols = fields.map((f: any) => ({ id: f.id, header: f.label }));
+        setCustomColumns(cols);
+        localStorage.setItem("tasksCustomColumns", JSON.stringify(cols));
       })
       .catch(() => undefined);
   }, []);
-  useEffect(() => {
-    localStorage.setItem("tasksColumnNames", JSON.stringify(columnNames));
-  }, [columnNames]);
   useEffect(() => {
     localStorage.setItem("tasksCustomColumns", JSON.stringify(customColumns));
   }, [customColumns]);
@@ -105,17 +68,6 @@ export default function TasksHub() {
       qc.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
-
-  useEffect(() => {
-    const open = () => setEditColumnsOpen(true);
-    window.addEventListener("open-customize-columns", open as any);
-    return () => window.removeEventListener("open-customize-columns", open as any);
-  }, []);
-
-  const handleRemoveColumn = (id: string) => {
-    setColumnVisibility((prev) => ({ ...prev, [id]: false }));
-    table?.getColumn(id)?.toggleVisibility(false);
-  };
 
   return (
     <>
@@ -147,7 +99,6 @@ export default function TasksHub() {
               onArchive={(ids) => archiveMut.mutate(ids)}
               onDelete={(ids) => deleteMut.mutate(ids)}
               view={view}
-              columnNames={columnNames}
               customColumns={customColumns}
             />
           </Suspense>
@@ -155,18 +106,6 @@ export default function TasksHub() {
             open={createOpen}
             onOpenChange={setCreateOpen}
             showTrigger={false}
-          />
-          <CustomizeColumnsDialog
-            open={editColumnsOpen}
-            onOpenChange={setEditColumnsOpen}
-            columns={activeBaseColumns}
-            customColumns={customColumns}
-            columnNames={columnNames}
-            onRemoveColumn={handleRemoveColumn}
-            onSave={(names, cols) => {
-              setColumnNames(names);
-              setCustomColumns(cols);
-            }}
           />
         </div>
       </main>

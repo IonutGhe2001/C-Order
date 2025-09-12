@@ -157,14 +157,6 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
-                      window.dispatchEvent(new Event('open-customize-columns'));
-                    }}
-                  >
-                    {t('buttons.editColumns', { defaultValue: 'Edit columns' })}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault();
                       setStatusManagerOpen(true);
                     }}
                   >
