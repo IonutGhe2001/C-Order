@@ -399,7 +399,7 @@ export default function CreateTaskSheet({
                     </div>
                   </div>
                 )}
-              <SheetFooter className="pt-4">
+              <SheetFooter className="pt-4 pb-6">
                   {step === 0 ? (
                     <>
                       <SheetClose asChild>
