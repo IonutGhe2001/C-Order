@@ -90,6 +90,7 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                 <Button
                   size="icon"
                   variant={view === 'table' ? 'secondary' : 'ghost'}
+                  className={view === 'table' ? undefined : 'text-brand-fg'}
                   aria-label={t('labels.tableView', { defaultValue: 'Table view' })}
                   onClick={() => setView('table')}
                 >
@@ -98,6 +99,7 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                 <Button
                   size="icon"
                   variant={view === 'card' ? 'secondary' : 'ghost'}
+                  className={view === 'card' ? undefined : 'text-brand-fg'}
                   aria-label={t('labels.cardView', { defaultValue: 'Card view' })}
                   onClick={() => setView('card')}
                 >
