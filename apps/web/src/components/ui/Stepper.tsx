@@ -30,7 +30,15 @@ export default function Stepper({ steps, children }: StepperProps) {
           {steps[step]}
         </div>
       </div>
-      {children({ step, next, back, isLast: step === steps.length - 1, setStep })}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {children({
+          step,
+          next,
+          back,
+          isLast: step === steps.length - 1,
+          setStep,
+        })}
+      </div>
     </div>
   );
 }

@@ -73,6 +73,11 @@
     "recentActivity": "Recent activity",
     "viewAll": "View all"
   },
+  "steps": {
+    "details": "Details",
+    "assignment": "Assignment",
+    "attachments": "Attachments"
+  },
   "buttons": {
     "save": "Save",
     "retry": "Retry",

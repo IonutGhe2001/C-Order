@@ -73,6 +73,11 @@
     "recentActivity": "Activitate recentă",
     "viewAll": "Vezi tot"
   },
+  "steps": {
+    "details": "Detalii",
+    "assignment": "Asignare",
+    "attachments": "Atașamente"
+  },
   "buttons": {
     "save": "Salvează",
     "retry": "Reîncearcă",
