@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useBlocker } from '@/lib/use-blocker';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, sendTaskEmail } from '../lib/api';
+import { getTask, updateTask, addComment, getTaskAudit, listUsers, TaskPayload, updateAttachment, getFileUrl } from '../lib/api';
 import { useState, useEffect, useMemo, type ElementType } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { Button } from '../components/ui/button';
@@ -20,7 +20,6 @@ import OrderDetailsSection from '../components/tasks/OrderDetailsSection';
 import AttachmentsPanel from '../components/tasks/AttachmentsPanel';
 import CommentsPanel from '../components/tasks/CommentsPanel';
 import ActivityAuditPanel from '../components/tasks/ActivityAuditPanel';
-import EmailDrawer from '../components/tasks/EmailDrawer';
 import { useTranslation } from 'react-i18next';
 import { loadStatuses, getStatusLabels } from '../lib/status-store';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../components/ui/tooltip';
@@ -128,11 +127,6 @@ export default function TaskDetail() {
     },
   });
 
-  const emailMut = useMutation({
-    mutationFn: (data: any) => sendTaskEmail(id!, data),
-    onSuccess: () => trackEvent('email_sent', { taskId: id }),
-  });
-
   const usersQuery = useQuery({ queryKey: ['users'], queryFn: listUsers });
 
   const [title, setTitle] = useState('');
@@ -152,10 +146,6 @@ export default function TaskDetail() {
   const [productsReceivedDate, setProductsReceivedDate] = useState('');
   const [earlyDelivery, setEarlyDelivery] = useState(false);
   const [deliveryDate, setDeliveryDate] = useState('');
-  const [emailOpen, setEmailOpen] = useState(false);
-  const [emailTo, setEmailTo] = useState('');
-  const [emailSubject, setEmailSubject] = useState('');
-  const [emailBody, setEmailBody] = useState('');
   const [activeTab, setActiveTab] = useState('details');
   const shouldReduceMotion = useReducedMotion();
   const MotionDiv: ElementType = shouldReduceMotion ? 'div' : motion.div;
@@ -186,11 +176,58 @@ export default function TaskDetail() {
       setProductsReceivedDate(task.productsReceivedDate ? task.productsReceivedDate.slice(0, 10) : '');
       setDeliveryDate(task.deliveryDate ? task.deliveryDate.slice(0, 10) : '');
       setEarlyDelivery(!!task.deliveryDate);
-      setEmailSubject(`Task ${task.title}`);
-      setEmailBody(task.description || '');
       setSupplier(task.supplier?.name || '');
     }
   }, [task]);
+
+  const downloadEml = async () => {
+    if (!task) return;
+    const boundary = '----=_Part_' + Date.now();
+    const attachmentParts = await Promise.all(
+      (task.attachments || []).map(async (a: any) => {
+        const resp = await fetch(getFileUrl(a.url));
+        const buffer = await resp.arrayBuffer();
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+        return [
+          `--${boundary}`,
+          `Content-Type: ${a.mimeType || 'application/octet-stream'}; name="${a.filename}"`,
+          'Content-Transfer-Encoding: base64',
+          `Content-Disposition: attachment; filename="${a.filename}"`,
+          '',
+          base64,
+          '',
+        ].join('\r\n');
+      })
+    );
+    const headers = [
+      `Subject: ${task.title}`,
+      'MIME-Version: 1.0',
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/plain; charset="utf-8"',
+      'Content-Transfer-Encoding: 7bit',
+      '',
+      '',
+    ];
+    const eml = headers.join('\r\n') + attachmentParts.join('\r\n') + `\r\n--${boundary}--`;
+    const blob = new Blob([eml], { type: 'message/rfc822' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeTitle = task.title.replace(/[^a-z0-9]/gi, '_');
+    link.href = url;
+    link.download = `${safeTitle || 'email'}.eml`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    trackEvent('email_downloaded', { taskId: id });
+  };
 
   const changeStatus = (s: string) => {
     if (status === 'FINALIZAT' && s === 'IN_PROGRESS') {
@@ -313,7 +350,7 @@ export default function TaskDetail() {
               <Button variant="secondary" size="sm">
                 <Icon name="share-2" className="h-4 w-4 mr-1" /> Share
               </Button>
-              <Button variant="secondary" size="sm" onClick={() => setEmailOpen(true)}>
+              <Button variant="secondary" size="sm" onClick={downloadEml}>
                 <Icon name="mail" className="h-4 w-4 mr-1" /> {t('labels.email')}
               </Button>
             </div>
@@ -604,7 +641,7 @@ export default function TaskDetail() {
               variant="ghost"
               size="sm"
               className="flex flex-col items-center gap-1"
-              onClick={() => setEmailOpen(true)}
+              onClick={downloadEml}
             >
               <Icon name="mail" className="h-5 w-5" />
               <span className="text-xs">Email</span>
@@ -618,28 +655,6 @@ export default function TaskDetail() {
           onDiscard={handleLeave}
         />
       </main>
-    
-      <EmailDrawer
-        open={emailOpen}
-        to={emailTo}
-        subject={emailSubject}
-        body={emailBody}
-        onChange={({ to, subject, body }) => {
-          if (to !== undefined) setEmailTo(to);
-          if (subject !== undefined) setEmailSubject(subject);
-          if (body !== undefined) setEmailBody(body);
-        }}
-        onSend={() => {
-          emailMut.mutate({
-            to: emailTo.split(',').map(s => s.trim()).filter(Boolean),
-            subject: emailSubject,
-            body: emailBody,
-            attachments: task.attachments?.map((a: any) => a.id),
-          });
-          setEmailOpen(false);
-        }}
-        onClose={() => setEmailOpen(false)}
-      />
     </>
   );
 }

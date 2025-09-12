@@ -163,19 +163,6 @@ export async function archiveTask(id: string) {
   return r.json();
 }
 
-export async function sendTaskEmail(
-  id: string,
-  data: { to: string[]; subject: string; body: string; attachments?: string[] },
-) {
-  const r = await fetchWithAuth(`${base}/tasks/${id}/send-email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!r.ok) throw new Error('Failed');
-  return r.json();
-}
-
 export async function createTask(data: TaskPayload) {
   const r = await fetchWithAuth(`${base}/tasks`, {
     method: 'POST',
