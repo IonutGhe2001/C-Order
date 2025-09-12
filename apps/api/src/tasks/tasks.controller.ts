@@ -97,6 +97,16 @@ export class TasksController {
     return this.tasks.update(id, this.parseTaskBody(body));
   }
 
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.tasks.delete(id);
+  }
+
+  @Post(':id/archive')
+  archive(@Param('id') id: string) {
+    return this.tasks.archive(id);
+  }
+
   @Post(':id/comments')
   addComment(@Param('id') id: string, @Body() body: any, @Req() req: any) {
     return this.tasks.addComment(id, req.user.sub, body.body);

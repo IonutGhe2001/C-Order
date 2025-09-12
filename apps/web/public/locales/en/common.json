@@ -143,6 +143,7 @@
     "noComments": "No comments yet. Add one.",
     "noTasks": "No tasks yet.",
     "noTasksGuidance": "Get started by creating a new task.",
+    "noFilteredTasks": "No tasks match your filters.",
     "noSuppliers": "No suppliers yet.",
     "suppliersLoadFailed": "Couldn't load suppliers. Check your connection and retry.",
     "selectedCount": "{{count}} selected",

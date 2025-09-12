@@ -21,6 +21,15 @@ export default function TasksHub() {
     to: undefined,
     priority: undefined,
   });
+  const resetFilters = () =>
+    setFilters({
+      q: undefined,
+      status: undefined,
+      assignees: undefined,
+      from: undefined,
+      to: undefined,
+      priority: undefined,
+    });
   const [table, setTable] = useState<Table<any>>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [view, setView] = useState<'table' | 'card'>(() =>
@@ -100,6 +109,7 @@ export default function TasksHub() {
               onDelete={(ids) => deleteMut.mutate(ids)}
               view={view}
               customColumns={customColumns}
+              onResetFilters={resetFilters}
             />
           </Suspense>
           <CreateTaskSheet

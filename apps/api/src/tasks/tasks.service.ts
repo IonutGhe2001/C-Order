@@ -245,6 +245,31 @@ export class TasksService {
       }));
   }
 
+  async delete(id: string) {
+    const attachments = await this.prisma.attachment.findMany({ where: { taskId: id } });
+    await Promise.all(
+      attachments.map((a) =>
+        fs
+          .unlink(join(process.cwd(), a.url.startsWith('/') ? a.url.slice(1) : a.url))
+          .catch(() => undefined),
+      ),
+    );
+    await this.prisma.$transaction([
+      this.prisma.comment.deleteMany({ where: { taskId: id } }),
+      this.prisma.attachment.deleteMany({ where: { taskId: id } }),
+      this.prisma.taskTag.deleteMany({ where: { taskId: id } }),
+      this.prisma.taskCustomFieldValue.deleteMany({ where: { taskId: id } }),
+      this.prisma.auditLog.deleteMany({ where: { taskId: id } }),
+      this.prisma.task.delete({ where: { id } }),
+    ]);
+    return { deleted: true };
+  }
+
+  async archive(id: string) {
+    await this.prisma.task.update({ where: { id }, data: { status: 'ARCHIVED' } });
+    return { archived: true };
+  }
+
   addComment(taskId: string, authorId: string, body: string) {
     return this.prisma.comment.create({
       data: { taskId, authorId, body },

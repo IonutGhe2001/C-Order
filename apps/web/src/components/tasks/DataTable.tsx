@@ -32,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 import CreateTaskSheet from './CreateTaskSheet';
 import { useTimeToAction } from '@/lib/use-tta';
 import BottomActionBar from '../ui/bottom-action-bar';
+import emptyState from '@/assets/empty-state.svg?raw';
 
 export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolean }) {
   if (isMobile) {
@@ -114,6 +115,7 @@ export default function TasksDataTable({
   onDelete,
   view = 'table',
   customColumns = [],
+  onResetFilters,
 }: {
   quickFilter?: '' | 'overdue' | 'today' | 'noAssignee';
   filters?: TaskFilters;
@@ -125,6 +127,7 @@ export default function TasksDataTable({
   onDelete?: (ids: string[]) => void;
   view?: 'table' | 'card';
   customColumns?: { id: string; header: string }[];
+  onResetFilters?: () => void;
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -146,6 +149,8 @@ export default function TasksDataTable({
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [dragPosition, setDragPosition] = useState<'left' | 'right' | null>(null);
   const isCardView = view === 'card';
+  const hasFilters =
+    quickFilter !== '' || Object.values(filters || {}).some(Boolean);
 
   useEffect(() => {
     const savedVisibility = localStorage.getItem('tasksTableColumnVisibility');
@@ -475,12 +480,22 @@ export default function TasksDataTable({
   if (!data?.items?.length) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 p-4 text-center text-sm text-foreground">
-        <Icon name="inbox" className="h-12 w-12 text-muted-foreground" />
+        <div className="w-64" dangerouslySetInnerHTML={{ __html: emptyState }} />
         <div className="space-y-1">
-          <p className="text-base font-medium">{t('messages.noTasks')}</p>
-          <p className="text-muted-foreground">{t('messages.noTasksGuidance')}</p>
+          <p className="text-base font-medium">
+            {hasFilters ? t('messages.noFilteredTasks') : t('messages.noTasks')}
+          </p>
+          {!hasFilters && (
+            <p className="text-muted-foreground">{t('messages.noTasksGuidance')}</p>
+          )}
         </div>
-        <CreateTaskSheet triggerText={t('buttons.addTask')} />
+        {hasFilters ? (
+          <Button variant="secondary" onClick={onResetFilters}>
+            {t('buttons.clearFilters')}
+          </Button>
+        ) : (
+          <CreateTaskSheet triggerText={t('buttons.addTask')} />
+        )}
       </div>
     );
   }

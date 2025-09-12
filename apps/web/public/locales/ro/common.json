@@ -143,6 +143,7 @@
     "noComments": "Niciun comentariu. Adaugă unul.",
     "noTasks": "Niciun task încă.",
     "noTasksGuidance": "Începeți prin a crea un task.",
+    "noFilteredTasks": "Niciun task găsit pentru filtrele selectate.",
     "noSuppliers": "Niciun furnizor încă.",
     "suppliersLoadFailed": "Nu s-au putut încărca furnizorii. Verifică conexiunea și reîncearcă.",
     "selectedCount": "{{count}} selectate",
