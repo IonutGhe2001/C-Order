@@ -34,7 +34,15 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
   const [commandOpen, setCommandOpen] = useState(false);
   const [taskSheetOpen, setTaskSheetOpen] = useState(false);
   const [statusManagerOpen, setStatusManagerOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -56,7 +64,9 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
         {t('labels.skipToContent')}
       </a>
       <TooltipProvider>
-        <header className="sticky top-0 left-0 right-0 h-14 bg-brand dark:bg-brand-muted text-brand-fg shadow flex items-center px-4 z-10 relative">
+        <header
+          className={`sticky top-0 left-0 right-0 h-14 bg-brand dark:bg-brand-muted text-brand-fg flex items-center px-4 z-10 relative transition-shadow ${scrolled ? 'shadow-sm' : ''}`}
+        >
           <div className="flex items-center space-x-4 flex-shrink-0 z-10">
             <Tooltip>
               <TooltipTrigger asChild>

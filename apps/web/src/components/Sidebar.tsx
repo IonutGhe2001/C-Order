@@ -19,7 +19,16 @@ export default function Sidebar({
   onOpenChange?: (open: boolean) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+
   useEffect(() => {
+    const stored = localStorage.getItem('sidebarCollapsed');
+    if (stored !== null) {
+      setCollapsed(stored === 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', String(collapsed));
     document.documentElement.style.setProperty(
       '--sidebar-width',
       collapsed ? '72px' : '240px'
