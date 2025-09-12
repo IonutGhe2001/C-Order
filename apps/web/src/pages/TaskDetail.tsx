@@ -343,7 +343,7 @@ export default function TaskDetail() {
   return (
     <>
     <main id="main-content" className="p-6 space-y-4">
-        <header className="sticky top-0 z-10 bg-background border-b p-2 space-y-2">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm p-4 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <Breadcrumb items={[{ label: t('nav.tasks'), href: '/tasks' }, { label: task?.title || '' }]} />
             <div className="flex items-center gap-2">
@@ -358,6 +358,7 @@ export default function TaskDetail() {
         <div className="flex items-center flex-wrap gap-2">
             <Input
               className="text-2xl font-semibold flex-1 border-none focus-visible:ring-0 p-0"
+              placeholder={t('placeholders.title', { defaultValue: 'Enter task title...' })}
               value={title}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const val = e.target.value;
@@ -459,16 +460,20 @@ export default function TaskDetail() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 md:w-auto">
-            <TabsTrigger value="details">
+            <TabsTrigger value="details" className="flex items-center gap-1">
+              <Icon name="list" className="h-4 w-4" />
               {t('labels.details', { defaultValue: 'Details' })}
             </TabsTrigger>
-            <TabsTrigger value="overview">
+            <TabsTrigger value="overview" className="flex items-center gap-1">
+              <Icon name="align-left" className="h-4 w-4" />
               {t('labels.overview', { defaultValue: 'Overview' })}
             </TabsTrigger>
-            <TabsTrigger value="comments">
+            <TabsTrigger value="comments" className="flex items-center gap-1">
+              <Icon name="message-square" className="h-4 w-4" />
               {t('labels.comments', { defaultValue: 'Comments' })}
             </TabsTrigger>
-            <TabsTrigger value="activity">
+            <TabsTrigger value="activity" className="flex items-center gap-1">
+              <Icon name="activity" className="h-4 w-4" />
               {t('labels.activity', { defaultValue: 'Activity' })}
             </TabsTrigger>
           </TabsList>
@@ -605,48 +610,59 @@ export default function TaskDetail() {
         </Tabs>
 
         <BottomActionBar>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={() => persist()}
-              disabled={!hasChanges || update.isPending}
-            >
-              {t('buttons.save', { defaultValue: 'Save' })}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex flex-col items-center gap-1"
-              onClick={() => {
-                setActiveTab('comments');
-                setTimeout(() => document.querySelector<HTMLInputElement>('#add-comment-input')?.focus(), 100);
-              }}
-            >
-              <Icon name="message-circle" className="h-5 w-5" />
-              <span className="text-xs">Comentariu</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex flex-col items-center gap-1"
-              onClick={() => {
-                setActiveTab('details');
-                setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100);
-              }}
-            >
-              <Icon name="paperclip" className="h-5 w-5" />
-              <span className="text-xs">Atașament</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex flex-col items-center gap-1"
-              onClick={downloadEml}
-            >
-              <Icon name="mail" className="h-5 w-5" />
-              <span className="text-xs">Email</span>
-            </Button>
-          </div>
+          <TooltipProvider>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => persist()}
+                disabled={!hasChanges || update.isPending}
+              >
+                {t('buttons.save', { defaultValue: 'Save' })}
+              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setActiveTab('comments');
+                      setTimeout(() => document.querySelector<HTMLInputElement>('#add-comment-input')?.focus(), 100);
+                    }}
+                  >
+                    <Icon name="message-circle" className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {t('labels.comment', { defaultValue: 'Comment' })}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setActiveTab('details');
+                      setTimeout(() => document.querySelector<HTMLInputElement>('input[type=file]')?.click(), 100);
+                    }}
+                  >
+                    <Icon name="paperclip" className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {t('labels.attachment', { defaultValue: 'Attachment' })}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={downloadEml}>
+                    <Icon name="mail" className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Email</TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </BottomActionBar>
         <UnsavedChangesDialog
           open={leaveOpen}

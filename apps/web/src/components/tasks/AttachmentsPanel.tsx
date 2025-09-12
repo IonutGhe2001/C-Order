@@ -46,9 +46,13 @@ export default function AttachmentsPanel({ taskId, attachments, onSave, hideTitl
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={cn('space-y-2', isDragOver && 'border-2 border-dashed rounded-md p-2')}
+      className={cn('space-y-2 border-2 border-dashed rounded-md p-4', isDragOver && 'bg-muted')}
     >
       {!hideTitle && <h2 className="font-medium">{t('labels.files')}</h2>}
+      <div className="text-xs text-muted-foreground flex items-center gap-1">
+        <Icon name="upload-cloud" className="h-4 w-4" />
+        {t('messages.dragDrop', { defaultValue: 'Drag & drop files or click Upload' })}
+      </div>
       {attachments?.length ? (
         <ul className="space-y-2">
           {attachments.map((a: any) => (
@@ -76,10 +80,23 @@ export default function AttachmentsPanel({ taskId, attachments, onSave, hideTitl
           <Icon name="inbox" className="h-4 w-4 mr-1" /> {t('messages.filesEmpty')}
         </div>
       )}
-      <input type="file" onChange={e => {
-        const f = e.target.files?.[0];
-        if (f) onSave('new', f);
-      }} />
+      <input
+        id="att-input"
+        type="file"
+        className="hidden"
+        onChange={e => {
+          const f = e.target.files?.[0];
+          if (f) onSave('new', f);
+        }}
+      />
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => document.getElementById('att-input')?.click()}
+      >
+        <Icon name="upload" className="h-4 w-4 mr-1" />
+        {t('buttons.upload', { defaultValue: 'Upload' })}
+      </Button>
 
       <Dialog open={!!selectedAttachment} onOpenChange={(o) => { if (!o) setSelectedAttachment(null); }}>
         <DialogContent className="max-w-[90vw]">

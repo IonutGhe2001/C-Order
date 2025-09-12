@@ -1,5 +1,6 @@
 import AssigneeChips from './AssigneeChips';
 import { Skeleton } from '../ui/skeleton';
+import { Icon } from '../../lib/lucide-icon';
 
 interface AssigneeSectionProps {
   users: { id: string; name: string }[];
@@ -22,7 +23,9 @@ export default function AssigneeSection({
 }: AssigneeSectionProps) {
   return (
     <div>
-      <label className="block text-sm font-medium">{label}</label>
+      <label className="block text-sm font-medium flex items-center gap-1">
+        <Icon name="users" className="h-4 w-4" /> {label}
+      </label>
       {loading ? (
         <Skeleton className="h-10 w-full mt-1" />
       ) : error ? (
