@@ -39,7 +39,7 @@ export default function OrderDeliveryPanel({
             onChange({ orderDate: d ? d.toISOString().slice(0, 10) : '' })
           }
           dateFormat="yyyy-MM-dd"
-          className="w-full border p-2"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm hover:border-brand focus:border-brand focus-visible:outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -50,7 +50,7 @@ export default function OrderDeliveryPanel({
             onChange({ orderReceivedDate: d ? d.toISOString().slice(0, 10) : '' })
           }
           dateFormat="yyyy-MM-dd"
-          className="w-full border p-2"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm hover:border-brand focus:border-brand focus-visible:outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
@@ -63,7 +63,11 @@ export default function OrderDeliveryPanel({
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium">{t('labels.orderType')}</label>
-        <select className="w-full border p-2" value={orderType} onChange={e => onChange({ orderType: e.target.value })}>
+        <select
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm hover:border-brand focus:border-brand focus-visible:outline-none"
+          value={orderType}
+          onChange={e => onChange({ orderType: e.target.value })}
+        >
           <option value="">{t('placeholders.selectType')}</option>
           {orderTypes?.map((o: any) => (
             <option key={o.id || o.value} value={o.value || o.id}>{o.label || o.name || o.value}</option>
@@ -78,7 +82,7 @@ export default function OrderDeliveryPanel({
             onChange({ productsReceivedDate: d ? d.toISOString().slice(0, 10) : '' })
           }
           dateFormat="yyyy-MM-dd"
-          className="w-full border p-2"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm hover:border-brand focus:border-brand focus-visible:outline-none"
         />
       </div>
       <div className="md:col-span-2 flex flex-col gap-1">
@@ -93,7 +97,7 @@ export default function OrderDeliveryPanel({
               onChange({ deliveryDate: d ? d.toISOString().slice(0, 10) : '' })
             }
             dateFormat="yyyy-MM-dd"
-            className="w-full border p-2"
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm hover:border-brand focus:border-brand focus-visible:outline-none"
           />
         )}
       </div>
