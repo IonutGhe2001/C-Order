@@ -146,7 +146,6 @@ export default function FiltersBar({
               <Button
                 size="icon"
                 variant={view === "table" ? "secondary" : "ghost"}
-                className={view === "table" ? undefined : "text-brand-fg"}
                 aria-label={t("labels.tableView", { defaultValue: "Table view" })}
                 onClick={() => onViewChange("table")}
               >
@@ -160,7 +159,6 @@ export default function FiltersBar({
               <Button
                 size="icon"
                 variant={view === "card" ? "secondary" : "ghost"}
-                className={view === "card" ? undefined : "text-brand-fg"}
                 aria-label={t("labels.cardView", { defaultValue: "Card view" })}
                 onClick={() => onViewChange("card")}
               >
