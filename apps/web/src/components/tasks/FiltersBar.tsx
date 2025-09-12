@@ -13,6 +13,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { listUsers, TaskFilters } from "@/lib/api";
 import { statusOptions } from "./columns";
+import { Icon } from "@/lib/lucide-icon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const priorityOptions = [
   { value: "LOW", label: "priority.LOW" },
@@ -24,9 +31,17 @@ interface FiltersBarProps {
   filters: TaskFilters;
   onChange: (filters: TaskFilters) => void;
   onCreate: () => void;
+  view: "table" | "card";
+  onViewChange: (view: "table" | "card") => void;
 }
 
-export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarProps) {
+export default function FiltersBar({
+  filters,
+  onChange,
+  onCreate,
+  view,
+  onViewChange,
+}: FiltersBarProps) {
   const { t } = useTranslation();
   const { data } = useQuery({ queryKey: ["users"], queryFn: listUsers });
   const users = data?.items || [];
@@ -43,8 +58,9 @@ export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarPr
     const statuses = statusOptions();
 
   return (
-    <div className="flex flex-wrap items-end gap-2 justify-between">
-      <div className="flex flex-wrap items-end gap-2">
+    <TooltipProvider>
+      <div className="flex flex-wrap items-end gap-2 justify-between">
+        <div className="flex flex-wrap items-end gap-2">
       <Input
           value={filters.q || ""}
           onChange={(e) =>
@@ -122,7 +138,41 @@ export default function FiltersBar({ filters, onChange, onCreate }: FiltersBarPr
           {t("buttons.clearFilters")}
         </Button>
       </div>
-      <Button onClick={onCreate}>{t("buttons.addTask")}</Button>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-brand-fg">{t("labels.views")}</span>
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant={view === "table" ? "secondary" : "ghost"}
+                className={view === "table" ? undefined : "text-brand-fg"}
+                aria-label={t("labels.tableView", { defaultValue: "Table view" })}
+                onClick={() => onViewChange("table")}
+              >
+                <Icon name="table" className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("labels.tableView")}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant={view === "card" ? "secondary" : "ghost"}
+                className={view === "card" ? undefined : "text-brand-fg"}
+                aria-label={t("labels.cardView", { defaultValue: "Card view" })}
+                onClick={() => onViewChange("card")}
+              >
+                <Icon name="layout-grid" className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("labels.cardView")}</TooltipContent>
+          </Tooltip>
+        </div>
+        <Button onClick={onCreate}>{t("buttons.addTask")}</Button>
+      </div>
     </div>
+    </TooltipProvider>
   );
 }

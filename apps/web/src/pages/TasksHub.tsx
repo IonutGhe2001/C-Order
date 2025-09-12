@@ -122,6 +122,8 @@ export default function TasksHub() {
               filters={filters}
               onChange={setFilters}
               onCreate={() => setCreateOpen(true)}
+              view={view}
+              onViewChange={setView}
             />
             <TasksDataTable
               filters={filters}
