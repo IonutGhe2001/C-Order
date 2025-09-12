@@ -85,6 +85,7 @@ model Task {
   comments    Comment[]
   attachments Attachment[]
   audit       AuditLog[]
+  customValues TaskCustomFieldValue[]
 }
 
 model Tag {
@@ -136,4 +137,25 @@ model AuditLog {
 
   task      Task @relation(fields: [taskId], references: [id])
   user      User @relation(fields: [userId], references: [id])
+}
+
+model CustomField {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  values    TaskCustomFieldValue[]
+}
+
+model TaskCustomFieldValue {
+  id      String @id @default(cuid())
+  taskId  String
+  fieldId String
+  value   String?
+  task    Task       @relation(fields: [taskId], references: [id])
+  field   CustomField @relation(fields: [fieldId], references: [id])
+
+  @@unique([taskId, fieldId])
 }

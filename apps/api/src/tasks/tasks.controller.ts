@@ -49,6 +49,7 @@ export class TasksController {
       orderType,
       productsReceivedDate,
       deliveryDate,
+      custom,
     } = body;
 
     if (assignees !== undefined) {
@@ -82,6 +83,7 @@ export class TasksController {
       orderType,
       productsReceivedDate: parseDate(productsReceivedDate, 'productsReceivedDate'),
       deliveryDate: parseDate(deliveryDate, 'deliveryDate'),
+      custom,
     };
   }
 

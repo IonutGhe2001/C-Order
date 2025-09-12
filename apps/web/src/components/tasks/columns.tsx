@@ -12,6 +12,7 @@ export interface Task {
   assignees?: { id: string; name: string }[];
   dueDate?: string | null;
   createdAt: string;
+  custom?: Record<string, string>;
 }
 
 export function statusOptions() {

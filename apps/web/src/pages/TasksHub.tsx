@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import FiltersBar from "../components/tasks/FiltersBar";
-import { deleteTask, archiveTask, TaskFilters } from "../lib/api";
+import { deleteTask, archiveTask, TaskFilters, listCustomFields } from "../lib/api";
 import { createTaskColumns } from "../components/tasks/columns";
 import CustomizeColumnsDialog from "../components/tasks/CustomizeColumnsDialog";
 import { useTranslation } from "react-i18next";
@@ -65,6 +65,21 @@ export default function TasksHub() {
         /* ignore */
       }
     }
+  }, []);
+
+  useEffect(() => {
+    listCustomFields()
+      .then((fields) => {
+        setCustomColumns((prev) => (prev.length ? prev : fields.map((f: any) => ({ id: f.id, header: f.label }))));
+        setColumnNames((prev) => {
+          const next = { ...prev };
+          fields.forEach((f: any) => {
+            next[f.id] = f.label;
+          });
+          return next;
+        });
+      })
+      .catch(() => undefined);
   }, []);
   useEffect(() => {
     localStorage.setItem("tasksColumnNames", JSON.stringify(columnNames));

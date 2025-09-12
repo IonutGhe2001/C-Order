@@ -58,11 +58,18 @@ export class TasksService {
         : {}),
     };
 
-    return this.prisma.task.findMany({
-      where,
-      include: { supplier: true, owner: true, assignees: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    return this.prisma.task
+      .findMany({
+        where,
+        include: { supplier: true, owner: true, assignees: true, customValues: true },
+        orderBy: { createdAt: 'desc' },
+      })
+      .then((tasks) =>
+        tasks.map((t) => ({
+          ...t,
+          custom: Object.fromEntries(t.customValues.map((cv) => [cv.fieldId, cv.value || ''])),
+        })),
+      );
   }
   async summary(range?: string) {
     const grouped = await this.prisma.task.groupBy({
@@ -77,14 +84,24 @@ export class TasksService {
   }
   
   get(id: string) {
-    return this.prisma.task.findUnique({
-      where: { id },
-      include: {
-        comments: { include: { author: true } },
-        supplier: true,
-        attachments: true,
-      },
-    });
+    return this.prisma.task
+      .findUnique({
+        where: { id },
+        include: {
+          comments: { include: { author: true } },
+          supplier: true,
+          attachments: true,
+          customValues: true,
+        },
+      })
+      .then((t) =>
+        t
+          ? {
+              ...t,
+              custom: Object.fromEntries(t.customValues.map((cv) => [cv.fieldId, cv.value || ''])),
+            }
+          : null,
+      );
   }
   create(data: any, ownerId: string) {
     const {
@@ -104,6 +121,7 @@ export class TasksService {
       currency,
       title,
       description,
+      custom,
     } = data;
 
 
@@ -136,7 +154,23 @@ export class TasksService {
     if (supplierId)
       createData.supplier = { connect: { id: supplierId } };
 
-    return this.prisma.task.create({ data: createData, include: { supplier: true, assignees: true } });
+    return this.prisma.task.create({
+      data: {
+        ...createData,
+        customValues: custom
+          ? {
+              create: Object.entries(custom).map(([fieldId, value]) => ({
+                fieldId,
+                value,
+              })),
+            }
+          : undefined,
+      },
+      include: { supplier: true, assignees: true, customValues: true },
+    }).then((t) => ({
+      ...t,
+      custom: Object.fromEntries(t.customValues.map((cv) => [cv.fieldId, cv.value || ''])),
+    }));
   }
 
   update(id: string, data: any) {
@@ -157,6 +191,7 @@ export class TasksService {
       orderType,
       productsReceivedDate,
       deliveryDate,
+      custom,
     } = data;
     const updateData: any = {
       status,
@@ -185,7 +220,29 @@ export class TasksService {
       updateData.assignees = { set: assignees.map((userId: string) => ({ id: userId })) };
     if (supplierId !== undefined)
       updateData.supplier = supplierId ? { connect: { id: supplierId } } : { disconnect: true };
-    return this.prisma.task.update({ where: { id }, data: updateData, include: { supplier: true, assignees: true } });
+    return this.prisma.task
+      .update({
+        where: { id },
+        data: {
+          ...updateData,
+          ...(custom
+            ? {
+                customValues: {
+                  deleteMany: { fieldId: { in: Object.keys(custom) } },
+                  create: Object.entries(custom).map(([fieldId, value]) => ({
+                    fieldId,
+                    value,
+                  })),
+                },
+              }
+            : {}),
+        },
+        include: { supplier: true, assignees: true, customValues: true },
+      })
+      .then((t) => ({
+        ...t,
+        custom: Object.fromEntries(t.customValues.map((cv) => [cv.fieldId, cv.value || ''])),
+      }));
   }
 
   addComment(taskId: string, authorId: string, body: string) {

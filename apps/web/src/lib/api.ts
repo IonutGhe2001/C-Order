@@ -41,6 +41,7 @@ export interface TaskPayload {
   orderType?: string | null;
   productsReceivedDate?: string | null;
   deliveryDate?: string | null;
+  custom?: Record<string, string>;
 }
 
 export interface TaskFilters {
@@ -169,6 +170,12 @@ export async function createTask(data: TaskPayload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  if (!r.ok) throw new Error('Failed');
+  return r.json();
+}
+
+export async function listCustomFields() {
+  const r = await fetchWithAuth(`${base}/custom-fields`);
   if (!r.ok) throw new Error('Failed');
   return r.json();
 }

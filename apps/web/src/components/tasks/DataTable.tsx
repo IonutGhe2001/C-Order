@@ -18,7 +18,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { listTasks, getTask, TaskFilters } from '@/lib/api';
+import { listTasks, getTask, TaskFilters, updateTask } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -181,6 +181,20 @@ export default function TasksDataTable({
   }, []);
 
   useEffect(() => {
+    if (data?.items) {
+      setCustomData((prev) => {
+        const next = { ...prev };
+        (data.items as any[]).forEach((task: any) => {
+          if (task.custom) {
+            next[task.id] = { ...(next[task.id] || {}), ...(task.custom as Record<string, string>) };
+          }
+        });
+        return next;
+      });
+    }
+  }, [data]);
+
+  useEffect(() => {
     localStorage.setItem('tasksTableColumnVisibility', JSON.stringify(columnVisibility));
   onColumnVisibilityChange?.(columnVisibility);
   }, [columnVisibility, onColumnVisibilityChange]);
@@ -197,6 +211,9 @@ export default function TasksDataTable({
         localStorage.setItem('tasksCustomData', JSON.stringify(next));
         return next;
       });
+      if (!columnId.startsWith('custom_')) {
+        updateTask(taskId, { custom: { [columnId]: value } }).catch(() => undefined);
+      }
     },
     []
   );
