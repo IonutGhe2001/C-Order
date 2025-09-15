@@ -33,6 +33,7 @@ interface FiltersBarProps {
   onCreate: () => void;
   view: "table" | "card";
   onViewChange: (view: "table" | "card") => void;
+  onCustomizeColumns?: () => void;
 }
 
 export default function FiltersBar({
@@ -41,6 +42,7 @@ export default function FiltersBar({
   onCreate,
   view,
   onViewChange,
+  onCustomizeColumns,
 }: FiltersBarProps) {
   const { t } = useTranslation();
   const { data } = useQuery({ queryKey: ["users"], queryFn: listUsers });
@@ -168,6 +170,11 @@ export default function FiltersBar({
             <TooltipContent>{t("labels.cardView")}</TooltipContent>
           </Tooltip>
         </div>
+        {onCustomizeColumns && (
+          <Button variant="outline" onClick={onCustomizeColumns}>
+            {t("labels.customizeColumns", { defaultValue: "Customize columns" })}
+          </Button>
+        )}
         <Button onClick={onCreate}>{t("buttons.addTask")}</Button>
       </div>
     </div>

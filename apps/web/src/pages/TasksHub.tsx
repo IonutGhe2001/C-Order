@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy, useEffect } from "react";
+import React, { useState, Suspense, lazy, useEffect, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table, VisibilityState } from "@tanstack/react-table";
 import Header from "../components/Header";
@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 import CreateTaskSheet from "../components/tasks/CreateTaskSheet";
 import TasksHubSkeleton from "../components/tasks/TasksHubSkeleton";
 import FiltersBar from "../components/tasks/FiltersBar";
+import CustomizeColumnsDialog from "../components/tasks/CustomizeColumnsDialog";
 import { deleteTask, archiveTask, TaskFilters, listCustomFields } from "../lib/api";
 
 const TasksDataTable = lazy(() => import("../components/tasks/DataTable"));
@@ -35,30 +36,33 @@ export default function TasksHub() {
   const [view, setView] = useState<'table' | 'card'>(() =>
     (localStorage.getItem('tasksView') as 'table' | 'card') || 'table'
   );
-  const [customColumns, setCustomColumns] = useState<{ id: string; header: string }[]>([]);
-  useEffect(() => {
-    const custom = localStorage.getItem("tasksCustomColumns");
-    if (custom) {
+  const [customFields, setCustomFields] = useState<{ id: string; header: string }[]>([]);
+  const [customIds, setCustomIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem("tasksCustomColumns");
+    if (saved) {
       try {
-        setCustomColumns(JSON.parse(custom));
+        return JSON.parse(saved);
       } catch {
-        /* ignore */
+        return [];
       }
     }
-  }, []);
-
+  return [];
+  });
+  const customColumns = useMemo(
+    () => customFields.filter((f) => customIds.includes(f.id)),
+    [customFields, customIds]
+  );
   useEffect(() => {
     listCustomFields()
       .then((fields) => {
         const cols = fields.map((f: any) => ({ id: f.id, header: f.label }));
-        setCustomColumns(cols);
-        localStorage.setItem("tasksCustomColumns", JSON.stringify(cols));
+        setCustomFields(cols);
       })
       .catch(() => undefined);
   }, []);
   useEffect(() => {
-    localStorage.setItem("tasksCustomColumns", JSON.stringify(customColumns));
-  }, [customColumns]);
+    localStorage.setItem("tasksCustomColumns", JSON.stringify(customIds));
+  }, [customIds]);
   useEffect(() => {
     localStorage.setItem('tasksView', view);
   }, [view]);
@@ -77,6 +81,8 @@ export default function TasksHub() {
       qc.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
+
+  const [columnsDialogOpen, setColumnsDialogOpen] = useState(false);
 
   return (
     <>
@@ -100,6 +106,7 @@ export default function TasksHub() {
               onCreate={() => setCreateOpen(true)}
               view={view}
               onViewChange={setView}
+              onCustomizeColumns={() => setColumnsDialogOpen(true)}
             />
             <TasksDataTable
               filters={filters}
@@ -112,6 +119,13 @@ export default function TasksHub() {
               onResetFilters={resetFilters}
             />
           </Suspense>
+          <CustomizeColumnsDialog
+            open={columnsDialogOpen}
+            onOpenChange={setColumnsDialogOpen}
+            available={customFields}
+            selected={customIds}
+            onSave={setCustomIds}
+          />
           <CreateTaskSheet
             open={createOpen}
             onOpenChange={setCreateOpen}
