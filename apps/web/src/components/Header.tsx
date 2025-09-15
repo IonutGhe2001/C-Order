@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from './ui/button';
 import { Icon } from '../lib/lucide-icon';
-import CommandPalette from './CommandPalette';
 import { motion } from 'framer-motion';
 import {
   Tooltip,
@@ -28,7 +26,6 @@ interface HeaderProps {
 }
 
 export default function Header({ onToggleSidebar, view, setView }: HeaderProps) {
-  const [commandOpen, setCommandOpen] = useState(false);
   const [taskSheetOpen, setTaskSheetOpen] = useState(false);
   const [statusManagerOpen, setStatusManagerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -39,17 +36,6 @@ export default function Header({ onToggleSidebar, view, setView }: HeaderProps) 
     window.addEventListener('scroll', onScroll);
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setCommandOpen(true);
-      }
-    };
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
   }, []);
 
   return (
@@ -81,45 +67,17 @@ export default function Header({ onToggleSidebar, view, setView }: HeaderProps) 
             </Tooltip>
             <div className="text-xl font-bold">{t('titles.appName')}</div>
           </div>
-          <div className="flex items-center space-x-2 ml-auto z-10">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-brand-fg"
-                  aria-label={t('labels.commandPalette')}
-                  onClick={() => setCommandOpen(true)}
-                >
-                  <Icon name="command" className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{t('labels.commandPalette')}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <a
-                  href="/help"
-                  className="p-2 text-brand-fg hover:text-brand-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-                  aria-label={t('labels.help')}
-                >
-                  <Icon name="help-circle" className="h-4 w-4" />
-                </a>
-              </TooltipTrigger>
-              <TooltipContent>{t('labels.help')}</TooltipContent>
-            </Tooltip>
+          <div className="flex items-center ml-auto z-10">
             <Tooltip>
               <DropdownMenu>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="outline"
+                    <div
                       aria-label={t('labels.userMenu')}
-                      className="text-brand-fg border-brand-fg"
+                      className="h-8 w-8 rounded-full bg-brand-muted flex items-center justify-center cursor-pointer"
                     >
                       <Icon name="user" className="h-4 w-4" />
-                    </Button>
+                    </div>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent>{t('labels.userMenu')}</TooltipContent>
@@ -166,7 +124,6 @@ export default function Header({ onToggleSidebar, view, setView }: HeaderProps) 
           </div>
         </header>
       </TooltipProvider>
-      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
       <CreateTaskSheet open={taskSheetOpen} onOpenChange={setTaskSheetOpen} showTrigger={false} />
       <StatusManager open={statusManagerOpen} onOpenChange={setStatusManagerOpen} />
     </>

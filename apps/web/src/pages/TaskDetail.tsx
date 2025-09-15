@@ -29,6 +29,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { Card, CardContent } from '../components/ui/card';
 import UnsavedChangesDialog from '../components/UnsavedChangesDialog';
 import TaskDetailSkeleton from '../components/tasks/TaskDetailSkeleton';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const statusColorClassesMap: Record<string, string> = {
   OPEN: 'circle',
@@ -165,7 +167,7 @@ export default function TaskDetail() {
       setTitle(task.title);
       setStatus(task.status);
       setPriority(task.priority || '');
-      setDueDate(task.dueDate ? task.dueDate.slice(0, 10) : '');
+      setDueDate(task.dueDate || '');
       setDesc(task.description || '');
       setAssignees(task.assignees?.map((a: any) => a.id) || []);
       setOrderDate(task.orderDate ? task.orderDate.slice(0, 10) : '');
@@ -437,18 +439,25 @@ export default function TaskDetail() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div
+                  <DatePicker
+                    selected={dueDate ? new Date(dueDate) : null}
+                    onChange={(d: Date | null) => {
+                      const iso = d ? d.toISOString() : '';
+                      setDueDate(iso);
+                      save({ dueDate: d ? d.toISOString() : null });
+                    }}
+                    showTimeSelect
+                    dateFormat="Pp"
                     className={cn(
-                      'px-2 py-1 rounded text-sm',
+                      'px-2 py-1 rounded text-sm border',
                       dueStatus === 'overdue'
-                        ? 'text-danger bg-danger/10'
+                        ? 'text-danger border-danger'
                         : dueStatus === 'warning'
-                        ? 'text-warning bg-warning/10'
-                        : 'text-success bg-success/10'
+                        ? 'text-warning border-warning'
+                        : 'text-success border-success'
                     )}
-                  >
-                    {dueDate || '-'}
-                  </div>
+                  popperClassName="z-50"
+                  />
                 </TooltipTrigger>
                 {slaDate && (
                   <TooltipContent>{formatDateTime(slaDate)}</TooltipContent>

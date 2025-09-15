@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { taskSchema, TaskFormValues } from "@/lib/validation/task";
@@ -23,6 +23,8 @@ import { useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import Stepper from "@/components/ui/Stepper";
 import { loadStatuses, getStatusLabels } from "@/lib/status-store";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const orderTypeOptions = [
   "Achizitie Directa",
@@ -300,11 +302,21 @@ export default function CreateTaskSheet({
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{t('labels.dueDate')}</label>
-                      <Input
-                        type="date"
-                        tabIndex={ti++}
-                        placeholder="2024-12-31"
-                        {...registerDate("dueDate")}
+                      <Controller
+                        control={form.control}
+                        name="dueDate"
+                        render={({ field }) => (
+                          <DatePicker
+                            selected={field.value}
+                            onChange={(date) => field.onChange(date)}
+                            showTimeSelect
+                            dateFormat="Pp"
+                            className="w-full rounded-md border p-2 text-sm"
+                            placeholderText="2024-12-31 12:00"
+                            popperClassName="z-50"
+                            portalId="root"
+                          />
+                        )}
                       />
                       {form.formState.errors.dueDate && (
                         <p className="text-sm text-brand text-danger">
