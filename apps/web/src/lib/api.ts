@@ -174,12 +174,6 @@ export async function createTask(data: TaskPayload) {
   return r.json();
 }
 
-export async function listCustomFields() {
-  const r = await fetchWithAuth(`${base}/custom-fields`);
-  if (!r.ok) throw new Error('Failed');
-  return r.json();
-}
-
 export async function listUsers() {
   const r = await fetchWithAuth(`${base}/users`);
   if (!r.ok) throw new Error('Failed');

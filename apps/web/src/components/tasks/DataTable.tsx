@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -18,9 +18,8 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { listTasks, getTask, TaskFilters, updateTask } from '@/lib/api';
+import { listTasks, getTask, TaskFilters } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +32,7 @@ import CreateTaskSheet from './CreateTaskSheet';
 import { useTimeToAction } from '@/lib/use-tta';
 import BottomActionBar from '../ui/bottom-action-bar';
 import emptyState from '@/assets/empty-state.svg?raw';
+import { formatDate } from '@/lib/i18n';
 
 export function TasksDataTableSkeleton({ isMobile = false }: { isMobile?: boolean }) {
   if (isMobile) {
@@ -144,7 +144,6 @@ export default function TasksDataTable({
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>([]);
   const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [customData, setCustomData] = useState<Record<string, Record<string, string>>>({});
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [dragPosition, setDragPosition] = useState<'left' | 'right' | null>(null);
@@ -173,31 +172,6 @@ export default function TasksDataTable({
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem('tasksCustomData');
-    if (saved) {
-      try {
-        setCustomData(JSON.parse(saved));
-      } catch {
-        /* ignore */
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (data?.items) {
-      setCustomData((prev) => {
-        const next = { ...prev };
-        (data.items as any[]).forEach((task: any) => {
-          if (task.custom) {
-            next[task.id] = { ...(next[task.id] || {}), ...(task.custom as Record<string, string>) };
-          }
-        });
-        return next;
-      });
-    }
-  }, [data]);
-
-  useEffect(() => {
     localStorage.setItem('tasksTableColumnVisibility', JSON.stringify(columnVisibility));
   onColumnVisibilityChange?.(columnVisibility);
   }, [columnVisibility, onColumnVisibilityChange]);
@@ -205,21 +179,6 @@ export default function TasksDataTable({
   useEffect(() => {
     localStorage.setItem('tasksTableColumnOrder', JSON.stringify(columnOrder));
   }, [columnOrder]);
-
-   const updateCustomData = useCallback(
-    (taskId: string, columnId: string, value: string) => {
-      setCustomData((prev) => {
-        const row = { ...(prev[taskId] || {}), [columnId]: value };
-        const next = { ...prev, [taskId]: row };
-        localStorage.setItem('tasksCustomData', JSON.stringify(next));
-        return next;
-      });
-      if (!columnId.startsWith('custom_')) {
-        updateTask(taskId, { custom: { [columnId]: value } }).catch(() => undefined);
-      }
-    },
-    []
-  );
 
   const columns = useMemo<ColumnDef<Task>[]>(() => {
     const selectColumn: ColumnDef<Task> = {
@@ -258,21 +217,18 @@ export default function TasksDataTable({
       id: col.id,
       accessorKey: col.id,
       header: col.header,
-      cell: ({ row }: { row: any }) => {
-        const taskId = row.original.id;
-        const value = customData[taskId]?.[col.id] || '';
-        return (
-          <Input
-            value={value}
-            onChange={(e) => updateCustomData(taskId, col.id, e.target.value)}
-          />
+      cell: ({ getValue }: { getValue: () => any }) => {
+        const v = getValue();
+        if (!v) return '-';
+        return String(
+          col.id.toLowerCase().includes('date') ? formatDate(new Date(v)) : v
         );
       },
-      enableSorting: false,
-      enableColumnFilter: false,
-      }));
+      enableSorting: true,
+      enableColumnFilter: true,
+    }));
     return [selectColumn, ...baseCols, ...extraCols];
-  }, [t, customColumns, customData, updateCustomData]);
+  }, [t, customColumns]);
 
   const filteredData = useMemo(() => {
     const items: Task[] = (data?.items as Task[]) || [];

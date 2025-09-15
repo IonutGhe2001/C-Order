@@ -16,21 +16,18 @@ import {
   DropdownMenuItem,
 } from './ui/dropdown-menu';
 import { useTranslation } from 'react-i18next';
-import ColumnsMenu from './tasks/ColumnsMenu';
-import { Table, VisibilityState } from '@tanstack/react-table';
+// Columns menu removed; column configuration handled elsewhere
 import CreateTaskSheet from './tasks/CreateTaskSheet';
 import StatusManager from './StatusManager';
 import { logout } from '@/lib/api';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
-  table?: Table<any>;
-  columnVisibility?: VisibilityState;
   view?: 'table' | 'card';
   setView?: React.Dispatch<React.SetStateAction<'table' | 'card'>>;
 }
 
-export default function Header({ onToggleSidebar, table, columnVisibility, view, setView }: HeaderProps) {
+export default function Header({ onToggleSidebar, view, setView }: HeaderProps) {
   const [commandOpen, setCommandOpen] = useState(false);
   const [taskSheetOpen, setTaskSheetOpen] = useState(false);
   const [statusManagerOpen, setStatusManagerOpen] = useState(false);
@@ -135,13 +132,6 @@ export default function Header({ onToggleSidebar, table, columnVisibility, view,
                   >
                     {t('buttons.addTask')}
                   </DropdownMenuItem>
-                  {table && columnVisibility && (
-                    <ColumnsMenu table={table} visibility={columnVisibility}>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        {t('labels.columns')}
-                      </DropdownMenuItem>
-                    </ColumnsMenu>
-                  )}
                   {view && setView && (
                     <DropdownMenuItem
                       onSelect={(e) => {
