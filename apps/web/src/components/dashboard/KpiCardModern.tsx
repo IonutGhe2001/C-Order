@@ -55,7 +55,7 @@ export default function KpiCardModern({
   );
 
   const className =
-    'rounded-2xl border bg-background p-4 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand';
+    'rounded-2xl border bg-background p-6 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand';
 
   return href ? (
     <Link to={href} aria-label={title} className={className}>

@@ -6,8 +6,6 @@ import Sidebar from '../components/Sidebar';
 import { KpiCardModern, KpiSkeleton, EmptyState } from '../components/dashboard';
 import { Button } from '../components/ui/button';
 import { Icon } from '../lib/lucide-icon';
-import QuickActions from '../components/dashboard/QuickActions';
-import RecentActivity from '../components/dashboard/RecentActivity';
 import { getTaskSummary } from '../lib/api';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -49,78 +47,6 @@ export default function Dashboard() {
 
   const shouldReduceMotion = useReducedMotion();
   const Main = shouldReduceMotion ? 'main' : motion.main;
-  const content = (
-    <>
-      <div className="flex items-center gap-2 mb-4">
-        <select
-          aria-label="Date range"
-          value={range}
-          onChange={(e) => setRange(e.target.value as '7d' | '30d' | '90d')}
-          className="border bg-background rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-        >
-          <option value="7d">Last 7 days</option>
-          <option value="30d">Last 30 days</option>
-          <option value="90d">Last 90 days</option>
-        </select>
-        <Button
-          variant="secondary"
-          onClick={() => refetch()}
-          aria-label="Refresh"
-        >
-          Refresh
-        </Button>
-      </div>
-      {isError && (
-        <div
-          role="alert"
-          className="mb-4 flex items-start gap-2 rounded-md bg-danger p-4 text-brand-fg"
-        >
-          <Icon name="alert-triangle" className="h-4 w-4" />
-          <span className="flex-1">{t('messages.loadError')}</span>
-          <Button variant="secondary" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
-      )}
-      {data.length === 0 && !isLoading && !isError ? (
-          <EmptyState
-            title="No data available"
-            description="Try adjusting your filters"
-            onReset={() => {
-              setRange('7d');
-              refetch();
-            }}
-          />
-        ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
-            : data.map((kpi) => (
-                <KpiCardModern
-                  key={kpi.title}
-                  title={kpi.title}
-                  value={kpi.value}
-                  trend={kpi.trend}
-                  delta={kpi.delta}
-                  icon={kpi.icon}
-                  href=
-                    {kpi.href
-                      ? `${kpi.href}${kpi.href.includes('?') ? '&' : '?'}range=${range}`
-                      : undefined}
-                />
-              ))}
-        </div>
-      )}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mt-4">
-        <div className="md:col-span-2">
-          <RecentActivity />
-        </div>
-        <div className="md:col-span-1">
-          <QuickActions />
-        </div>
-      </div>
-    </>
-  );
   return (
     <>
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
@@ -136,8 +62,68 @@ export default function Dashboard() {
               exit: { opacity: 0, y: 20 },
             })}
       >
-        <h1 className="text-xl font-bold mb-4">{t('nav.dashboard')}</h1>
-        {content}
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-2xl font-bold">{t('nav.dashboard')}</h1>
+            <div className="flex items-center gap-2">
+              <select
+                aria-label="Date range"
+                value={range}
+                onChange={(e) => setRange(e.target.value as '7d' | '30d' | '90d')}
+                className="border bg-background rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+              </select>
+              <Button variant="secondary" onClick={() => refetch()} aria-label="Refresh">
+                Refresh
+              </Button>
+            </div>
+          </div>
+          {isError && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-md bg-danger p-4 text-brand-fg"
+            >
+              <Icon name="alert-triangle" className="h-4 w-4" />
+              <span className="flex-1">{t('messages.loadError')}</span>
+              <Button variant="secondary" onClick={() => refetch()}>
+                Retry
+              </Button>
+            </div>
+          )}
+          {data.length === 0 && !isLoading && !isError ? (
+            <EmptyState
+              title="No data available"
+              description="Try adjusting your filters"
+              onReset={() => {
+                setRange('7d');
+                refetch();
+              }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {isLoading
+                ? Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
+                : data.map((kpi) => (
+                    <KpiCardModern
+                      key={kpi.title}
+                      title={kpi.title}
+                      value={kpi.value}
+                      trend={kpi.trend}
+                      delta={kpi.delta}
+                      icon={kpi.icon}
+                      href={
+                        kpi.href
+                          ? `${kpi.href}${kpi.href.includes('?') ? '&' : '?'}range=${range}`
+                          : undefined
+                      }
+                    />
+                  ))}
+            </div>
+          )}
+        </div>
       </Main>
     </>
   );
