@@ -84,8 +84,7 @@ export default function Login(){
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
-                className="absolute top-1/2 right-1 -translate-y-1/2"
+                className="absolute inset-y-0 right-0 flex items-center px-3 h-full"
                 onClick={()=>setShowPwd(s=>!s)}
                 tabIndex={3}
                 disabled={loading}
