@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import CreateTaskSheet from './tasks/CreateTaskSheet';
 import StatusManager from './StatusManager';
 import { logout } from '@/lib/api';
+import { useAuth } from '@/lib/use-auth';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -30,6 +31,7 @@ export default function Header({ onToggleSidebar, view, setView }: HeaderProps) 
   const [statusManagerOpen, setStatusManagerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 0);
@@ -72,16 +74,34 @@ export default function Header({ onToggleSidebar, view, setView }: HeaderProps) 
               <DropdownMenu>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <div
+                    <button
                       aria-label={t('labels.userMenu')}
-                      className="h-8 w-8 rounded-full bg-brand-muted flex items-center justify-center cursor-pointer"
+                      className="flex items-center gap-2 rounded-md px-1 py-1 hover:bg-brand-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                     >
-                      <Icon name="user" className="h-4 w-4" />
-                    </div>
+                      <div className="h-8 w-8 rounded-full bg-brand text-brand-fg flex items-center justify-center">
+                        <Icon name="user" className="h-4 w-4" />
+                      </div>
+                      {user && (
+                        <div className="hidden sm:flex flex-col items-start leading-tight">
+                          <span className="text-sm font-medium">{user.name}</span>
+                          <span className="text-xs text-brand-fg/70 capitalize">
+                            {user.role.toLowerCase()}
+                          </span>
+                        </div>
+                      )}
+                    </button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent>{t('labels.userMenu')}</TooltipContent>
                 <DropdownMenuContent align="end">
+                  {user && (
+                    <div className="px-2 py-1.5 text-sm border-b border-brand-muted mb-1">
+                      <div className="font-medium">{user.name}</div>
+                      <div className="text-xs text-brand-fg/70 capitalize">
+                        {user.role.toLowerCase()}
+                      </div>
+                    </div>
+                  )}
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault();
