@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -7,6 +7,7 @@ import { KpiCardModern, KpiSkeleton, EmptyState } from '../components/dashboard'
 import { Button } from '../components/ui/button';
 import { Icon } from '../lib/lucide-icon';
 import { getTaskSummary } from '../lib/api';
+import { getStatusLabels } from '../lib/status-store';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -44,6 +45,7 @@ export default function Dashboard() {
   });
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const { t } = useTranslation();
+  const statusLabels = useMemo(() => getStatusLabels(), []);
 
   const shouldReduceMotion = useReducedMotion();
   const Main = shouldReduceMotion ? 'main' : motion.main;
@@ -109,7 +111,10 @@ export default function Dashboard() {
                 : data.map((kpi) => (
                     <KpiCardModern
                       key={kpi.title}
-                      title={kpi.title}
+                      title={t(
+                        statusLabels[kpi.title] || `statuses.${kpi.title}`,
+                        { defaultValue: kpi.title }
+                      )}
                       value={kpi.value}
                       trend={kpi.trend}
                       delta={kpi.delta}

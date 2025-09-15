@@ -105,7 +105,8 @@
     "previous": "Anterior",
     "next": "Următor",
     "filters": "Filtre",
-    "clearFilters": "Șterge filtrele"
+    "clearFilters": "Șterge filtrele",
+    "manageStatuses": "Gestionează statusurile"
   },
   "placeholders": {
     "search": "Caută...",

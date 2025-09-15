@@ -105,7 +105,8 @@
     "previous": "Previous",
     "next": "Next",
     "filters": "Filters",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "manageStatuses": "Manage statuses"
   },
   "placeholders": {
     "search": "Search...",

@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { loadStatuses, addStatus, updateStatus, removeStatus } from '@/lib/status-store';
+import {
+  loadStatuses,
+  addStatus,
+  updateStatus,
+  removeStatus,
+  getStatusLabels,
+} from '@/lib/status-store';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   open: boolean;
@@ -14,6 +21,8 @@ export default function StatusManager({ open, onOpenChange }: Props) {
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [newValue, setNewValue] = useState('');
+  const { t } = useTranslation();
+  const labels = useMemo(() => getStatusLabels(), [statuses]);
 
   const reset = () => {
     setEditing(null);
@@ -42,14 +51,18 @@ export default function StatusManager({ open, onOpenChange }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogTitle>Manage statuses</DialogTitle>
+        <DialogTitle>
+          {t('buttons.manageStatuses', { defaultValue: 'Manage statuses' })}
+        </DialogTitle>
         <div className="space-y-2 mt-4">
           {statuses.map((s) => (
             <div key={s} className="flex items-center space-x-2">
               {editing === s ? (
                 <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} className="flex-1" />
               ) : (
-                <span className="flex-1 text-left">{s}</span>
+                <span className="flex-1 text-left">
+                  {t(labels[s] || `statuses.${s}`)}
+                </span>
               )}
               {editing === s ? (
                 <Button size="sm" onClick={() => handleSave(s)}>Save</Button>
