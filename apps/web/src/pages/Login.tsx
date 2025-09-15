@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { login } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Eye, EyeOff } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useToast } from '../components/ui/toaster';
 import { Skeleton } from '../components/ui/skeleton';
@@ -41,49 +43,69 @@ export default function Login(){
 
   const shouldReduceMotion = useReducedMotion();
   const form = (
-    <form className="w-full max-w-sm space-y-3" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
-      <h1 className="text-2xl font-semibold">{t('titles.signIn')}</h1>
-      <Input
-        placeholder={t('placeholders.emailExample')}
-        autoFocus
-        value={email}
-        onChange={e=>setEmail(e.target.value)}
-        onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
-        tabIndex={1}
-        disabled={loading}
-      />
-      {errors.email && <p className="text-sm text-danger">{errors.email}</p>}
-      <div className="relative">
-        <Input
-          className="pr-16"
-          placeholder={t('placeholders.passwordExample')}
-          type={showPwd ? 'text' : 'password'}
-          value={password}
-          onChange={e=>setPassword(e.target.value)}
-          onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
-          tabIndex={2}
-          disabled={loading}
-        />
-        <Button
-          type="button"
-          variant="link"
-          className="absolute top-1/2 -translate-y-1/2 right-2 h-auto p-0 text-sm"
-          onClick={()=>setShowPwd(s=>!s)}
-          tabIndex={3}
-          disabled={loading}
-        >
-          {t(showPwd ? 'buttons.hide' : 'buttons.show')}
-        </Button>
-      </div>
-      {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
-      <Button
-        type="submit"
-        className="flex items-center justify-center"
-        disabled={loading}
-        tabIndex={4}
-      >
-        {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
-      </Button>
+    <form className="w-full max-w-sm" onSubmit={e=>{e.preventDefault(); handleSubmit();}}>
+      <Card className="p-6 space-y-4">
+        <CardHeader className="p-0">
+          <CardTitle className="text-2xl">{t('titles.signIn')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 p-0">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              {t('labels.email')}
+            </label>
+            <Input
+              id="email"
+              placeholder={t('placeholders.emailExample')}
+              autoFocus
+              value={email}
+              onChange={e=>setEmail(e.target.value)}
+              onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
+              tabIndex={1}
+              disabled={loading}
+            />
+            {errors.email && <p className="text-sm text-danger">{errors.email}</p>}
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium">
+              {t('labels.password')}
+            </label>
+            <div className="relative">
+              <Input
+                id="password"
+                className="pr-10"
+                placeholder={t('placeholders.passwordExample')}
+                type={showPwd ? 'text' : 'password'}
+                value={password}
+                onChange={e=>setPassword(e.target.value)}
+                onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault(); handleSubmit();}}}
+                tabIndex={2}
+                disabled={loading}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute top-1/2 right-1 -translate-y-1/2"
+                onClick={()=>setShowPwd(s=>!s)}
+                tabIndex={3}
+                disabled={loading}
+              >
+                {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                <span className="sr-only">{t(showPwd ? 'buttons.hide' : 'buttons.show')}</span>
+              </Button>
+            </div>
+            {errors.password && <p className="text-sm text-danger">{errors.password}</p>}
+          </div>
+          <Button
+            type="submit"
+            className="w-full flex items-center justify-center"
+            disabled={loading}
+            tabIndex={4}
+          >
+            {loading ? <Skeleton className="h-4 w-20" /> : t('buttons.signIn')}
+          </Button>
+        </CardContent>
+      </Card>
     </form>
   );
 
