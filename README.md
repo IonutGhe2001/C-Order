@@ -129,9 +129,9 @@ Create `.env` files in `apps/api/` and `apps/web/` based on the environment requ
 
 API environment variables:
 ```env
-DATABASE_URL="postgresql://postgres:123456@localhost:5432/task"
-JWT_SECRET="your-jwt-secret"
-DS_JWT_SECRET="secret"
+DATABASE_URL="postgresql://postgres:your-secure-password@localhost:5432/task"
+JWT_SECRET="your-jwt-secret-key"
+DS_JWT_SECRET="your-onlyoffice-jwt-secret"
 DS_PUBLIC_URL="http://localhost:8082"
 API_PUBLIC_URL="http://localhost:3001"
 ```
